@@ -12,7 +12,7 @@ $ ./script
 Hi!
 ```
 
-However often we need dependencies, acheiving this is… tedious. But not anymore:
+However often we need dependencies, achieving this is… tedious. But not anymore:
 
 ```sh
 $ cat <<EOF > script

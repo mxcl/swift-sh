@@ -11,6 +11,6 @@ let package = Package(
     targets: [
         .target(name: "exe", dependencies: ["Shwifty"], path: ".", sources: ["main.swift"]),
 		.target(name: "Shwifty", path: "Sources"),
-        .testTarget(name: "ShwiftyTests"),
+        .testTarget(name: "ShwiftyTests", dependencies: ["Shwifty"]),
     ]
 )
