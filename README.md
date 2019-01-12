@@ -12,7 +12,7 @@ $ ./script
 Hi!
 ```
 
-However, often we need dependencies, this is… impossible. But not anymore:
+However often we need dependencies, acheiving this is… tedious. But not anymore:
 
 ```sh
 $ cat <<EOF > script
@@ -30,8 +30,8 @@ uses this information to fetch your dependencies.
 
 ---
 
-Let’s work through an example. If you had a *single* file called `foo.swift`
-that needed a dependency, [mxcl/PromiseKit](https://github.com/mxcl/PromiseKit):
+Let’s work through an example. If you had a *single file* called `foo.swift`
+that needed to import [mxcl/PromiseKit](https://github.com/mxcl/PromiseKit):
 
 ```swift
 #!/usr/bin/swift sh
@@ -65,7 +65,7 @@ $ chmod u+x foo.swift
 And then run it directly:
 
 ```
-./foo.swift
+$ ./foo.swift
 ```
 
 # Installation
@@ -74,7 +74,7 @@ And then run it directly:
 brew install mxcl/made/swift-sh
 ```
 
-You could also install with [Mint](https://github.com/yonaskolb/Mint):
+Or with [Mint](https://github.com/yonaskolb/Mint):
 
 ```
 mint install mxcl/swift-sh
@@ -96,8 +96,7 @@ can continue to make tools and software you need and love. I appreciate it x.
 
 # Usage
 
-The shebang is crucial, it must be `#!/usr/bin/swift sh` or
-`#!/usr/bin/env swift sh`.
+Add the *shebang* as the first line in your script: `#!/usr/bin/swift sh`.
 
 Your dependencies are determined via your `import` lines:
 
@@ -112,14 +111,15 @@ import Baz         // @bar == b4de8c
 dependency from GitHub.
 
 The above will fetch https://github.com/mxcl/PromiseKit, anything greater than
-version 6.5 but less than version 7.0. Then bar/Foo version precisely 6.5. Then
-bar/Baz, with a specific Git SHA.
+version 6.5 but less than version 7.0. Then https://github.com/bar/Foo version
+precisely 6.5. Then https://github.com/bar/Baz, with the specific Git SHA
+`b4de8c`.
 
 # Internal Details
 
-`swift sh` creates a Swift package that generates a single executable for your
-script in `~/Library/Caches/Shwifty`, the script is then executed via
-`swift run`.
+`swift sh` creates a Swift `Package.swift` configured to fetch your dependencies
+and build a single executable for your script in `~/Library/Caches/Shwifty`, the
+script is then executed via `swift run`.
 
 # Stuff We Would/Plan-to Implement
 
@@ -127,7 +127,7 @@ script in `~/Library/Caches/Shwifty`, the script is then executed via
 * Specifications for GitHub packages where the import name is not the same as the repository name
 * More types of version specifications
 * Removing SwiftPM output unless there are errors
-* Optimizing the cache
+* Optimizing the cache (creating a library structure more like `gem` or `pip` would)
 
 # Limitations
 
@@ -141,3 +141,17 @@ specified in the form that we already do. Or we could assume all imports that
 are not Apple imports to be dependencies for the generated `Package.swift`. Or
 we could manage the build ourselves which isn’t too hard and would be the
 solution that simplifies our system the most.
+
+If you have two scripts with the same name we will (currently) always need to 
+rebuild whenever you rotate between them. 
+
+# `error: unable to invoke subcommand: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-sh`
+
+If you got here via Google, you have a script that uses this tool, if you now
+install `swift-sh`, you will be run your script:
+
+```
+brew install mxcl/made/swift-sh
+```
+
+Or see the above installation instructions.
