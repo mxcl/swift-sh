@@ -145,7 +145,12 @@ solution that simplifies our system the most.
 If you have two scripts with the same name we will (currently) always need to 
 rebuild whenever you rotate between them. 
 
-# `error: unable to invoke subcommand: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-sh`
+# Alternatives
+
+* [Beak](https://github.com/yonaskolb/Beak)
+* [Marathon](https://github.com/JohnSundell/Marathon)
+
+### `error: unable to invoke subcommand: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-sh`
 
 If you got here via Google, you have a script that uses this tool, if you now
 install `swift-sh`, you will be run your script:
