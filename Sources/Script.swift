@@ -6,7 +6,15 @@ public class Script {
     let script: String
 
     var path: Path {
-        return Path.home/"Library/Caches/Shwifty"/name
+      #if os(macOS)
+        return Path.home/"Library/Developer/swift-sh.cache"/name
+      #else
+        if let path = ProcessInfo.processInfo.environment["XDG_CACHE_HOME"] {
+            return Path.root/path/"swift-sh"
+        } else {
+            return Path.home/".cache/swift-sh"
+        }
+      #endif
     }
 
     public init(name: String, contents: [String], dependencies: [(String, Constraint)]) {
