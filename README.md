@@ -161,6 +161,8 @@ rebuild whenever you rotate between them.
 * [Beak](https://github.com/yonaskolb/Beak)
 * [Marathon](https://github.com/JohnSundell/Marathon)
 
+---
+
 ### `error: unable to invoke subcommand: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-sh`
 
 If you got here via Google, you have a script that uses this tool, if you now

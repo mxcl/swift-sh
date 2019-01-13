@@ -5,7 +5,7 @@ import Shwifty
 // should we update packages? maybe in background when running scripts
 
 guard ProcessInfo.processInfo.arguments.count == 2 else {
-    fputs("Insufficient arguments", stderr)
+    fputs("usage: swift sh PATH\n", stderr)
     exit(1)
 }
 
@@ -13,7 +13,7 @@ let scriptPath = ProcessInfo.processInfo.arguments[1]
 let name = Path.root.join(scriptPath).basename(dropExtension: true)
 
 guard let reader = StreamReader(path: scriptPath) else {
-    fputs("Could not open \(scriptPath)", stderr)
+    fputs("error: could not open \(scriptPath)\n", stderr)
     exit(2)
 }
 
