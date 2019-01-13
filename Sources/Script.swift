@@ -100,13 +100,13 @@ private func packageLine(depName: String, constraint: Constraint) -> String {
                 """
         }
     }
-    let url: String
-    if URL(string: depName) != nil {
-        url = depName
+    let urlstr: String
+    if let url = URL(string: depName), url.scheme != nil {
+        urlstr = depName
     } else {
-        url = "https://github.com/\(depName).git"
+        urlstr = "https://github.com/\(depName).git"
     }
     return """
-        .package(url: "\(url)", \(requirement))
+        .package(url: "\(urlstr)", \(requirement))
         """
 }
