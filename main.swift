@@ -26,6 +26,8 @@ var deps = [(String, Constraint)]()
 // for that
 //TODO if we are inside a comment block, know that, and wait for
 // end of comment block.
+//TODO may need to parse `#if os()` etc. too, which may mean we
+// should just use SourceKitten and do a proper parse
 
 for (index, line) in reader.enumerated() {
     if index == 0, line.hasPrefix("#!") { continue }

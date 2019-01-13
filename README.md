@@ -12,7 +12,9 @@ $ ./script
 Hi!
 ```
 
-However often we need dependencies, achieving this is… tedious. But not anymore:
+Sadly, to use third-party dependencies we have to migrate our script to a swift
+package and use `swift build`, a relatively heavy solution when all we wanted
+was to whip up a quick script. `swift-sh` gives us the best of both worlds:
 
 ```sh
 $ cat <<EOF > script
@@ -31,7 +33,7 @@ uses this information to fetch your dependencies.
 ---
 
 Let’s work through an example: if you had a *single file* called `foo.swift`
-that needed to import [mxcl/PromiseKit](https://github.com/mxcl/PromiseKit):
+and you wanted to import [mxcl/PromiseKit](https://github.com/mxcl/PromiseKit):
 
 ```swift
 #!/usr/bin/swift sh
@@ -60,12 +62,13 @@ Or to make it more “scripty”, first make it executable:
 
 ```
 $ chmod u+x foo.swift
+$ mv foo.swift foo    # optional step!
 ```
 
 And then run it directly:
 
 ```
-$ ./foo.swift
+$ ./foo
 ```
 
 # Installation
@@ -119,7 +122,7 @@ The above will fetch:
 * https://github.com/bar/Foo version precisely 6.5.0
 * https://github.com/bar/Baz, with the specific Git SHA `b4de8c`
 * https://github.com/mxcl/Flub, master branch
-* https://example.com/bb.git, largest version between 9.0.0 and 10.0.0
+* https://example.com/bb.git, highest available version `9.0.0..<10.0.0`
 
 It is not necessary to add a comment specification for transitive dependencies.
 
@@ -162,6 +165,8 @@ rebuild whenever you rotate between them.
 * [Marathon](https://github.com/JohnSundell/Marathon)
 
 ---
+
+# Troubleshooting
 
 ### `error: unable to invoke subcommand: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-sh`
 
