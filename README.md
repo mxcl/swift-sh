@@ -129,8 +129,10 @@ It is not necessary to add a comment specification for transitive dependencies.
 # Internal Details
 
 `swift sh` creates a Swift `Package.swift` configured to fetch your dependencies
-and build a single executable for your script in `~/Library/Developer/swift-sh.cache`,
+and build a single executable for your script in `~/Library/Developer/swift-sh.cache`†,
 the script is then executed via `swift run`.
+
+† We use the FreeDesktop specified cache location on Linux.
 
 # TODO
 
