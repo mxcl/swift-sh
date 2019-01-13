@@ -30,7 +30,7 @@ uses this information to fetch your dependencies.
 
 ---
 
-Let’s work through an example. If you had a *single file* called `foo.swift`
+Let’s work through an example: if you had a *single file* called `foo.swift`
 that needed to import [mxcl/PromiseKit](https://github.com/mxcl/PromiseKit):
 
 ```swift
@@ -105,15 +105,23 @@ Your dependencies are determined via your `import` lines:
 import PromiseKit  // @mxcl ~> 6.5
 import Foo         // @bar == 6.5
 import Baz         // @bar == b4de8c
+import Floobles    // mxcl/Flub == master
+import BumbleButt  // https://example.com/bb.git ~> 9
 ```
 
-`swift-sh` reads the comments after your imports and fetches the relevant
-dependency from GitHub.
+`swift-sh` reads the comments after your imports and fetches the requested
+SwiftPM dependencies.
 
-The above will fetch https://github.com/mxcl/PromiseKit, anything greater than
-version 6.5 but less than version 7.0. Then https://github.com/bar/Foo version
-precisely 6.5. Then https://github.com/bar/Baz, with the specific Git SHA
-`b4de8c`.
+The above will fetch:
+
+* https://github.com/mxcl/PromiseKit, the highest available version that is
+    greater than or equal to 6.5.0 but less than 7.0.0
+* https://github.com/bar/Foo version precisely 6.5.0
+* https://github.com/bar/Baz, with the specific Git SHA `b4de8c`
+* https://github.com/mxcl/Flub, master branch
+* https://example.com/bb.git, largest version between 9.0.0 and 10.0.0
+
+It is not necessary to add a comment specification for transitive dependencies.
 
 # Internal Details
 
@@ -121,13 +129,16 @@ precisely 6.5. Then https://github.com/bar/Baz, with the specific Git SHA
 and build a single executable for your script in `~/Library/Caches/Shwifty`, the
 script is then executed via `swift run`.
 
-# Stuff We Would/Plan-to Implement
+# TODO
 
-* Full URLs for non GitHub packages
-* Specifications for GitHub packages where the import name is not the same as the repository name
+* Specifications for GitHub packages where the import name is not the same as
+    the repository name
 * More types of version specifications
 * Removing SwiftPM output unless there are errors
-* Optimizing the cache (creating a library structure more like `gem` or `pip` would)
+* Optimizing the cache (creating a library structure more like `gem` or `pip`
+    would)
+* Error out if the import specification is invalid, currently we silently ignore
+    such lines
 
 # Limitations
 
@@ -155,8 +166,6 @@ rebuild whenever you rotate between them.
 If you got here via Google, you have a script that uses this tool, if you now
 install `swift-sh`, you will be run your script:
 
-```
-brew install mxcl/made/swift-sh
-```
+    brew install mxcl/made/swift-sh
 
 Or see the above installation instructions.

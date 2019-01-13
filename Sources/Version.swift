@@ -1,4 +1,7 @@
 /*
+ This source file was modified by Max Howell from its original
+ form that was part of the Swift open source project.
+
  This source file is part of the Swift.org open source project
 
  Copyright (c) 2014 - 2017 Apple Inc. and the Swift project authors

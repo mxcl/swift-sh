@@ -14,31 +14,14 @@ public class Script {
         script = contents.joined(separator: "\n")
         deps = dependencies
     }
-
-    public func run() throws {
+	
+	var shouldWriteFiles: Bool {
+		return (try? String(contentsOf: path/"main.swift")) != script
+	}
+	
+	func write() throws {
         //TODO we only support Swift 4.2 basically
         //TODO dependency module names can be anything so we need to parse Package.swifts for all deps to get module lists
-
-        func foo(depName: String, constraint: Constraint) -> String {
-            var c: String {
-                switch constraint {
-                case .upToNextMajor(from: let v):
-                    return """
-                        .upToNextMajor(from: "\(v)")
-                        """
-                case .exact(let v):
-                    return ".exactItem(Version(\(v.major),\(v.minor),\(v.patch)))"
-                case .ref(let ref):
-                    return """
-                        .revision("\(ref)")
-                        """
-                }
-            }
-
-            return """
-                .package(url: "https://github.com/\(depName).git", \(c))
-                """
-        }
 
         var depNames: String {
             return deps.map {
@@ -60,7 +43,7 @@ public class Script {
                 .executable(name: "\(name)", targets: ["\(name)"])
             ]
             pkg.dependencies = [
-                \(deps.map(foo).joined(separator: ",\n    "))
+                \(deps.map(packageLine).joined(separator: ",\n    "))
             ]
             pkg.targets = [
                 .target(name: "\(name)", dependencies: [
@@ -70,13 +53,16 @@ public class Script {
 
             """.write(to: path/"Package.swift")
 
-		// don‘t write `main.swift` if would be identical
-		// ∵ prevents swift-build recognizing a null-build
-		// ie. prevents unecessary rebuild of our script
-        let main = path/"main.swift"
-        if (try? String(contentsOf: main)) != script {
-            try script.write(to: path/"main.swift")
-        }
+        try script.write(to: path/"main.swift")
+	}
+
+    public func run() throws {		
+		if shouldWriteFiles {
+	        // don‘t write `main.swift` if would be identical
+	        // ∵ prevents swift-build recognizing a null-build
+	        // ie. prevents unecessary rebuild of our script
+			try write()
+		}
 
         let task = Process()
         task.launchPath = "/usr/bin/swift"
@@ -89,4 +75,30 @@ public class Script {
         }
         task.waitUntilExit()
     }
+}
+
+private func packageLine(depName: String, constraint: Constraint) -> String {
+    var requirement: String {
+        switch constraint {
+        case .upToNextMajor(from: let v):
+            return """
+                .upToNextMajor(from: "\(v)")
+                """
+        case .exact(let v):
+            return ".exactItem(Version(\(v.major),\(v.minor),\(v.patch)))"
+        case .ref(let ref):
+            return """
+                .revision("\(ref)")
+                """
+        }
+    }
+    let url: String
+    if URL(string: depName) != nil {
+        url = depName
+    } else {
+        url = "https://github.com/\(depName).git"
+    }
+    return """
+        .package(url: "\(url)", \(requirement))
+        """
 }
