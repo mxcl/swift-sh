@@ -18,7 +18,7 @@ guard let reader = StreamReader(path: scriptPath) else {
 }
 
 var tee = [String]()
-var deps = [(String, Constraint)]()
+var deps = [ImportSpecification]()
 
 // We are not a thorough parser, and that would be inefficient.
 // Since any line starting with import that is not in a comment

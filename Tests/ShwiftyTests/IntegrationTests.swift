@@ -10,7 +10,7 @@ var shebang: String {
 }
 
 class IntegrationTests: XCTestCase {
-    func test() {
+    func testConventional() {
         XCTAssertEqual(".success(3)", exec: """
             #!\(shebang)
             import Foundation
@@ -19,12 +19,22 @@ class IntegrationTests: XCTestCase {
             print(Result<Int, CocoaError>.success(3))
             """)
     }
+
+    func testNamingMismatch() {
+        XCTAssertEqual("Promise(3)", exec: """
+            #!\(shebang)
+            import PMKFoundation  // PromiseKit/Foundation ~> 3
+            import PromiseKit
+
+            print(Promise.value(3))
+            """)
+    }
 }
 
 func XCTAssertEqual(_ out: String, exec: String, line: UInt = #line) {
     do {
         try Path.mktemp { tmpdir -> Void in
-            let file = tmpdir.join("foo.swift")
+            let file = tmpdir.join("foo\(line).swift")
             try exec.write(to: file)
             try file.chmod(0o0500)
 
