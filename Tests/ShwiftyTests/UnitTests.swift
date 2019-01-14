@@ -1,7 +1,7 @@
 @testable import Shwifty
 import XCTest
 
-class Tests: XCTestCase {
+class UnitTests: XCTestCase {
     func testWigglyArrow() {
         let a = parse("import Foo // @mxcl ~> 1.0")
         XCTAssertEqual(a?.0, "mxcl/Foo")

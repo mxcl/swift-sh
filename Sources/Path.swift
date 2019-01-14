@@ -341,6 +341,11 @@ public extension Bundle {
     public var resources: Path {
         return Path.root/resourcePath!
     }
+
+    @inlinable
+    public var path: Path {
+        return Path.root/bundlePath
+    }
 }
 
 public extension CommandLine {
