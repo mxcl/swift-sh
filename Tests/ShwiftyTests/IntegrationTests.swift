@@ -32,6 +32,26 @@ class IntegrationTests: XCTestCase {
             print(Promise.value(3))
             """)
     }
+
+    func testTestableImport() {
+        XCTAssertEqual(".success(4)", exec: """
+            #!\(shebang)
+            import Foundation
+            @testable import Result  // @antitypical ~> 4.1
+
+            print(Result<Int, CocoaError>.success(4))
+            """)
+    }
+
+    func testTestableFullySpecifiedURL() {
+        XCTAssertEqual(".success(5)", exec: """
+            #!\(shebang)
+            import Foundation
+            @testable import Result  // https://github.com/antitypical/Result ~> 4.1
+
+            print(Result<Int, CocoaError>.success(5))
+            """)
+    }
 }
 
 func XCTAssertEqual(_ expected: String, exec: String, line: UInt = #line) {
