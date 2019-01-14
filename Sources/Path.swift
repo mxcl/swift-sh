@@ -1,4 +1,7 @@
 import Foundation
+#if os(Linux)
+import GlibC
+#endif
 
 public struct Path: Equatable, Hashable, Comparable {
     public let string: String
@@ -119,7 +122,16 @@ public struct Path: Equatable, Hashable, Comparable {
     }
 
     public static func mktemp<T>(body: (Path) throws -> T) throws -> T {
+      #if !os(Linux)
         let url = try FileManager.default.url(for: .itemReplacementDirectory, in: .userDomainMask, appropriateFor: URL(fileURLWithPath: "/"), create: true)
+      #else
+        let env = getenv("TMPDIR") ?? getenv("TEMP") ?? getenv("TMP") ?? "/tmp"
+        let dir = Path.root/env/"swift-sh.XXXXXX"
+        var template = [UInt8](dir.string.utf8).map({ Int8($0) }) + [Int8(0)]
+        guard mkdtemp(&template) != nil else { throw CocoaError.error(.featureUnsupported) }
+        let url = URL(fileURLWithPath: String(cString: template))
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+      #endif
         defer { _ = try? FileManager.default.removeItem(at: url) }
         return try body(Path(string: url.path))
     }
