@@ -6,15 +6,17 @@ public class Script {
     let script: String
 
     var path: Path {
+        let root: Path
       #if os(macOS)
-        return Path.home/"Library/Developer/swift-sh.cache"/name
+        root = Path.home/"Library/Developer/swift-sh.cache"
       #else
         if let path = ProcessInfo.processInfo.environment["XDG_CACHE_HOME"] {
-            return Path.root/path/"swift-sh"
+            root = Path.root/path/"swift-sh"
         } else {
-            return Path.home/".cache/swift-sh"
+            root = Path.home/".cache/swift-sh"
         }
       #endif
+        return root/name
     }
 
     public init(name: String, contents: [String], dependencies: [ImportSpecification]) {
