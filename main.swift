@@ -28,13 +28,15 @@ var deps = [ImportSpecification]()
 // end of comment block.
 //TODO may need to parse `#if os()` etc. too, which may mean we
 // should just use SourceKitten and do a proper parse
+//TODO well also could have an import structure where is split
+// over multiple lines with semicolons. So maybe parser?
 
 for (index, line) in reader.enumerated() {
     if index == 0, line.hasPrefix("#!") { continue }
 
     let trimmed = line.trimmingCharacters(in: .whitespaces)
 
-    if trimmed.hasPrefix("import"), let parse = Shwifty.parse(trimmed) {
+    if trimmed.hasPrefix("import") || trimmed.hasPrefix("@testable"), let parse = Shwifty.parse(trimmed) {
         deps.append(parse)
     }
 

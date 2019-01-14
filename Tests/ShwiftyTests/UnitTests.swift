@@ -6,36 +6,42 @@ class UnitTests: XCTestCase {
         let a = parse("import Foo // @mxcl ~> 1.0")
         XCTAssertEqual(a?.dependencyName, "mxcl/Foo")
         XCTAssertEqual(a?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(a?.importName, "Foo")
     }
 
     func testExact() {
         let a = parse("import Foo // @mxcl == 1.0")
         XCTAssertEqual(a?.dependencyName, "mxcl/Foo")
         XCTAssertEqual(a?.constraint, .exact(.one))
+        XCTAssertEqual(a?.importName, "Foo")
     }
 
     func testMoreSpaces() {
         let b = parse("import    Foo       //     @mxcl    ~>      1.0")
         XCTAssertEqual(b?.dependencyName, "mxcl/Foo")
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(b?.importName, "Foo")
     }
 
     func testMinimalSpaces() {
         let b = parse("import Foo//@mxcl~>1.0")
         XCTAssertEqual(b?.dependencyName, "mxcl/Foo")
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(b?.importName, "Foo")
     }
 
     func testCanOverrideImportName() {
         let b = parse("import Foo  // mxcl/Bar ~> 1.0")
         XCTAssertEqual(b?.dependencyName, "mxcl/Bar")
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(b?.importName, "Foo")
     }
 
     func testCanProvideFullURL() {
         let b = parse("import Foo  // https://example.com/mxcl/Bar.git ~> 1.0")
         XCTAssertEqual(b?.dependencyName, "https://example.com/mxcl/Bar.git")
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(b?.importName, "Foo")
     }
 
     func testCanDoSpecifiedImports() {
@@ -55,6 +61,13 @@ class UnitTests: XCTestCase {
             XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
             XCTAssertEqual(b?.importName, "Foo")
         }
+    }
+
+    func testCanUseTestable() {
+        let b = parse("@testable import Foo  // @bar ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, "bar/Foo")
+        XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(b?.importName, "Foo")
     }
 }
 
