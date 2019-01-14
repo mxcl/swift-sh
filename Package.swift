@@ -15,5 +15,5 @@ let package = Package(
 )
 
 #if !os(Linux)
-package.append(.testTarget(name: "ShwiftyTests", dependencies: ["Shwifty", "exe"]))
+package.targets.append(.testTarget(name: "ShwiftyTests", dependencies: ["Shwifty", "exe"]))
 #endif
