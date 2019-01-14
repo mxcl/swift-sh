@@ -4,10 +4,10 @@ jobs:
       language: swift
       osx_image: xcode10.1
       script: swift test
-    - env: SWIFT_BUILD_VERSION=4 SWIFT_VERSION=4.2.1
+    - env: SWIFT_VERSION=4.2.1
       os: linux
       dist: trusty
       sudo: required
       language: generic
       install: eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"
-      script: swift build -Xswiftc -swift-version -Xswiftc $SWIFT_BUILD_VERSION
+      script: swift build

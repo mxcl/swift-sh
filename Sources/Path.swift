@@ -315,7 +315,11 @@ public extension Data {
     func write(to: Path, atomically: Bool = false) throws -> Path {
         let opts: NSData.WritingOptions
         if atomically {
+		  #if os(Linux)
+            opts = .atomic
+		  #else
             opts = .atomicWrite
+		  #endif
         } else {
             opts = []
         }
