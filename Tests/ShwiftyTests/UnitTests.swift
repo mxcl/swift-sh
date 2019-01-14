@@ -89,18 +89,3 @@ extension Version {
         return Version(1,0,0)
     }
 }
-
-#if os(Linux)
-extension UnitTests {
-    static var allTests: [(String, (UnitTests) -> () throws -> Void)] {
-        return [
-            ("testWigglyArrow", testWigglyArrow),
-            ("testExact", testExact),
-            ("testMoreSpaces", testMoreSpaces),
-            ("testMinimalSpaces", testMinimalSpaces),
-            ("testCanOverrideImportName", testCanOverrideImportName),
-            ("testCanProvideFullURL", testCanProvideFullURL)
-        ]
-    }
-}
-#endif

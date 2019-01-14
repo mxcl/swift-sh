@@ -1,8 +1,8 @@
 import XCTest
 
-@testable import ShwiftyTests
+import ShwiftyTests
 
-XCTMain([
-    testCase(IntegrationTests.allTests),
-    testCase(UnitTests.allTests)
-])
+var tests = [XCTestCaseEntry]()
+tests += ShwiftyTests.__allTests()
+
+XCTMain(tests)
