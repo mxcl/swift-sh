@@ -45,6 +45,7 @@ func XCTAssertEqual(_ out: String, exec: String, line: UInt = #line) {
             let task = Process()
             task.launchPath = file.string
             task.standardOutput = pipe
+            print("LAUNCH")
             task.launch()
             task.waitUntilExit()
 
@@ -57,6 +58,7 @@ func XCTAssertEqual(_ out: String, exec: String, line: UInt = #line) {
             }
 
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            print("Bar", data.count)
             XCTAssertEqual(String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines), out, line: line)
         }
     } catch {

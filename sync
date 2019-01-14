@@ -1,0 +1,4 @@
+rsync --archive --human-readable --compress --verbose --delete \
+          --exclude .build --exclude Carthage \
+          . canopy:swift-sh
+ssh ubuntu@canopy.codebasesaga.com -i $HOME/.ssh/znc.pem "cd swift-sh && ../swift/usr/bin/swift test"
