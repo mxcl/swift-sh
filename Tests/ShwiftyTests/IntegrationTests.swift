@@ -6,7 +6,7 @@ var shebang: String {
     return Bundle(for: IntegrationTests.self).path.parent.join("exe").string
 #elseif os(Linux)
     // Bundle(for:) is unimplemented
-    return Path.root.join(#file).parent.parent.parent/".build/debug/swift-sh"
+    return Path.root.join(#file).parent.parent.parent.join(".build/debug/swift-sh").string
 #else
     return Bundle(for: IntegrationTests.self).path.parent.join("swift-sh").string
 #endif
