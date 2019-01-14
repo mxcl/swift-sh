@@ -4,6 +4,9 @@ import XCTest
 var shebang: String {
 #if Xcode
     return Bundle(for: IntegrationTests.self).path.parent.join("exe").string
+#elseif os(Linux)
+    // Bundle(for:) is unimplemented
+    return Path.root.join(#file).parent.parent.parent/".build/debug/swift-sh"
 #else
     return Bundle(for: IntegrationTests.self).path.parent.join("swift-sh").string
 #endif
