@@ -139,8 +139,6 @@ the script is then executed via `swift run`.
 
 # TODO
 
-* Specifications for GitHub packages where the import name is not the same as
-    the repository name
 * More types of version specifications
 * Removing SwiftPM output unless there are errors
 * Optimizing the cache (creating a library structure more like `gem` or `pip`
