@@ -37,6 +37,25 @@ class UnitTests: XCTestCase {
         XCTAssertEqual(b?.dependencyName, "https://example.com/mxcl/Bar.git")
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
     }
+
+    func testCanDoSpecifiedImports() {
+        let kinds = [
+            "struct",
+             "class",
+             "enum",
+             "protocol",
+             "typealias",
+             "func",
+             "let",
+             "var"
+        ]
+        for kind in kinds {
+            let b = parse("import \(kind) Foo.bar  // https://example.com/mxcl/Bar.git ~> 1.0")
+            XCTAssertEqual(b?.dependencyName, "https://example.com/mxcl/Bar.git")
+            XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
+            XCTAssertEqual(b?.importName, "Foo")
+        }
+    }
 }
 
 extension Constraint: Equatable {
