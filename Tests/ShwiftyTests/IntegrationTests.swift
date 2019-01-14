@@ -60,3 +60,14 @@ func XCTAssertEqual(_ out: String, exec: String, line: UInt = #line) {
         XCTFail("\(error)", line: line)
     }
 }
+
+#if os(Linux)
+extension IntegrationTests {
+    static var allTests: [(String, (IntegrationTests) -> () throws -> Void)] {
+        return [
+            ("testConventional", testConventional),
+            ("testNamingMismatch", testNamingMismatch)
+        ]
+    }
+}
+#endif
