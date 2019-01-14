@@ -6,15 +6,17 @@ public class Script {
     let script: String
 
     var path: Path {
+        let root: Path
       #if os(macOS)
-        return Path.home/"Library/Developer/swift-sh.cache"/name
+        root = Path.home/"Library/Developer/swift-sh.cache"
       #else
         if let path = ProcessInfo.processInfo.environment["XDG_CACHE_HOME"] {
-            return Path.root/path/"swift-sh"
+            root = Path.root/path/"swift-sh"
         } else {
-            return Path.home/".cache/swift-sh"
+            root = Path.home/".cache/swift-sh"
         }
       #endif
+        return root/name
     }
 
     public init(name: String, contents: [String], dependencies: [ImportSpecification]) {
@@ -70,12 +72,7 @@ public class Script {
             try write()
         }
 
-        let task = Process()
-        task.launchPath = "/usr/bin/swift"
-        task.arguments = ["run"]
-        task.currentDirectoryPath = path.string
-        try task.go()
-        task.waitUntilExit()
+        try Process.system(swiftPath, "run", cwd: path)
     }
 }
 
@@ -107,17 +104,40 @@ private extension ImportSpecification {
     }
 }
 
-private extension Process {
-    func go() throws {
-      #if os(Linux)
-        // I don’t get why `run` is not available, the GitHub sources have it
-        launch()
-      #else
-        if #available(OSX 10.13, *) {
-            try run()
-        } else {
-            launch()
+#if SWIFT_PACKAGE && DEBUG && !Xcode
+private var swiftPath: String {
+    var get: Path? {
+        let yaml = Path.root.join(#file).parent.parent.join(".build/debug.yaml")
+        guard let reader = StreamReader(path: yaml.string) else { return nil }
+        for line in reader {
+            guard let line = line.chuzzled() else { continue }
+            if line.hasPrefix("executable:"), line.hasSuffix("swiftc\"") {
+                let parts = line.split(separator: ":")
+                guard parts.count == 2 else { continue }
+                return Path.root.join(parts[1].trimmingCharacters(in: .init(charactersIn: " \n\""))).parent.join("swift")
+            }
         }
-      #endif
+        return nil
+    }
+
+    return get?.string ?? "/usr/bin/swift"
+}
+#elseif os(Linux)
+private var swiftPath: String {
+    let task = Process()
+    task.launchPath = "/usr/bin/which"
+    task.arguments = ["swift"]
+    return (try? task.runSync())?.stdout.string?.chuzzled() ?? "/usr/bin/swift"
+}
+#else
+//TODO find actual first swift in PATH like on Linux, but do a better implementation than the above
+private let swiftPath = "/usr/bin/swift"
+#endif
+
+
+extension String {
+    func chuzzled() -> String? {
+        let s = trimmingCharacters(in: .whitespacesAndNewlines)
+        return s.isEmpty ? nil : s
     }
 }

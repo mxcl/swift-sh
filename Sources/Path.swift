@@ -1,4 +1,7 @@
 import Foundation
+#if os(Linux)
+import Glibc
+#endif
 
 public struct Path: Equatable, Hashable, Comparable {
     public let string: String
@@ -34,6 +37,10 @@ public struct Path: Equatable, Hashable, Comparable {
     public var isFile: Bool {
         var isDir: ObjCBool = true
         return FileManager.default.fileExists(atPath: string, isDirectory: &isDir) && !isDir.boolValue
+    }
+
+    public var isExecutable: Bool {
+        return FileManager.default.isExecutableFile(atPath: string)
     }
 
     public var exists: Bool {
@@ -119,7 +126,16 @@ public struct Path: Equatable, Hashable, Comparable {
     }
 
     public static func mktemp<T>(body: (Path) throws -> T) throws -> T {
+      #if !os(Linux)
         let url = try FileManager.default.url(for: .itemReplacementDirectory, in: .userDomainMask, appropriateFor: URL(fileURLWithPath: "/"), create: true)
+      #else
+        let envs = ProcessInfo.processInfo.environment
+        let env = envs["TMPDIR"] ?? envs["TEMP"] ?? envs["TMP"] ?? "/tmp"
+        let dir = Path.root/env/"swift-sh.XXXXXX"
+        var template = [UInt8](dir.string.utf8).map({ Int8($0) }) + [Int8(0)]
+        guard mkdtemp(&template) != nil else { throw CocoaError.error(.featureUnsupported) }
+        let url = URL(fileURLWithPath: String(cString: template))
+      #endif
         defer { _ = try? FileManager.default.removeItem(at: url) }
         return try body(Path(string: url.path))
     }
