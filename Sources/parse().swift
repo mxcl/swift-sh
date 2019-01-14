@@ -19,7 +19,7 @@ public func parse(_ line: String) -> ImportSpecification? {
     guard let match = rx.firstMatch(in: line, range: line.nsRange) else { return nil }
     guard match.numberOfRanges == 5 else { return nil }
 
-    let importName = line.substring(with: match.range(at: 1))!
+    let importName = extractImport(line: line.substring(with: match.range(at: 1))!)
     let depSpec = line.substring(with: match.range(at: 2))!
     let constrainer = line.substring(with: match.range(at: 3))!
     let requirement = line.substring(with: match.range(at: 4))!
@@ -43,4 +43,16 @@ public func parse(_ line: String) -> ImportSpecification? {
     }
 
     return ImportSpecification(importName: importName, dependencyName: depName, constraint: constraint)
+}
+
+private func extractImport(line: String) -> String {
+    //TODO throw if syntax is weird
+
+    let parts = line.split(separator: " ", maxSplits: 2, omittingEmptySubsequences: true)
+
+    if parts.count == 1 {
+        return line
+    }
+
+    return parts[1].split(separator: ".").first.map(String.init) ?? line
 }
