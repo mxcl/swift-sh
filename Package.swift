@@ -10,10 +10,8 @@ let package = Package(
     ],
     targets: [
         .target(name: "exe", dependencies: ["Shwifty"], path: ".", sources: ["main.swift"]),
-		.target(name: "Shwifty", path: "Sources"),		
+		.target(name: "Shwifty", path: "Sources"),
+
+        .testTarget(name: "ShwiftyTests", dependencies: ["Shwifty", "exe"])
     ]
 )
-
-#if !os(Linux)
-package.targets.append(.testTarget(name: "ShwiftyTests", dependencies: ["Shwifty", "exe"]))
-#endif

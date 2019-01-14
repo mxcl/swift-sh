@@ -60,7 +60,7 @@ extension Version {
 
 #if os(Linux)
 extension UnitTests {
-    static var allTests: [(String, (IntegrationTests) -> () throws -> Void)] {
+    static var allTests: [(String, (UnitTests) -> () throws -> Void)] {
         return [
             ("testWigglyArrow", testWigglyArrow),
             ("testExact", testExact),
