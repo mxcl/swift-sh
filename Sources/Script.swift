@@ -135,7 +135,7 @@ private let swiftPath = "/usr/bin/swift"
 #endif
 
 
-private extension String {
+extension String {
     func chuzzled() -> String? {
         let s = trimmingCharacters(in: .whitespacesAndNewlines)
         return s.isEmpty ? nil : s
