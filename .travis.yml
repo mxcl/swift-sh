@@ -1,4 +1,13 @@
-os: osx
-language: objective-c
-osx_image: xcode10.1
-script: swift test
+jobs:
+  include:
+    - os: osx
+      language: swift
+      osx_image: xcode10.1
+      script: swift test
+    - env: SWIFT_BUILD_VERSION=3 SWIFT_VERSION=4.0.3
+      os: linux
+      dist: trusty
+      sudo: required
+      language: generic
+      install: eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"
+      script: swift build -Xswiftc -swift-version -Xswiftc $SWIFT_BUILD_VERSION
