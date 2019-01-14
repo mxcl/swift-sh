@@ -173,7 +173,7 @@ rebuild whenever you rotate between them.
 ### `error: unable to invoke subcommand: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-sh`
 
 If you got here via Google, you have a script that uses this tool, if you now
-install `swift-sh`, you will be run your script:
+install `swift-sh`, you will be able to run your script:
 
     brew install mxcl/made/swift-sh
 
