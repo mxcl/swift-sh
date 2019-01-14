@@ -22,12 +22,12 @@ public class Script {
         script = contents.joined(separator: "\n")
         deps = dependencies
     }
-	
-	var shouldWriteFiles: Bool {
-		return (try? String(contentsOf: path/"main.swift")) != script
-	}
-	
-	func write() throws {
+    
+    var shouldWriteFiles: Bool {
+        return (try? String(contentsOf: path/"main.swift")) != script
+    }
+    
+    func write() throws {
         //TODO we only support Swift 4.2 basically
         //TODO dependency module names can be anything so we need to parse Package.swifts for all deps to get module lists
 
@@ -60,25 +60,21 @@ public class Script {
             """.write(to: path/"Package.swift")
 
         try script.write(to: path/"main.swift")
-	}
+    }
 
-    public func run() throws {		
-		if shouldWriteFiles {
-	        // don‘t write `main.swift` if would be identical
-	        // ∵ prevents swift-build recognizing a null-build
-	        // ie. prevents unecessary rebuild of our script
-			try write()
-		}
+    public func run() throws {      
+        if shouldWriteFiles {
+            // don‘t write `main.swift` if would be identical
+            // ∵ prevents swift-build recognizing a null-build
+            // ie. prevents unecessary rebuild of our script
+            try write()
+        }
 
         let task = Process()
         task.launchPath = "/usr/bin/swift"
         task.arguments = ["run"]
         task.currentDirectoryPath = path.string
-        if #available(OSX 10.13, *) {
-            try task.run()
-        } else {
-            task.launch()
-        }
+        try task.go()
         task.waitUntilExit()
     }
 }
@@ -108,5 +104,20 @@ private extension ImportSpecification {
         return """
             .package(url: "\(urlstr)", \(requirement))
             """
+    }
+}
+
+private extension Process {
+    func go() throws {
+      #if os(Linux)
+        // I don’t get why `run` is not available, the GitHub sources have it
+        launch()
+      #else
+        if #available(OSX 10.13, *) {
+            try run()
+        } else {
+            launch()
+        }
+      #endif
     }
 }
