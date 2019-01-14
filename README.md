@@ -24,7 +24,7 @@ print(Promise.value("Hi!"))
 EOF
 $ chmod u+x script
 $ ./script
-Promise(value: "Hi!")
+Promise("Hi!")
 ```
 
 In case it’s not clear, `swift-sh` reads the comment after the `import` and
@@ -41,8 +41,6 @@ and you wanted to import [mxcl/PromiseKit](https://github.com/mxcl/PromiseKit):
 import PromiseKit  // @mxcl ~> 6.5
 
 firstly {
-    URLSession.shared.dataTask(.promise, with: url)
-}.then {
     after(.seconds(2))
 }.done {
     print("Scripts with package dependencies!")
