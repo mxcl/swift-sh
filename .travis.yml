@@ -4,7 +4,7 @@ jobs:
       language: swift
       osx_image: xcode10.1
       script: swift test
-    - env: SWIFT_BUILD_VERSION=3 SWIFT_VERSION=4.0.3
+    - env: SWIFT_BUILD_VERSION=4 SWIFT_VERSION=4.2.1
       os: linux
       dist: trusty
       sudo: required
