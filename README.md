@@ -1,4 +1,4 @@
-# `swift sh`
+# `swift sh` ![badge-platforms] ![badge-languages]
 
 Writing Swift scripts is *easy*:
 
@@ -86,6 +86,9 @@ Or you can build manually using `swift build`.
 Installation results in a single executable called `swift-sh`, the `swift`
 executable will call this (provided it is in your `PATH`) when you type:
 `swift sh`.
+
+We actively support both Linux and Mac and will support Windows as soon as it is
+possible to do so.
 
 # Support mxcl
 
@@ -176,3 +179,6 @@ install `swift-sh`, you will be able to run your script:
     brew install mxcl/made/swift-sh
 
 Or see the above installation instructions.
+
+[badge-languages]: https://img.shields.io/badge/languages-Swift%204.2-orange.svg
+[badge-platforms]: https://img.shields.io/badge/platforms-macOS%20%7C%20Linux-lightgrey.svg
