@@ -98,7 +98,9 @@ Hi, I’m Max Howell and I have written a lot of open source software, and
 probably you already use some of it (Homebrew anyone?). Please help me so I
 can continue to make tools and software you need and love. I appreciate it x.
 
-[Donate to my Patreon](https://patreon.com/mxcl).
+<a href="https://www.patreon.com/mxcl">
+	<img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
+</a>
 
 # Usage
 
