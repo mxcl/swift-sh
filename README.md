@@ -132,6 +132,11 @@ The above will fetch:
 
 It is not necessary to add a comment specification for transitive dependencies.
 
+# Examples
+
+* [Tweet deleter](https://gist.github.com/mxcl/002c3514d50b73287c89268c45662394)
+* [PostgreSQL Check](https://gist.github.com/joscdk/c4b89add26509c6dfabf84974e62543d)
+
 # Internal Details
 
 `swift sh` creates a Swift `Package.swift` configured to fetch your dependencies
