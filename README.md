@@ -38,6 +38,7 @@ and you wanted to import [mxcl/PromiseKit](https://github.com/mxcl/PromiseKit):
 ```swift
 #!/usr/bin/swift sh
 
+import Foundation
 import PromiseKit  // @mxcl ~> 6.5
 
 firstly {
