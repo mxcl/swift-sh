@@ -124,7 +124,7 @@ func XCTAssertRuns(exec: String, line: UInt = #line) {
 func XCTAssertEqual(_ expected: String, exec: String, line: UInt = #line) {
     do {
         try Path.mktemp { tmpdir -> Void in
-            let file = tmpdir.join("foo\(line).swift")
+            let file = tmpdir.join("dev.mxcl.swift-sh-tests-\(line).swift")
             try exec.write(to: file)
             try file.chmod(0o0500)
             
