@@ -15,7 +15,6 @@ var shebang: String {
 class IntegrationTests: XCTestCase {
     func testConventional() {
         XCTAssertEqual(".success(3)", exec: """
-            #!\(shebang)
             import Foundation
             import Result  // @antitypical ~> 4.1
 
@@ -25,7 +24,6 @@ class IntegrationTests: XCTestCase {
 
     func testNamingMismatch() {
         XCTAssertEqual("Promise(3)", exec: """
-            #!\(shebang)
             import PMKFoundation  // PromiseKit/Foundation ~> 3
             import PromiseKit
 
@@ -35,7 +33,6 @@ class IntegrationTests: XCTestCase {
 
     func testTestableImport() {
         XCTAssertEqual(".success(4)", exec: """
-            #!\(shebang)
             import Foundation
             @testable import Result  // @antitypical ~> 4.1
 
@@ -45,7 +42,6 @@ class IntegrationTests: XCTestCase {
 
     func testTestableFullySpecifiedURL() {
         XCTAssertEqual(".success(5)", exec: """
-            #!\(shebang)
             import Foundation
             @testable import Result  // https://github.com/antitypical/Result ~> 4.1
 
@@ -53,9 +49,29 @@ class IntegrationTests: XCTestCase {
             """)
     }
 
+    func testStdinWorks() throws {
+        let stdin = Pipe()
+        let stdout = Pipe()
+        let task = Process()
+        task.standardInput = stdin
+        task.standardOutput = stdout
+
+        let hello = "Hello\n".data(using: .utf8)!
+
+        try write(script: "print(readLine()!)") { file in
+            task.launchPath = file.string
+            try task.go()
+            stdin.fileHandleForWriting.write(hello)
+            task.waitUntilExit()
+
+            let got = stdout.fileHandleForReading.readDataToEndOfFile()
+
+            XCTAssertEqual(got, hello)
+        }
+    }
+
     func testNSHipsterExample() {
         XCTAssertRuns(exec: """
-            #!\(shebang)
             import DeckOfPlayingCards  // @NSHipster ~> 4.0.0
             import PlayingCard
             import Cycle  // @NSHipster == bb11e28
@@ -108,12 +124,18 @@ class IntegrationTests: XCTestCase {
     }
 }
 
+func write(script: String, line: UInt = #line, body: (Path) throws -> Void) throws {
+    try Path.mktemp { tmpdir -> Void in
+        let file = tmpdir.join("dev.mxcl.swift-sh-tests-\(line).swift")
+        try "#!\(shebang)\n\(script)".write(to: file)
+        try file.chmod(0o0500)
+        try body(file)
+    }
+}
+
 func XCTAssertRuns(exec: String, line: UInt = #line) {
     do {
-        try Path.mktemp { tmpdir -> Void in
-            let file = tmpdir.join("foo\(line).swift")
-            try exec.write(to: file)
-            try file.chmod(0o0500)
+        try write(script: exec) { file in
             try Process.system(file.string)
         }
     } catch {
@@ -123,11 +145,7 @@ func XCTAssertRuns(exec: String, line: UInt = #line) {
 
 func XCTAssertEqual(_ expected: String, exec: String, line: UInt = #line) {
     do {
-        try Path.mktemp { tmpdir -> Void in
-            let file = tmpdir.join("dev.mxcl.swift-sh-tests-\(line).swift")
-            try exec.write(to: file)
-            try file.chmod(0o0500)
-            
+        try write(script: exec) { file in
             let task = Process()
             task.launchPath = file.string
             let stdout = try task.runSync().stdout.string?.chuzzled()

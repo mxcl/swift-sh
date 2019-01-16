@@ -24,7 +24,7 @@ public extension Process {
             guard var str = String(data: self.data, encoding: .utf8) else { return nil }
             str = str.trimmingCharacters(in: .whitespacesAndNewlines)
             return str.isEmpty ? nil : str
-            }()
+        }()
 
         fileprivate init(_ data: Data) {
             self.data = data
