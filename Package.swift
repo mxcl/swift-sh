@@ -3,14 +3,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "Shwifty",
+    name: "swift-sh",
     products: [
-        .executable(name: "swift-sh", targets: ["exe"]),
-		.library(name: "Shwifty", targets: ["Shwifty"])
+        .executable(name: "swift-sh", targets: ["Executable"]),
+		.library(name: "Library", targets: ["Library"]),
+        .library(name: "Command", targets: ["Command"]),
     ],
     targets: [
-        .target(name: "exe", dependencies: ["Shwifty"], path: ".", sources: ["main.swift"]),
-		.target(name: "Shwifty", path: "Sources"),
-        .testTarget(name: "ShwiftyTests", dependencies: ["Shwifty", "exe"])
+        .target(name: "Executable", dependencies: ["Library", "Command"], path: "Sources", sources: ["main.swift"]),
+		.target(name: "Library", path: "Sources/Library"),
+        .target(name: "Command", dependencies: ["Library"], path: "Sources/Command"),
+        .testTarget(name: "ShwiftyTests", dependencies: ["Executable"]),
     ]
 )

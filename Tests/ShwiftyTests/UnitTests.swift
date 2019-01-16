@@ -1,4 +1,4 @@
-@testable import Shwifty
+@testable import Library
 import XCTest
 
 class UnitTests: XCTestCase {

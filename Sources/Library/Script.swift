@@ -6,17 +6,7 @@ public class Script {
     let script: String
 
     var path: Path {
-        let root: Path
-      #if os(macOS)
-        root = Path.home/"Library/Developer/swift-sh.cache"
-      #else
-        if let path = ProcessInfo.processInfo.environment["XDG_CACHE_HOME"] {
-            root = Path.root/path/"swift-sh"
-        } else {
-            root = Path.home/".cache/swift-sh"
-        }
-      #endif
-        return root/name
+        return Path.selfCache/name
     }
 
     public init(name: String, contents: [String], dependencies: [ImportSpecification]) {
@@ -77,7 +67,7 @@ public class Script {
         }
 
         // first arg has to be same as
-        let swiftPath = Shwifty.swiftPath
+        let swiftPath = Library.swiftPath
         let cArgs = CStringArray([swiftPath, "run"])
         guard execv(swiftPath, cArgs.cArray) != -1 else {
             throw Error.swiftRun(cError: errno)
@@ -85,9 +75,18 @@ public class Script {
         fatalError("Impossible if execv succeeded")
     }
 
-    public enum Error: Swift.Error {
+    public enum Error: LocalizedError {
         case directoryChangeFailed(Path)
         case swiftRun(cError: Int32)
+
+        public var errorDescription: String? {
+            switch self {
+            case .directoryChangeFailed(let path):
+                return "could not chdir: \(path)"
+            case .swiftRun(cError: let code):
+                return "swift run failed: \(Library.strerror(code))"
+            }
+        }
     }
 }
 
@@ -139,7 +138,7 @@ private extension ImportSpecification {
 private var swiftPath: String {
     var get: Path? {
         let yaml = Path.root.join(#file).parent.parent.join(".build/debug.yaml")
-        guard let reader = StreamReader(path: yaml.string) else { return nil }
+        guard let reader = try? StreamReader(path: yaml) else { return nil }
         for line in reader {
             guard let line = line.chuzzled() else { continue }
             if line.hasPrefix("executable:"), line.hasSuffix("swiftc\"") {
@@ -170,5 +169,19 @@ extension String {
     func chuzzled() -> String? {
         let s = trimmingCharacters(in: .whitespacesAndNewlines)
         return s.isEmpty ? nil : s
+    }
+}
+
+extension Path {
+    static var selfCache: Path {
+      #if os(macOS)
+        return Path.home/"Library/Developer/swift-sh.cache"
+      #else
+        if let path = ProcessInfo.processInfo.environment["XDG_CACHE_HOME"] {
+            return Path.root/path/"swift-sh"
+        } else {
+            return Path.home/".cache/swift-sh"
+        }
+      #endif
     }
 }

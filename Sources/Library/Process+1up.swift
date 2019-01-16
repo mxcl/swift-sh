@@ -18,7 +18,7 @@ public extension Process {
     }
 #endif
 
-    class Output {
+    class Output: CustomStringConvertible {
         public let data: Data
         public lazy var string = { [unowned self] () -> String? in
             guard var str = String(data: self.data, encoding: .utf8) else { return nil }
@@ -28,6 +28,10 @@ public extension Process {
 
         fileprivate init(_ data: Data) {
             self.data = data
+        }
+
+        public var description: String {
+            return string ?? "<nil>"
         }
     }
 
@@ -40,12 +44,17 @@ public extension Process {
     }
 #endif
     
-    struct ExecutionError: Error {
+    struct ExecutionError: LocalizedError {
         public let stdout: Output
         public let stderr: Output
         public let status: Int32
         public let arg0: String
         public let args: [String]
+
+        public var errorDescription: String? {
+            //TODO better
+            return "\(arg0) \(args): \(status): \(stderr) \(stdout)"
+        }
     }
 
     func runSync(tee: Bool = false) throws -> (stdout: Output, stderr: Output) {

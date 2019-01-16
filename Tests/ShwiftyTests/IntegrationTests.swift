@@ -1,9 +1,9 @@
-@testable import Shwifty
+@testable import Library
 import XCTest
 
 var shebang: String {
 #if Xcode
-    return Bundle(for: IntegrationTests.self).path.parent.join("exe").string
+    return Bundle(for: IntegrationTests.self).path.parent.join("Executable").string
 #elseif os(Linux)
     // Bundle(for:) is unimplemented
     return Path.root.join(#file).parent.parent.parent.join(".build/debug/swift-sh").string
@@ -122,9 +122,20 @@ class IntegrationTests: XCTestCase {
             }
             """)
     }
+
+    func testRelativePath() throws {
+        try write(script: "print(123)") { file in
+            let task = Process()
+            task.launchPath = "/bin/sh"
+            task.arguments = ["-c", "./\(file.basename())"]
+            task.currentDirectoryPath = file.parent.string
+            let stdout = try task.runSync().stdout.string?.chuzzled()
+            XCTAssertEqual(stdout, "123")
+        }
+    }
 }
 
-func write(script: String, line: UInt = #line, body: (Path) throws -> Void) throws {
+private func write(script: String, line: UInt = #line, body: (Path) throws -> Void) throws {
     try Path.mktemp { tmpdir -> Void in
         let file = tmpdir.join("dev.mxcl.swift-sh-tests-\(line).swift")
         try "#!\(shebang)\n\(script)".write(to: file)
@@ -133,7 +144,7 @@ func write(script: String, line: UInt = #line, body: (Path) throws -> Void) thro
     }
 }
 
-func XCTAssertRuns(exec: String, line: UInt = #line) {
+private func XCTAssertRuns(exec: String, line: UInt = #line) {
     do {
         try write(script: exec) { file in
             try Process.system(file.string)
@@ -143,7 +154,7 @@ func XCTAssertRuns(exec: String, line: UInt = #line) {
     }
 }
 
-func XCTAssertEqual(_ expected: String, exec: String, line: UInt = #line) {
+private func XCTAssertEqual(_ expected: String, exec: String, line: UInt = #line) {
     do {
         try write(script: exec) { file in
             let task = Process()
