@@ -64,7 +64,7 @@ public class Script {
         try script.write(to: path/"main.swift")
     }
 
-    public func run() throws {      
+    public func run() throws -> Never {
         if shouldWriteFiles {
             // don‘t write `main.swift` if would be identical
             // ∵ prevents swift-build recognizing a null-build
@@ -72,7 +72,38 @@ public class Script {
             try write()
         }
 
-        try Process.system(swiftPath, "run", cwd: path)
+        guard FileManager.default.changeCurrentDirectoryPath(path.string) else {
+            throw Error.directoryChangeFailed(path)
+        }
+
+        // first arg has to be same as
+        let swiftPath = Shwifty.swiftPath
+        let cArgs = CStringArray([swiftPath, "run"])
+        guard execv(swiftPath, cArgs.cArray) != -1 else {
+            throw Error.swiftRun(cError: errno)
+        }
+        fatalError("Impossible if execv succeeded")
+    }
+
+    public enum Error: Swift.Error {
+        case directoryChangeFailed(Path)
+        case swiftRun(cError: Int32)
+    }
+}
+
+private  final class CStringArray {
+    /// The null-terminated array of C string pointers.
+    public let cArray: [UnsafeMutablePointer<Int8>?]
+
+    /// Creates an instance from an array of strings.
+    public init(_ array: [String]) {
+        cArray = array.map({ $0.withCString({ strdup($0) }) }) + [nil]
+    }
+
+    deinit {
+        for case let element? in cArray {
+            free(element)
+        }
     }
 }
 
