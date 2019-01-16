@@ -317,6 +317,10 @@ public func /(lhs: Path, rhs: String) -> Path {
     return Path(string: (str as NSString).standardizingPath)
 }
 
+public func /(lhs: Path, rhs: Substring) -> Path {
+    return lhs/String(rhs)
+}
+
 public extension FileManager {
     @inlinable
     @discardableResult

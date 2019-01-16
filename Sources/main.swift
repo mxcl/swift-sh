@@ -16,6 +16,6 @@ do {
         try Command.run(CommandLine.path(at: 1))
     }
 } catch let error as CommandLineError {
-    fputs("error: \(error.stderrString)", stderr)
+    fputs("error: \(error.stderrString)\n", stderr)
     exit(2)
 }

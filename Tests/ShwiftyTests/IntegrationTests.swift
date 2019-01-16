@@ -49,7 +49,7 @@ class IntegrationTests: XCTestCase {
             """)
     }
 
-    func testStdinWorks() throws {
+    func testStandardInputCanBeUsedInScript() throws {
         let stdin = Pipe()
         let stdout = Pipe()
         let task = Process()

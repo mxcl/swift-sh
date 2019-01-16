@@ -67,24 +67,28 @@ public class Script {
         }
 
         // first arg has to be same as
-        let swiftPath = Library.swiftPath
-        let cArgs = CStringArray([swiftPath, "run"])
-        guard execv(swiftPath, cArgs.cArray) != -1 else {
-            throw Error.swiftRun(cError: errno)
+        let swift = Path.swift
+        let cArgs = CStringArray([swift.string, "run"])
+        guard execv(swift.string, cArgs.cArray) != -1 else {
+            throw Error.swiftRun(swift: swift, errno: errno)
         }
         fatalError("Impossible if execv succeeded")
     }
 
     public enum Error: LocalizedError {
         case directoryChangeFailed(Path)
-        case swiftRun(cError: Int32)
+        case swiftRun(swift: Path, errno: Int32)
 
         public var errorDescription: String? {
             switch self {
             case .directoryChangeFailed(let path):
                 return "could not chdir: \(path)"
-            case .swiftRun(cError: let code):
-                return "swift run failed: \(Library.strerror(code))"
+            case .swiftRun(let swiftPath, let errno):
+                if errno == 2 {
+                    return "swift not found in PATH"
+                } else {
+                    return "swift run failed: \(Library.strerror(errno)): \(swiftPath)"
+                }
             }
         }
     }
@@ -135,35 +139,53 @@ private extension ImportSpecification {
 }
 
 #if SWIFT_PACKAGE && DEBUG && !Xcode
-private var swiftPath: String {
-    var get: Path? {
-        let yaml = Path.root.join(#file).parent.parent.join(".build/debug.yaml")
-        guard let reader = try? StreamReader(path: yaml) else { return nil }
-        for line in reader {
-            guard let line = line.chuzzled() else { continue }
-            if line.hasPrefix("executable:"), line.hasSuffix("swiftc\"") {
-                let parts = line.split(separator: ":")
-                guard parts.count == 2 else { continue }
-                return Path.root.join(parts[1].trimmingCharacters(in: .init(charactersIn: " \n\""))).parent.join("swift")
+extension Path {
+    static var swift: Path {
+        do {
+            let yaml = Path.root.join(#file).parent.parent.parent.join(".build/debug.yaml")
+            for line in try StreamReader(path: yaml) {
+                guard let line = line.chuzzled() else { continue }
+                if line.hasPrefix("executable:"), line.hasSuffix("swiftc\"") {
+                    let parts = line.split(separator: ":")
+                    guard parts.count == 2 else { continue }
+                    return Path.root.join(parts[1].trimmingCharacters(in: .init(charactersIn: " \n\""))).parent.join("swift")
+                }
             }
+            fatalError("Failed to find `swift`")
+        } catch {
+            fatalError("\(error)")
         }
-        return nil
     }
-
-    return get?.string ?? "/usr/bin/swift"
-}
-#elseif os(Linux)
-private var swiftPath: String {
-    let task = Process()
-    task.launchPath = "/usr/bin/which"
-    task.arguments = ["swift"]
-    return (try? task.runSync())?.stdout.string?.chuzzled() ?? "/usr/bin/swift"
 }
 #else
-//TODO find actual first swift in PATH like on Linux, but do a better implementation than the above
-private let swiftPath = "/usr/bin/swift"
-#endif
+private var PATH: [Path] {
+    guard let PATH = ProcessInfo.processInfo.environment["PATH"] else {
+        return []
+    }
+    return PATH.split(separator: ":").map {
+        if $0.first == "/" {
+            return Path.root/$0
+        } else {
+            return Path.root/FileManager.default.currentDirectoryPath/$0
+        }
+    }
+}
 
+extension Path {
+    static var swift: Path {
+        for path in PATH where path.join("swift").isExecutable {
+            return path/"swift"
+        }
+
+        // else use `which`
+        let task = Process()
+        task.launchPath = "/usr/bin/which"
+        task.arguments = ["swift"]
+        let str = (try? task.runSync())?.stdout.string?.chuzzled() ?? "/usr/bin/swift"
+        return Path.root/str
+    }
+}
+#endif
 
 extension String {
     func chuzzled() -> String? {
