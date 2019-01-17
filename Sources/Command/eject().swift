@@ -23,13 +23,13 @@ public func eject(_ script: Path, force: Bool) throws {
             let pkg = Package(name: "\(name)")
 
             pkg.products = [
-            .executable(name: "\(name)", targets: ["\(name)"])
+                .executable(name: "\(name)", targets: ["\(name)"])
             ]
             pkg.dependencies = [
-            \(deps.packageLines)
+                \(deps.packageLines)
             ]
             pkg.targets = [
-            .target(name: "\(name)", dependencies: [\(deps.mainTargetDependencies)], path: "Sources")
+                .target(name: "\(name)", dependencies: [\(deps.mainTargetDependencies)], path: "Sources")
             ]
 
             """.write(to: tmpdir/"Package.swift")
