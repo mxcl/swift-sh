@@ -137,6 +137,16 @@ It is not necessary to add a comment specification for transitive dependencies.
 * [Tweet deleter](https://gist.github.com/mxcl/002c3514d50b73287c89268c45662394)
 * [PostgreSQL Check](https://gist.github.com/joscdk/c4b89add26509c6dfabf84974e62543d)
 
+# `swift sh eject`
+
+Quick scripts can become more bigger projects, to help you migrate your project
+we provide `swift sh eject`, for example:
+
+    $ swift sh eject foo.swift
+
+Will create a Swift package in `./Foo`, from now on use `swift build` in the
+`Foo` directory. Your script is now `./Foo/Sources/main.swift`.
+
 # Internal Details
 
 `swift sh` creates a Swift `Package.swift` configured to fetch your dependencies

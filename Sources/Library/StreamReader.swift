@@ -10,12 +10,17 @@ public class StreamReader  {
     var buffer: Data
     var atEof: Bool
 
-    public init?(path: String, delimiter: String = "\n", encoding: String.Encoding = .utf8,
-          chunkSize: Int = 4096) {
+    public struct OpenError: LocalizedError {
+        public let path: Path
+        public var errorDescription: String? {
+            return "could not open: \(path)"
+        }
+    }
 
-        guard let fileHandle = FileHandle(forReadingAtPath: path),
-            let delimData = delimiter.data(using: encoding) else {
-                return nil
+    public init(path: Path, delimiter: String = "\n", encoding: String.Encoding = .utf8, chunkSize: Int = 4096) throws {
+
+        guard let fileHandle = FileHandle(forReadingAtPath: path.string), let delimData = delimiter.data(using: encoding) else {
+            throw OpenError(path: path)
         }
         self.encoding = encoding
         self.chunkSize = chunkSize

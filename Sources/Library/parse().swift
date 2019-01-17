@@ -1,17 +1,5 @@
 import Foundation
 
-public enum Constraint {
-    case upToNextMajor(from: Version)
-    case exact(Version)
-    case ref(String)
-}
-
-public struct ImportSpecification {
-    let importName: String
-    let dependencyName: String
-    let constraint: Constraint
-}
-
 /// - Parameter line: Contract: Single line string trimmed of whitespace.
 public func parse(_ line: String) -> ImportSpecification? {
     let pattern = "import\\s+(.*?)\\s*//\\s*(.*?)\\s*(==|~>)\\s*(.*)"

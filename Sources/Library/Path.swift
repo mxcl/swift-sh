@@ -109,20 +109,24 @@ public struct Path: Equatable, Hashable, Comparable {
         public let path: Path
     }
 
-    public func mkdir() throws {
+    @discardableResult
+    public func mkdir() throws -> Path {
         do {
             try FileManager.default.createDirectory(at: url, withIntermediateDirectories: false, attributes: nil)
         } catch CocoaError.Code.fileWriteFileExists {
             // noop
         }
+        return self
     }
 
-    public func mkpath() throws {
+    @discardableResult
+    public func mkpath() throws -> Path {
         do {
             try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
         } catch CocoaError.Code.fileWriteFileExists {
             // noop
         }
+        return self
     }
 
     public static func mktemp<T>(body: (Path) throws -> T) throws -> T {
@@ -244,6 +248,23 @@ public struct Path: Equatable, Hashable, Comparable {
         return try FileManager.default.copyItem(at: self, to: to, overwrite: overwrite)
     }
 
+    @discardableResult
+    public func move(to: Path) throws -> Path {
+        try FileManager.default.moveItem(at: url, to: to.url)
+        return to
+    }
+
+    @discardableResult
+    public func move(into: Path) throws -> Path {
+        if !into.exists {
+            try into.mkpath()
+        } else if !into.isDirectory {
+            throw CocoaError.error(.fileWriteFileExists)
+        }
+        try FileManager.default.moveItem(at: url, to: into.join(basename()).url)
+        return into
+    }
+
     public func delete() throws {
         try FileManager.default.removeItem(at: self)
     }
@@ -276,10 +297,28 @@ extension Path: Codable {
     }
 }
 
+public extension Path {
+    /**
+     Usage:
+
+         Path(absolute: input) ?? Path.cwd/input
+
+     - Rationale: We could easily parse both but this way you are explicit and your code is explicit.
+     */
+    init?(absolute: String) {
+        guard absolute.hasPrefix("/") else { return nil }
+        self.init(string: absolute)
+    }
+}
+
 public func /(lhs: Path, rhs: String) -> Path {
     //TODO standardizingPath does more than we want really (eg tilde expansion)
     let str = (lhs.string as NSString).appendingPathComponent(rhs)
     return Path(string: (str as NSString).standardizingPath)
+}
+
+public func /(lhs: Path, rhs: Substring) -> Path {
+    return lhs/String(rhs)
 }
 
 public extension FileManager {
@@ -365,18 +404,6 @@ public extension Bundle {
     @inlinable
     public var path: Path {
         return Path.root/bundlePath
-    }
-}
-
-public extension CommandLine {
-    static func path(at: Int) -> Path {
-        let str = arguments[at]
-
-        if str.hasPrefix("/") {
-            return Path(string: str)
-        } else {
-            return Path.cwd/str
-        }
     }
 }
 

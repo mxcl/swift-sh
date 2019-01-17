@@ -1,25 +1,17 @@
-@testable import Shwifty
+@testable import Command
+@testable import Library
 import XCTest
 
-var shebang: String {
-#if Xcode
-    return Bundle(for: IntegrationTests.self).path.parent.join("exe").string
-#elseif os(Linux)
-    // Bundle(for:) is unimplemented
-    return Path.root.join(#file).parent.parent.parent.join(".build/debug/swift-sh").string
-#else
-    return Bundle(for: IntegrationTests.self).path.parent.join("swift-sh").string
-#endif
-}
+class RunIntegrationTests: XCTestCase {
+    override class func setUp() {
+        guard Path.selfCache.isDirectory else { return }
+        for entry in try! Path.selfCache.ls() where entry.kind == .directory && entry.path.basename().hasPrefix(scriptBaseName) {
+            try! entry.path.delete()
+        }
+    }
 
-class IntegrationTests: XCTestCase {
     func testConventional() {
-        XCTAssertEqual(".success(3)", exec: """
-            import Foundation
-            import Result  // @antitypical ~> 4.1
-
-            print(Result<Int, CocoaError>.success(3))
-            """)
+        XCTAssertEqual(.resultScriptOutput, exec: .resultScript)
     }
 
     func testNamingMismatch() {
@@ -49,7 +41,7 @@ class IntegrationTests: XCTestCase {
             """)
     }
 
-    func testStdinWorks() throws {
+    func testStandardInputCanBeUsedInScript() throws {
         let stdin = Pipe()
         let stdout = Pipe()
         let task = Process()
@@ -122,18 +114,147 @@ class IntegrationTests: XCTestCase {
             }
             """)
     }
+
+    func testRelativePath() throws {
+        try write(script: "print(123)") { file in
+            let task = Process()
+            task.launchPath = "/bin/sh"
+            task.arguments = ["-c", "./\(file.basename())"]
+            task.currentDirectoryPath = file.parent.string
+            let stdout = try task.runSync().stdout.string?.chuzzled()
+            XCTAssertEqual(stdout, "123")
+        }
+    }
 }
 
-func write(script: String, line: UInt = #line, body: (Path) throws -> Void) throws {
+class EjectIntegrationTests: XCTestCase {
+    func testForce() throws {
+
+        func go(file: Path, insertionIndex: Int, flag: String) throws {
+            var args = [file.string]
+            args.insert(flag, at: insertionIndex)
+
+            let task = Process()
+            task.launchPath = shebang
+            task.arguments = ["eject"] + args
+
+            try Path.mktemp { tmpdir in
+                task.currentDirectoryPath = tmpdir.string
+                try task.go()
+                task.waitUntilExit()
+
+                let name = file.basename(dropExtension: true)
+                let d = file.parent.join(name.capitalized)
+
+                let memo = "flag: `\(flag)`, at: \(insertionIndex)"
+
+                XCTAssertFalse(file.exists, memo)
+                XCTAssert(d.isDirectory, memo)
+                XCTAssert(d.join("Package.swift").isFile, memo)
+                XCTAssert(d.join("Sources").isDirectory, memo)
+                XCTAssert(d.join("Sources/main.swift").isFile, memo)
+
+                let build = Process()
+                build.launchPath = Path.swift.string
+                build.arguments = ["run"]
+                build.currentDirectoryPath = d.string
+                let out = try build.runSync().stdout.string
+                XCTAssertEqual(out, String.resultScriptOutput)
+            }
+        }
+
+        for flag in ["-f", "--force"] {
+            for insertionIndex in 0...1 {
+                try write(script: .resultScript) { file in
+                    try go(file: file, insertionIndex: insertionIndex, flag: flag)
+                }
+            }
+        }
+    }
+
+    func testFilenameDirectoryClash() throws {
+        // if the file is `foo` and we will create a package `Foo` in the same directory
+        // this is a filename clash on macOS with its case insensitive filesystem
+        // and we still should *work*
+        //TODO should check the filesystem is insenstive to verify test is working
+
+        try Path.mktemp { tmpdir -> Void in
+            let file = tmpdir/"foo"
+            try """
+                #!/usr/bin/swift sh
+
+                print(123)
+                """.write(to: file)
+
+            let task = Process()
+            task.launchPath = shebang
+            task.arguments = ["eject", file.string]
+            try task.go()
+            task.waitUntilExit()
+
+            let d = tmpdir/"Foo"
+
+            XCTAssertFalse(file.isFile)
+            XCTAssert(d.isDirectory)
+            XCTAssert(d.join("Package.swift").isFile)
+            XCTAssert(d.join("Sources").isDirectory)
+            XCTAssert(d.join("Sources/main.swift").isFile)
+        }
+    }
+
+    func testRelativePath() throws {
+        try Path.mktemp { tmpdir -> Void in
+            let file = tmpdir/"foo"
+            try "#!/usr/bin/swift sh".write(to: file)
+
+            let task = Process()
+            task.launchPath = shebang
+            task.arguments = ["eject", file.basename()]
+            task.currentDirectoryPath = tmpdir.string
+            try task.go()
+            task.waitUntilExit()
+
+            let d = tmpdir/"Foo"
+
+            XCTAssertFalse(file.isFile)
+            XCTAssert(d.isDirectory)
+            XCTAssert(d.join("Package.swift").isFile)
+            XCTAssert(d.join("Sources").isDirectory)
+            XCTAssert(d.join("Sources/main.swift").isFile)
+        }
+    }
+
+
+    func testFailsIfNotScript() throws {
+        try Path.mktemp { tmpdir -> Void in
+            let file = tmpdir/"foo"
+            try "foo".write(to: file)
+            let pipe = Pipe()
+            let task = Process()
+            task.launchPath = shebang
+            task.arguments = ["eject", file.string]
+            task.standardError = pipe
+            try task.go()
+            task.waitUntilExit()
+
+            let stderr = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?.chuzzled()
+
+            XCTAssertEqual(task.terminationStatus, 2)
+            XCTAssertEqual(stderr, "error: " + EjectError.notScript.errorDescription!)
+        }
+    }
+}
+
+private func write(script: String, line: UInt = #line, body: (Path) throws -> Void) throws {
     try Path.mktemp { tmpdir -> Void in
-        let file = tmpdir.join("dev.mxcl.swift-sh-tests-\(line).swift")
+        let file = tmpdir.join("\(scriptBaseName)-\(line).swift")
         try "#!\(shebang)\n\(script)".write(to: file)
         try file.chmod(0o0500)
         try body(file)
     }
 }
 
-func XCTAssertRuns(exec: String, line: UInt = #line) {
+private func XCTAssertRuns(exec: String, line: UInt = #line) {
     do {
         try write(script: exec) { file in
             try Process.system(file.string)
@@ -143,7 +264,7 @@ func XCTAssertRuns(exec: String, line: UInt = #line) {
     }
 }
 
-func XCTAssertEqual(_ expected: String, exec: String, line: UInt = #line) {
+private func XCTAssertEqual(_ expected: String, exec: String, line: UInt = #line) {
     do {
         try write(script: exec) { file in
             let task = Process()
@@ -155,3 +276,31 @@ func XCTAssertEqual(_ expected: String, exec: String, line: UInt = #line) {
         XCTFail("\(error)", line: line)
     }
 }
+
+private var shebang: String {
+#if Xcode
+    return Bundle(for: RunIntegrationTests.self).path.parent.join("Executable").string
+#elseif os(Linux)
+    // Bundle(for:) is unimplemented
+    return Path.root.join(#file).parent.parent.parent.join(".build/debug/swift-sh").string
+#else
+    return Bundle(for: RunIntegrationTests.self).path.parent.join("swift-sh").string
+#endif
+}
+
+private extension String {
+    static var resultScript: String {
+        return """
+        import Foundation
+        import Result  // @antitypical ~> 4.1
+
+        print(Result<Int, CocoaError>.success(3))
+        """
+    }
+
+    static var resultScriptOutput: String {
+        return ".success(3)"
+    }
+}
+
+private let scriptBaseName = "dev.mxcl.swift-sh-tests"
