@@ -1,5 +1,4 @@
 // swift-tools-version:4.2
-
 import PackageDescription
 
 let package = Package(
@@ -9,9 +8,12 @@ let package = Package(
 		.library(name: "Library", targets: ["Library"]),
         .library(name: "Command", targets: ["Command"]),
     ],
+    dependencies: [
+        .package(url: "https://github.com/mxcl/Path.swift", from: "0.2.0")
+    ],
     targets: [
         .target(name: "Executable", dependencies: ["Library", "Command"], path: "Sources", sources: ["main.swift"]),
-		.target(name: "Library", path: "Sources/Library"),
+		.target(name: "Library", dependencies: ["Path"], path: "Sources/Library"),
         .target(name: "Command", dependencies: ["Library"], path: "Sources/Command"),
         .testTarget(name: "ShwiftyTests", dependencies: ["Executable"]),
     ]

@@ -1,4 +1,5 @@
 import Foundation
+import Path
 
 public class Script {
     let name: String

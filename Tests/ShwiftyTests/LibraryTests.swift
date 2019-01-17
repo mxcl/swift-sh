@@ -1,5 +1,6 @@
 @testable import Library
 import XCTest
+import Path
 
 class LibraryTests: XCTestCase {
     func testStrerror() {

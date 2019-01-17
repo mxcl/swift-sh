@@ -1,5 +1,6 @@
 import Foundation
 import Library
+import Path
 
 public func eject(_ script: Path, force: Bool) throws {
     guard script.isFile else {
@@ -53,7 +54,7 @@ public extension CommandLine {
     public static func parse<T>(eject args: T) throws -> (path: Path, force: Bool) where T: Collection, T.Element == String, T.Index == Int {
 
         func pathize(at: Int) -> Path {
-            return Path(absolute: args[at]) ?? Path.cwd/args[at]
+            return Path(args[at]) ?? Path.cwd/args[at]
         }
 
         switch args.count {

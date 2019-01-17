@@ -1,6 +1,7 @@
 @testable import Command
 @testable import Library
 import XCTest
+import Path
 
 class RunIntegrationTests: XCTestCase {
     override class func setUp() {

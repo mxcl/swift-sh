@@ -1,5 +1,6 @@
 import Foundation
 import Dispatch
+import Path
 
 public extension Process {
 #if os(Linux)

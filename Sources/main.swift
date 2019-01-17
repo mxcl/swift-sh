@@ -1,6 +1,7 @@
 import Foundation
 import Command
 import Library
+import Path
 
 do {
     guard CommandLine.arguments.count > 1 else {
@@ -15,7 +16,7 @@ do {
     default:
         guard CommandLine.arguments.count >= 2 else { throw CommandLine.Error.invalidUsage }
         let arg1 = CommandLine.arguments[1]
-        let path = Path(absolute: arg1) ?? Path.cwd/arg1
+        let path = Path(arg1) ?? Path.cwd/arg1
         let args = CommandLine.arguments.dropFirst(2)
         try Command.run(path, arguments: args)
     }

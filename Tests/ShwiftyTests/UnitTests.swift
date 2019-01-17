@@ -1,5 +1,6 @@
 @testable import Library
 import XCTest
+import Path
 
 class UnitTests: XCTestCase {
     func testWigglyArrow() {
