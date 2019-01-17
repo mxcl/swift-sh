@@ -3,7 +3,7 @@ import Library
 //TODO
 // should we update packages? maybe in background when running scripts
 
-public func run(_ script: Path) throws -> Never {
+public func run<T>(_ script: Path, arguments: T) throws -> Never where T: Collection, T.Element == String {
     let name = script.basename(dropExtension: true)
     let reader = try StreamReader(path: script)
     var tee = [String]()
@@ -32,6 +32,6 @@ public func run(_ script: Path) throws -> Never {
         tee.append(line)
     }
 
-    let script = Script(name: name, contents: tee, dependencies: deps)
+    let script = Script(name: name, contents: tee, dependencies: deps, arguments: Array(arguments))
     try script.run()
 }

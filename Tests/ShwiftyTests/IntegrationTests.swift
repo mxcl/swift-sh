@@ -62,6 +62,16 @@ class RunIntegrationTests: XCTestCase {
         }
     }
 
+    func testArguments() {
+        XCTAssertEqual(".success(3)", exec: """
+            import Foundation
+            @testable import Result  // https://github.com/antitypical/Result ~> 4.1
+
+            let arg = CommandLine.arguments[1]
+            print(Result<Int, CocoaError>.success(Int(arg)!))
+            """, arg: "3")
+    }
+
     func testNSHipsterExample() {
         XCTAssertRuns(exec: """
             import DeckOfPlayingCards  // @NSHipster ~> 4.0.0
@@ -264,11 +274,12 @@ private func XCTAssertRuns(exec: String, line: UInt = #line) {
     }
 }
 
-private func XCTAssertEqual(_ expected: String, exec: String, line: UInt = #line) {
+private func XCTAssertEqual(_ expected: String, exec: String, arg: String? = nil, line: UInt = #line) {
     do {
         try write(script: exec) { file in
             let task = Process()
             task.launchPath = file.string
+            task.arguments = arg.map{ [$0] } ?? []
             let stdout = try task.runSync().stdout.string?.chuzzled()
             XCTAssertEqual(stdout, expected, line: line)
         }

@@ -4,15 +4,17 @@ public class Script {
     let name: String
     let deps: [ImportSpecification]
     let script: String
+    let args: [String]
 
     var path: Path {
         return Path.selfCache/name
     }
 
-    public init(name: String, contents: [String], dependencies: [ImportSpecification]) {
+    public init(name: String, contents: [String], dependencies: [ImportSpecification], arguments: [String])  {
         self.name = name
         script = contents.joined(separator: "\n")
         deps = dependencies
+        args = arguments
     }
     
     var shouldWriteFiles: Bool {
@@ -57,10 +59,10 @@ public class Script {
             throw Error.directoryChangeFailed(path)
         }
 
-        // first arg has to be same as
+        // first arg has to be same as executable path
         let swift = Path.swift
-        let cArgs = CStringArray([swift.string, "run"])
-        guard execv(swift.string, cArgs.cArray) != -1 else {
+        let args = CStringArray([swift.string, "run", name] + self.args)
+        guard execv(swift.string, args.cArray) != -1 else {
             throw Error.swiftRun(swift: swift, errno: errno)
         }
         fatalError("Impossible if execv succeeded")
