@@ -1,6 +1,15 @@
 import Foundation
 
 extension Error {
+#if os(Linux)
+    public var legibleDescription: String {
+        if let err = self as? LocalizedError, let msg = err.errorDescription, !msg.hasPrefix("The operation couldn’t be completed.") {
+            return msg
+        } else {
+            return "\(type(of: self)).\(self)"
+        }
+    }
+#else
     public var legibleDescription: String {
         switch errorType {
         case .swiftError(.enum?):
@@ -37,14 +46,13 @@ extension Error {
             return .swiftError(Mirror(reflecting: self).displayStyle)
         }
     }
+#endif
 }
 
+#if !os(Linux)
 private enum ErrorType {
     case nsError(NSError, domain: String, code: Int)
     case swiftLocalizedError(String)
     case swiftError(Mirror.DisplayStyle?)
 }
-
-protocol TitledError: LocalizedError {
-    var title: String { get }
-}
+#endif
