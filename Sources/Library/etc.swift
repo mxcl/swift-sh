@@ -2,8 +2,8 @@ import protocol Foundation.LocalizedError
 
 public extension CommandLine {
     static let usage = """
-        swift sh PATH
-        swift sh eject PATH [-f|--force]
+        swift sh <script> [arguments]
+        swift sh eject <script> [-f|--force]
         """
 
     enum Error: LocalizedError {
