@@ -1,14 +1,26 @@
 import protocol Foundation.LocalizedError
 
-public protocol CommandLineError: LocalizedError {
-    // typically you would not capitalize words in a stderr-error string
-    // you may choose to implement errorDescription and capitalize that
-    var stderrString: String { get }
+public extension CommandLine {
+    static let usage = """
+        swift sh PATH
+        swift sh eject PATH [-f|--force]
+        """
+
+    enum Error: LocalizedError {
+        case invalidUsage
+
+        public var errorDescription: String? {
+            switch self {
+            case .invalidUsage:
+                return CommandLine.usage
+            }
+        }
+    }
 }
 
-public extension CommandLineError {
-    public var errorDescription: String? {
-        return stderrString
+public extension Collection {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }
 

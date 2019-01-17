@@ -407,18 +407,6 @@ public extension Bundle {
     }
 }
 
-public extension CommandLine {
-    static func path(at: Int) -> Path {
-        let str = arguments[at]
-
-        if str.hasPrefix("/") {
-            return Path(string: str)
-        } else {
-            return Path.cwd/str
-        }
-    }
-}
-
 public extension Array where Element == Path.Entry {
     var directories: [Path] {
         return compactMap {
