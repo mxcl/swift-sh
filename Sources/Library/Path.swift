@@ -297,6 +297,12 @@ extension Path: Codable {
     }
 }
 
+extension Path: CustomStringConvertible {
+    public var description: String {
+        return string
+    }
+}
+
 public extension Path {
     /**
      Usage:
