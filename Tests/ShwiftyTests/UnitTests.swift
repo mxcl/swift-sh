@@ -9,6 +9,13 @@ class UnitTests: XCTestCase {
         XCTAssertEqual(a?.importName, "Foo")
     }
 
+    func testTrailingWhitespace() {
+        let a = parse("import Foo // @mxcl ~> 1.0 ")
+        XCTAssertEqual(a?.dependencyName, "mxcl/Foo")
+        XCTAssertEqual(a?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(a?.importName, "Foo")
+    }
+
     func testExact() {
         let a = parse("import Foo // @mxcl == 1.0")
         XCTAssertEqual(a?.dependencyName, "mxcl/Foo")

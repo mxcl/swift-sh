@@ -2,7 +2,7 @@ import Foundation
 
 /// - Parameter line: Contract: Single line string trimmed of whitespace.
 public func parse(_ line: String) -> ImportSpecification? {
-    let pattern = "import\\s+(.*?)\\s*//\\s*(.*?)\\s*(==|~>)\\s*(.*)"
+    let pattern = "import\\s+(.*?)\\s*//\\s*(.*?)\\s*(==|~>)\\s*([^\\s]*)"
     let rx = try! NSRegularExpression(pattern: pattern)
     guard let match = rx.firstMatch(in: line, range: line.nsRange) else { return nil }
     guard match.numberOfRanges == 5 else { return nil }
