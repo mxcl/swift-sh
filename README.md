@@ -1,4 +1,4 @@
-# `swift sh` ![badge-platforms] ![badge-languages]
+# `swift sh` ![badge-platforms] ![badge-languages] [![Build Status](https://travis-ci.com/mxcl/swift-sh.svg)](https://travis-ci.com/mxcl/swift-sh)
 
 Writing Swift scripts is *easy*:
 
@@ -103,6 +103,8 @@ can continue to make tools and software you need and love. I appreciate it x.
 	<img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
 </a>
 
+[Other donation/tipping options](http://mxcl.github.io/donate/)
+
 # Usage
 
 Add the *shebang* as the first line in your script: `#!/usr/bin/swift sh`.
@@ -185,6 +187,10 @@ rebuild whenever you rotate between them.
 
 * [Beak](https://github.com/yonaskolb/Beak)
 * [Marathon](https://github.com/JohnSundell/Marathon)
+
+### Get push notifications for new releases
+
+https://codebasesaga.com/canopy/
 
 ---
 
