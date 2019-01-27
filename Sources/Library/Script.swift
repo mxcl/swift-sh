@@ -26,7 +26,7 @@ public class Script {
         //TODO we only support Swift 4.2 basically
         //TODO dependency module names can be anything so we need to parse Package.swifts for all deps to get module lists
 
-        try path.mkpath()
+        try path.mkdir(.p)
         try """
             // swift-tools-version:4.2
             import PackageDescription
