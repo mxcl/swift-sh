@@ -62,7 +62,10 @@ public class Script {
 
         // first arg has to be same as executable path
         let swift = Path.swift
-        let args = CStringArray([swift.string, "run", name] + self.args)
+        let args = CStringArray([
+            swift.string, "run",
+            "-Xswiftc", "-suppress-warnings",
+            name] + self.args)
         guard execv(swift.string, args.cArray) != -1 else {
             throw Error.swiftRun(swift: swift, errno: errno)
         }
