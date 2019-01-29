@@ -267,7 +267,7 @@ private func write(script: String, line: UInt = #line, body: (Path) throws -> Vo
 
 private func XCTAssertRuns(exec: String, line: UInt = #line) {
     do {
-        try write(script: exec) { file in
+        try write(script: exec, line: line) { file in
             try Process.system(file.string)
         }
     } catch {
@@ -277,7 +277,7 @@ private func XCTAssertRuns(exec: String, line: UInt = #line) {
 
 private func XCTAssertEqual(_ expected: String, exec: String, arg: String? = nil, line: UInt = #line) {
     do {
-        try write(script: exec) { file in
+        try write(script: exec, line: line) { file in
             let task = Process()
             task.launchPath = file.string
             task.arguments = arg.map{ [$0] } ?? []

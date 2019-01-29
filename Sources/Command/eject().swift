@@ -51,7 +51,7 @@ public func eject(_ script: Path, force: Bool) throws {
 
 public extension CommandLine {
     //TODO find a good third party parser (like obv.)
-    public static func parse<T>(eject args: T) throws -> (path: Path, force: Bool) where T: Collection, T.Element == String, T.Index == Int {
+    static func parse<T>(eject args: T) throws -> (path: Path, force: Bool) where T: Collection, T.Element == String, T.Index == Int {
 
         func pathize(at: Int) -> Path {
             return Path(args[at]) ?? Path.cwd/args[at]

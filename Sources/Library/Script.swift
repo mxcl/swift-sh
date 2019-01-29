@@ -26,7 +26,7 @@ public class Script {
         //TODO we only support Swift 4.2 basically
         //TODO dependency module names can be anything so we need to parse Package.swifts for all deps to get module lists
 
-        try path.mkpath()
+        try path.mkdir(.p)
         try """
             // swift-tools-version:4.2
             import PackageDescription
@@ -62,7 +62,10 @@ public class Script {
 
         // first arg has to be same as executable path
         let swift = Path.swift
-        let args = CStringArray([swift.string, "run", name] + self.args)
+        let args = CStringArray([
+            swift.string, "run",
+            "-Xswiftc", "-suppress-warnings",
+            name] + self.args)
         guard execv(swift.string, args.cArray) != -1 else {
             throw Error.swiftRun(swift: swift, errno: errno)
         }
