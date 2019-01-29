@@ -9,7 +9,7 @@ public extension Process {
         launch()  // `run` is not available for some reason
     }
 #else
-    public func go() throws {
+    func go() throws {
         if #available(OSX 10.13, *) {
             try run()
         } else {

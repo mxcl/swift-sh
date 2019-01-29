@@ -125,8 +125,13 @@ public extension Version {
     /// - Parameters:
     ///   - string: The string to parse.
     init?(string: String) {
+      #if swift(<5)
         let prereleaseStartIndex = string.index(of: "-")
         let metadataStartIndex = string.index(of: "+")
+      #else
+        let prereleaseStartIndex = string.firstIndex(of: "-")
+        let metadataStartIndex = string.firstIndex(of: "+")
+      #endif
 
         let requiredEndIndex = prereleaseStartIndex ?? metadataStartIndex ?? string.endIndex
         let requiredCharacters = string.prefix(upTo: requiredEndIndex)
