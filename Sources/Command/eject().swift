@@ -21,15 +21,15 @@ public func eject(_ script: Path, force: Bool) throws {
             // swift-tools-version:4.2
             import PackageDescription
 
-            let pkg = Package(name: "\(name)")
+            let package = Package(name: "\(name)")
 
-            pkg.products = [
+            package.products = [
                 .executable(name: "\(name)", targets: ["\(name)"])
             ]
-            pkg.dependencies = [
+            package.dependencies = [
                 \(deps.packageLines)
             ]
-            pkg.targets = [
+            package.targets = [
                 .target(name: "\(name)", dependencies: [\(deps.mainTargetDependencies)], path: "Sources")
             ]
 
