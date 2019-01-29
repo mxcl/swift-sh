@@ -10,12 +10,12 @@ public extension String {
     /// or `nil` if the range can't be converted.
     func substring(with nsrange: NSRange) -> String? {
         guard let range = Range(nsrange) else { return nil }
-    #if swift(<5)
-        let start = UTF16Index(encodedOffset: range.lowerBound)
-        let end = UTF16Index(encodedOffset: range.upperBound)
-    #else
+    #if swift(>=5)
         let start = UTF16View.Index(encodedOffset: range.lowerBound)
         let end = UTF16View.Index(encodedOffset: range.upperBound)
+    #else
+        let start = UTF16Index(encodedOffset: range.lowerBound)
+        let end = UTF16Index(encodedOffset: range.upperBound)
     #endif
         return String(utf16[start..<end])
     }
@@ -24,12 +24,12 @@ public extension String {
     /// or `nil` if the range can't be converted.
     func range(from nsrange: NSRange) -> Range<Index>? {
         guard let range = Range(nsrange) else { return nil }
-    #if swift(<5)
-        let utf16Start = UTF16Index(encodedOffset: range.lowerBound)
-        let utf16End = UTF16Index(encodedOffset: range.upperBound)
-    #else
+    #if swift(>=5)
         let utf16Start = UTF16View.Index(encodedOffset: range.lowerBound)
         let utf16End = UTF16View.Index(encodedOffset: range.upperBound)
+    #else
+        let utf16Start = UTF16Index(encodedOffset: range.lowerBound)
+        let utf16End = UTF16Index(encodedOffset: range.upperBound)
     #endif
 
         guard let start = Index(utf16Start, within: self),
