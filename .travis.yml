@@ -3,7 +3,15 @@ if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/
 
 jobs:
   include:
+    - stage: pretest
+      name: Check Linux tests are sync’d
+      install: swift test --generate-linuxmain
+      script: git diff --exit-code
+      os: osx
+      osx_image: xcode10.1
+
     - name: macOS / Swift 4.2.1 (Xcode 10.1)
+      stage: test
       os: osx
       language: swift
       osx_image: xcode10.1
@@ -18,16 +26,19 @@ jobs:
       install: eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"
       script: swift test
 
-    - stage: deploy
+    - name: Bump Formula
+      stage: deploy
+      language: generic
       if: branch =~ ^\d+\.\d+\.\d+$
       script: |
+        set -exo pipefail
         URL="https://github.com/mxcl/swift-sh/archive/$TRAVIS_TAG.tar.gz"
         curl --location --output out "$URL"
         SHA256=$(shasum --binary --algorithm 256 out | awk '{print $1}')
         git clone "https://$GITHUB_TOKEN@github.com/mxcl/homebrew-made.git"
         cd homebrew-made
-        sed --in-place "s/sha256 \"([\w]+)\"/sha256 \"$SHA256\"/" swift-sh.rb
-        sed --in-place "s/url \"([\w]+)\"/url \"$URL\"/" swift-sh.rb
+        sed -E -i 's/sha256 ".+"/sha256 "'$SHA256\"/ swift-sh.rb
+        sed -E -i 's~url ".+"~url "'$URL\"~ swift-sh.rb
         git add swift-sh.rb
         git config user.name  "Travis"
         git config user.email "bot@travis-ci.com"

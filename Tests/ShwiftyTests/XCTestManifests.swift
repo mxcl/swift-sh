@@ -17,6 +17,7 @@ extension LibraryTests {
 
 extension RunIntegrationTests {
     static let __allTests = [
+        ("testArguments", testArguments),
         ("testConventional", testConventional),
         ("testNamingMismatch", testNamingMismatch),
         ("testNSHipsterExample", testNSHipsterExample),
@@ -36,6 +37,7 @@ extension UnitTests {
         ("testExact", testExact),
         ("testMinimalSpaces", testMinimalSpaces),
         ("testMoreSpaces", testMoreSpaces),
+        ("testTrailingWhitespace", testTrailingWhitespace),
         ("testWigglyArrow", testWigglyArrow),
     ]
 }

@@ -1,9 +1,9 @@
-@testable import Path
 import Foundation
+import Path
 
 public class TemporaryDirectory {
     public let url: URL
-    public var path: Path { return Path(string: url.path) }
+    public var path: Path { return Path.root/url.path }
 
     /**
      Creates a new temporary directory.
