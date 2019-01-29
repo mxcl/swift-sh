@@ -3,12 +3,14 @@ if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/
 
 jobs:
   include:
-    - os: osx
+    - name: macOS / Swift 4.2.1 (Xcode 10.1)
+      os: osx
       language: swift
       osx_image: xcode10.1
       script: swift test
 
-    - env: SWIFT_VERSION=4.2.1
+    - name: Linux / Swift 4.2.1
+      env: SWIFT_VERSION=4.2.1
       os: linux
       language: generic
       dist: trusty
