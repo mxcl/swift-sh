@@ -19,6 +19,7 @@ extension RunIntegrationTests {
     static let __allTests = [
         ("testArguments", testArguments),
         ("testConventional", testConventional),
+        ("testCWD", testCWD),
         ("testNamingMismatch", testNamingMismatch),
         ("testNSHipsterExample", testNSHipsterExample),
         ("testRelativePath", testRelativePath),

@@ -136,6 +136,15 @@ class RunIntegrationTests: XCTestCase {
             XCTAssertEqual(stdout, "123")
         }
     }
+
+    func testCWD() throws {
+        let cwd = FileManager.default.currentDirectoryPath
+        let script = """
+            import Foundation
+            print(FileManager.default.currentDirectoryPath)
+            """
+        XCTAssertEqual(cwd, exec: script)
+    }
 }
 
 class EjectIntegrationTests: XCTestCase {
@@ -278,9 +287,20 @@ private func XCTAssertRuns(exec: String, line: UInt = #line) {
 private func XCTAssertEqual(_ expected: String, exec: String, arg: String? = nil, line: UInt = #line) {
     do {
         try write(script: exec, line: line) { file in
+
             let task = Process()
             task.launchPath = file.string
             task.arguments = arg.map{ [$0] } ?? []
+
+        #if os(macOS) && Xcode
+            // we need to ensure we are testing *this* toolchain
+            //FIXME can be overridden at Xcode Menu level and we won’t see that
+            let path = Path.root.join(CommandLine.arguments[0]).parent.parent.parent.parent.parent.parent.parent.Toolchains/"XcodeDefault.xctoolchain/usr/bin"
+            var env = ProcessInfo.processInfo.environment
+            env["PATH"] = "\(path):/usr/bin"
+            task.environment = env
+        #endif
+
             let stdout = try task.runSync().stdout.string?.chuzzled()
             XCTAssertEqual(stdout, expected, line: line)
         }

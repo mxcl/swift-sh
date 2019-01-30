@@ -11,7 +11,7 @@ public class Script {
         return Path.selfCache/name
     }
 
-    public init(name: String, contents: [String], dependencies: [ImportSpecification], arguments: [String])  {
+    public init(name: String, contents: [String], dependencies: [ImportSpecification], arguments: [String]) {
         self.name = name
         script = contents.joined(separator: "\n")
         deps = dependencies
@@ -56,36 +56,32 @@ public class Script {
             try write()
         }
 
-        guard FileManager.default.changeCurrentDirectoryPath(path.string) else {
-            throw Error.directoryChangeFailed(path)
-        }
-
         // first arg has to be same as executable path
-        let swift = Path.swift
-        let args = CStringArray([
-            swift.string, "run",
-            "-Xswiftc", "-suppress-warnings",
-            name] + self.args)
-        guard execv(swift.string, args.cArray) != -1 else {
-            throw Error.swiftRun(swift: swift, errno: errno)
+        let task = Process()
+        task.launchPath = Path.swift.string
+        task.arguments = ["build",
+            "-Xswiftc", "-suppress-warnings"]
+        task.currentDirectoryPath = path.string
+        task.standardOutput = task.standardError
+        try task.go()
+        task.waitUntilExit()
+
+        let exe = path/".build/debug"/name
+        let args = CStringArray([exe.string] + self.args)
+
+        guard execv(exe.string, args.cArray) != -1 else {
+            throw Error.execv(executable: exe, errno: errno)
         }
         fatalError("Impossible if execv succeeded")
     }
 
     public enum Error: LocalizedError {
-        case directoryChangeFailed(Path)
-        case swiftRun(swift: Path, errno: Int32)
+        case execv(executable: Path, errno: Int32)
 
         public var errorDescription: String? {
             switch self {
-            case .directoryChangeFailed(let path):
-                return "could not chdir: \(path)"
-            case .swiftRun(let swiftPath, let errno):
-                if errno == 2 {
-                    return "swift not found in PATH"
-                } else {
-                    return "swift run failed: \(Library.strerror(errno)): \(swiftPath)"
-                }
+            case .execv(let executablePath, let errno):
+                return "execv failed: \(Library.strerror(errno)): \(executablePath)"
             }
         }
     }
