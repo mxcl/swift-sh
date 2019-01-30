@@ -62,7 +62,12 @@ public class Script {
         task.arguments = ["build",
             "-Xswiftc", "-suppress-warnings"]
         task.currentDirectoryPath = path.string
+      #if !os(Linux)
         task.standardOutput = task.standardError
+      #else
+        // setting it stderr or `nil` CRASHES ffs
+        task.standardOutput = Pipe()
+      #endif
         try task.launchAndWaitForSuccessfulExit()
 
         let exe = path/".build/debug"/name
