@@ -45,17 +45,21 @@ class RunIntegrationTests: XCTestCase {
     func testStandardInputCanBeUsedInScript() throws {
         let stdin = Pipe()
         let stdout = Pipe()
-        let task = Process()
-        task.standardInput = stdin
-        task.standardOutput = stdout
-
         let hello = "Hello\n".data(using: .utf8)!
 
         try write(script: "print(readLine()!)") { file in
+            let task = Process(arg0: file)
+            task.standardInput = stdin
+            task.standardOutput = stdout
+
             task.launchPath = file.string
             try task.go()
+
             stdin.fileHandleForWriting.write(hello)
             task.waitUntilExit()
+
+            XCTAssertEqual(task.terminationReason, .exit)
+            XCTAssertEqual(task.terminationStatus, 0)
 
             let got = stdout.fileHandleForReading.readDataToEndOfFile()
 
@@ -128,11 +132,11 @@ class RunIntegrationTests: XCTestCase {
 
     func testRelativePath() throws {
         try write(script: "print(123)") { file in
-            let task = Process()
+            let task = Process(arg0: file)
             task.launchPath = "/bin/sh"
             task.arguments = ["-c", "./\(file.basename())"]
             task.currentDirectoryPath = file.parent.string
-            let stdout = try task.runSync().stdout.string?.chuzzled()
+            let stdout = try task.runSync(tee: true).stdout.string?.chuzzled()
             XCTAssertEqual(stdout, "123")
         }
     }
@@ -154,14 +158,16 @@ class EjectIntegrationTests: XCTestCase {
             var args = [file.string]
             args.insert(flag, at: insertionIndex)
 
-            let task = Process()
-            task.launchPath = shebang
+            let task = Process(arg0: shebang)
             task.arguments = ["eject"] + args
 
             try Path.mktemp { tmpdir in
                 task.currentDirectoryPath = tmpdir.string
                 try task.go()
                 task.waitUntilExit()
+
+                XCTAssertEqual(task.terminationReason, .exit)
+                XCTAssertEqual(task.terminationStatus, 0)
 
                 let name = file.basename(dropExtension: true)
                 let d = file.parent.join(name.capitalized)
@@ -174,9 +180,7 @@ class EjectIntegrationTests: XCTestCase {
                 XCTAssert(d.join("Sources").isDirectory, memo)
                 XCTAssert(d.join("Sources/main.swift").isFile, memo)
 
-                let build = Process()
-                build.launchPath = Path.swift.string
-                build.arguments = ["run"]
+                let build = Process(arg0: Path.swift, arg1: "run")
                 build.currentDirectoryPath = d.string
                 let out = try build.runSync().stdout.string
                 XCTAssertEqual(out, String.resultScriptOutput)
@@ -212,6 +216,9 @@ class EjectIntegrationTests: XCTestCase {
             try task.go()
             task.waitUntilExit()
 
+            XCTAssertEqual(task.terminationReason, .exit)
+            XCTAssertEqual(task.terminationStatus, 0)
+
             let d = tmpdir/"Foo"
 
             XCTAssertFalse(file.isFile)
@@ -233,6 +240,9 @@ class EjectIntegrationTests: XCTestCase {
             task.currentDirectoryPath = tmpdir.string
             try task.go()
             task.waitUntilExit()
+
+            XCTAssertEqual(task.terminationReason, .exit)
+            XCTAssertEqual(task.terminationStatus, 0)
 
             let d = tmpdir/"Foo"
 
@@ -259,9 +269,31 @@ class EjectIntegrationTests: XCTestCase {
 
             let stderr = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?.chuzzled()
 
+            XCTAssertEqual(task.terminationReason, .exit)
             XCTAssertEqual(task.terminationStatus, 2)
             XCTAssertEqual(stderr, "error: " + EjectError.notScript.errorDescription!)
         }
+    }
+}
+
+class TestingTheTests: XCTestCase {
+    func testSwiftVersionIsWhatTestsExpect() {
+        #if swift(>=5)
+        let expected = "5"
+        #elseif swift(>=4.2)
+        let expected = "4.2"
+        #else
+        fatalError()
+        #endif
+        XCTAssertEqual(expected, exec: """
+            #if swift(>=5)
+            print(5)
+            #elseif swift(>=4.2)
+            print(4.2)
+            #else
+            fatalError()
+            #endif
+            """)
     }
 }
 
@@ -277,31 +309,44 @@ private func write(script: String, line: UInt = #line, body: (Path) throws -> Vo
 private func XCTAssertRuns(exec: String, line: UInt = #line) {
     do {
         try write(script: exec, line: line) { file in
-            try Process.system(file.string)
+            let task = Process(arg0: file)
+            try task.go()
+            task.waitUntilExit()
+
+            XCTAssertEqual(task.terminationReason, .exit, line: line)
+            XCTAssertEqual(task.terminationStatus, 0, line: line)
         }
     } catch {
         XCTFail("\(error)", line: line)
     }
 }
 
+private extension Process {
+    convenience init(arg0: Path, arg1: String? = nil) {
+        self.init(arg0: arg0.string, arg1: arg1)
+    }
+
+    convenience init(arg0: String, arg1: String? = nil) {
+        self.init()
+        launchPath = arg0
+        arguments = arg1.map{ [$0] } ?? []
+
+    #if os(macOS) && Xcode
+        // we need to ensure we are testing *this* toolchain
+        //FIXME can be overridden at Xcode Menu level and we won’t see that
+        let path = Path.root.join(CommandLine.arguments[0]).parent.parent.parent.parent.parent.parent.parent.parent.parent
+        var env = ProcessInfo.processInfo.environment
+        env["DEVELOPER_DIR"] = path.string
+        environment = env
+    #endif
+    }
+}
+
 private func XCTAssertEqual(_ expected: String, exec: String, arg: String? = nil, line: UInt = #line) {
     do {
         try write(script: exec, line: line) { file in
-
-            let task = Process()
-            task.launchPath = file.string
-            task.arguments = arg.map{ [$0] } ?? []
-
-        #if os(macOS) && Xcode
-            // we need to ensure we are testing *this* toolchain
-            //FIXME can be overridden at Xcode Menu level and we won’t see that
-            let path = Path.root.join(CommandLine.arguments[0]).parent.parent.parent.parent.parent.parent.parent.Toolchains/"XcodeDefault.xctoolchain/usr/bin"
-            var env = ProcessInfo.processInfo.environment
-            env["PATH"] = "\(path):/usr/bin"
-            task.environment = env
-        #endif
-
-            let stdout = try task.runSync().stdout.string?.chuzzled()
+            let task = Process(arg0: file, arg1: arg)
+            let stdout = try task.runSync(tee: true).stdout.string?.chuzzled()
             XCTAssertEqual(stdout, expected, line: line)
         }
     } catch {

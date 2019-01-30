@@ -63,8 +63,7 @@ public class Script {
             "-Xswiftc", "-suppress-warnings"]
         task.currentDirectoryPath = path.string
         task.standardOutput = task.standardError
-        try task.go()
-        task.waitUntilExit()
+        try task.launchAndWaitForSuccessfulExit()
 
         let exe = path/".build/debug"/name
         let args = CStringArray([exe.string] + self.args)
