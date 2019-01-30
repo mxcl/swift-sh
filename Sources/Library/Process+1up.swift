@@ -94,6 +94,11 @@ public extension Process {
     #if os(Linux)
         out = outpipe.fileHandleForReading.readDataToEndOfFile()
         err = errpipe.fileHandleForReading.readDataToEndOfFile()
+
+        if tee, let str = String(data: err, encoding: .utf8) {
+            //TODO should avoid doing the above twice and get this into the err-`Output` somehow
+            fputs(str, stderr)
+        }
     #endif
 
         func finish() throws -> (stdout: Output, stderr: Output) {
@@ -113,19 +118,13 @@ public extension Process {
     #endif
     }
 
-    static func system(_ arg0: String, _ args: String..., cwd: Path? = nil) throws {
-        let task = Process()
-        task.launchPath = arg0
-        task.arguments = args
-        if let cwd = cwd?.string {
-            task.currentDirectoryPath = cwd
-        }
-        try task.go()
-        task.waitUntilExit()
+    func launchAndWaitForSuccessfulExit() throws {
+        try go()
+        waitUntilExit()
 
-        guard task.terminationReason == .exit, task.terminationStatus == 0 else {
+        guard terminationReason == .exit, terminationStatus == 0 else {
             let output = Output(Data())
-            throw ExecutionError(stdout: output, stderr: output, status: task.terminationStatus, arg0: arg0, args: args)
+            throw ExecutionError(stdout: output, stderr: output, status: terminationStatus, arg0: launchPath ?? "<nil>", args: arguments ?? [])
         }
     }
 }

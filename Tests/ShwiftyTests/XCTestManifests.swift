@@ -19,12 +19,19 @@ extension RunIntegrationTests {
     static let __allTests = [
         ("testArguments", testArguments),
         ("testConventional", testConventional),
+        ("testCWD", testCWD),
         ("testNamingMismatch", testNamingMismatch),
         ("testNSHipsterExample", testNSHipsterExample),
         ("testRelativePath", testRelativePath),
         ("testStandardInputCanBeUsedInScript", testStandardInputCanBeUsedInScript),
         ("testTestableFullySpecifiedURL", testTestableFullySpecifiedURL),
         ("testTestableImport", testTestableImport),
+    ]
+}
+
+extension TestingTheTests {
+    static let __allTests = [
+        ("testSwiftVersionIsWhatTestsExpect", testSwiftVersionIsWhatTestsExpect),
     ]
 }
 
@@ -48,6 +55,7 @@ public func __allTests() -> [XCTestCaseEntry] {
         testCase(EjectIntegrationTests.__allTests),
         testCase(LibraryTests.__allTests),
         testCase(RunIntegrationTests.__allTests),
+        testCase(TestingTheTests.__allTests),
         testCase(UnitTests.__allTests),
     ]
 }
