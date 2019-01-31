@@ -23,6 +23,7 @@ extension RunIntegrationTests {
         ("testNamingMismatch", testNamingMismatch),
         ("testNSHipsterExample", testNSHipsterExample),
         ("testRelativePath", testRelativePath),
+        ("testStandardInputCanBeUsedBySwiftSh", testStandardInputCanBeUsedBySwiftSh),
         ("testStandardInputCanBeUsedInScript", testStandardInputCanBeUsedInScript),
         ("testTestableFullySpecifiedURL", testTestableFullySpecifiedURL),
         ("testTestableImport", testTestableImport),

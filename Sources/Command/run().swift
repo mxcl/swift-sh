@@ -1,12 +1,17 @@
+import struct Foundation.Data
 import Library
 import Path
+
+#if !os(Linux)
+import struct Darwin.FILE
+#else
+import struct Glibc.FILE
+#endif
 
 //TODO
 // should we update packages? maybe in background when running scripts
 
-public func run<T>(_ script: Path, arguments: T) throws -> Never where T: Collection, T.Element == String {
-    let name = script.basename(dropExtension: true)
-    let reader = try StreamReader(path: script)
+private func run<T>(reader: StreamReader, name: String, arguments: T) throws -> Never where T: Collection, T.Element == String {
     var tee = [String]()
     var deps = [ImportSpecification]()
 
@@ -35,4 +40,14 @@ public func run<T>(_ script: Path, arguments: T) throws -> Never where T: Collec
 
     let script = Script(name: name, contents: tee, dependencies: deps, arguments: Array(arguments))
     try script.run()
+}
+
+public func run<T>(_ file: UnsafeMutablePointer<FILE>, arguments: T) throws -> Never where T: Collection, T.Element == String {
+    try run(reader: StreamReader(file: file), name: "<stdin>", arguments: arguments)
+}
+
+public func run<T>(_ script: Path, arguments: T) throws -> Never where T: Collection, T.Element == String {
+    let name = script.basename(dropExtension: true)
+    let reader = try StreamReader(path: script)
+    try run(reader: reader, name: name, arguments: arguments)
 }

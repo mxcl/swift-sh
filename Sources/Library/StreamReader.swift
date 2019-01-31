@@ -4,12 +4,12 @@ import Path
 // I confess I copy and pasted this from StackOverflow.com
 
 public class StreamReader  {
-    let encoding: String.Encoding
-    let chunkSize: Int
+    let encoding = String.Encoding.utf8
+    let chunkSize = 4096
     var fileHandle: FileHandle!
-    let delimData: Data
+    let delimiter = Data(repeating: 10, count: 1)
     var buffer: Data
-    var atEof: Bool
+    var atEof = false
 
     public struct OpenError: LocalizedError {
         public let path: Path
@@ -18,17 +18,20 @@ public class StreamReader  {
         }
     }
 
-    public init(path: Path, delimiter: String = "\n", encoding: String.Encoding = .utf8, chunkSize: Int = 4096) throws {
-
-        guard let fileHandle = FileHandle(forReadingAtPath: path.string), let delimData = delimiter.data(using: encoding) else {
+    public convenience init(path: Path) throws {
+        guard let fileHandle = FileHandle(forReadingAtPath: path.string) else {
             throw OpenError(path: path)
         }
-        self.encoding = encoding
-        self.chunkSize = chunkSize
+        self.init(fileHandle: fileHandle)
+    }
+
+    public convenience init(file: UnsafeMutablePointer<FILE>) {
+        self.init(fileHandle: FileHandle(fileDescriptor: fileno(file)))
+    }
+
+    private init(fileHandle: FileHandle) {
         self.fileHandle = fileHandle
-        self.delimData = delimData
         self.buffer = Data(capacity: chunkSize)
-        self.atEof = false
     }
 
     deinit {
@@ -41,7 +44,7 @@ public class StreamReader  {
 
         // Read data chunks from file until a line delimiter is found:
         while !atEof {
-            if let range = buffer.range(of: delimData) {
+            if let range = buffer.range(of: delimiter) {
                 // Convert complete line (excluding the delimiter) to a string:
                 let line = String(data: buffer.subdata(in: 0..<range.lowerBound), encoding: encoding)
                 // Remove line (and the delimiter) from the buffer:
