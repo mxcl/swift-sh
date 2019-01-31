@@ -67,6 +67,23 @@ class RunIntegrationTests: XCTestCase {
         }
     }
 
+    func testStandardInputCanBeUsedBySwiftSh() throws {
+        let stdin = Pipe()
+        let stdout = Pipe()
+        let task = Process(arg0: shebang)
+        task.standardInput = stdin
+        task.standardOutput = stdout
+        try task.go()
+
+        stdin.fileHandleForWriting.write("print(1)".data(using: .utf8)!)
+        stdin.fileHandleForWriting.closeFile()
+        task.waitUntilExit()
+
+        XCTAssertEqual(task.terminationReason, .exit)
+        XCTAssertEqual(task.terminationStatus, 0)
+        XCTAssertEqual(stdout.fileHandleForReading.readDataToEndOfFile(), "1\n".data(using: .utf8))
+    }
+
     func testArguments() {
         XCTAssertEqual(".success(3)", exec: """
             import Foundation
