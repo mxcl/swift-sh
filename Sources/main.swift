@@ -26,8 +26,10 @@ do {
         }
     }
 } catch CommandLine.Error.invalidUsage {
-    fputs("error: invalid usage\n", stderr)
-    fputs(CommandLine.usage, stderr)
+    fputs("""
+        error: invalid usage
+        \(CommandLine.usage)\n
+        """, stderr)
     exit(3)
 } catch {
     fputs("error: \(error.legibleDescription)\n", stderr)
