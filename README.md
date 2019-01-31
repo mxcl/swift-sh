@@ -150,6 +150,13 @@ provide `swift sh eject`, for example:
 creates a Swift package in `./Foo`, from now on use `swift build` in the
 `Foo` directory. Your script is now `./Foo/Sources/main.swift`.
 
+# Use in CI
+
+If you want to make scripts available to people using CI; use `stdin`:
+
+    brew install mxcl/made/swift-sh
+    swift sh <(curl http://example.com/yourscript)
+
 # Internal Details
 
 `swift sh` creates a Swift `Package.swift` configured to fetch your dependencies
