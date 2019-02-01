@@ -21,7 +21,7 @@ public extension ImportSpecification {
                 .upToNextMajor(from: "\(v)")
                 """
             case .exact(let v):
-                return ".exactItem(Version(\(v.major),\(v.minor),\(v.patch)))"
+                return ".exact(\"\(v.major).\(v.minor).\(v.patch)\")"
             case .ref(let ref):
                 return """
                 .revision("\(ref)")
