@@ -25,6 +25,8 @@ extension RunIntegrationTests {
         ("testRelativePath", testRelativePath),
         ("testStandardInputCanBeUsedBySwiftSh", testStandardInputCanBeUsedBySwiftSh),
         ("testStandardInputCanBeUsedInScript", testStandardInputCanBeUsedInScript),
+        ("testTestableExactRevision", testTestableExactRevision),
+        ("testTestableExactVersion", testTestableExactVersion),
         ("testTestableFullySpecifiedURL", testTestableFullySpecifiedURL),
         ("testTestableImport", testTestableImport),
     ]

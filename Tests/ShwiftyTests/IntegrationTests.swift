@@ -42,6 +42,24 @@ class RunIntegrationTests: XCTestCase {
             """)
     }
 
+    func testTestableExactVersion() {
+        XCTAssertEqual(".success(5)", exec: """
+            import Foundation
+            @testable import Result  // antitypical/Result == 4.1
+
+            print(Result<Int, CocoaError>.success(5))
+            """)
+    }
+
+    func testTestableExactRevision() {
+        XCTAssertEqual(".success(5)", exec: """
+            import Foundation
+            @testable import Result  // antitypical/Result == 67613b45
+
+            print(Result<Int, CocoaError>.success(5))
+            """)
+    }
+
     func testStandardInputCanBeUsedInScript() throws {
         let stdin = Pipe()
         let stdout = Pipe()
