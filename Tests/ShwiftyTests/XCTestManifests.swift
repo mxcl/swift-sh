@@ -43,7 +43,6 @@ public func __allTests() -> [XCTestCaseEntry] {
         testCase(LibraryTests.__allTests),
         testCase(RunIntegrationTests.__allTests),
         testCase(TestingTheTests.__allTests),
-        testCase(UnitTests.__allTests),
     ]
 }
 #endif
