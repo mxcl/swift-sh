@@ -14,7 +14,8 @@ import struct Glibc.FILE
 
 private func run<T>(reader: StreamReader, name: String, arguments: T) throws -> Never where T: Collection, T.Element == String {
     var tee = [String]()
-    for line in reader {
+    for (index, line) in reader.enumerated() {
+        if index == 0, line.hasPrefix("#!") { continue }
         tee.append(line)
     }
     
