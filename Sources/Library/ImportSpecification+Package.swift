@@ -7,10 +7,12 @@ public extension ImportSpecification {
             switch constraint {
             case .upToNextMajor(from: let v):
                 return """
-                .upToNextMajor(from: "\(v)")
+                .upToNextMajor(from: Version(\(v.major),\(v.minor),\(v.patch)))
                 """
             case .exact(let v):
-                return ".exact(\"\(v.major).\(v.minor).\(v.patch)\")"
+                return """
+                .exact(Version(\(v.major),\(v.minor),\(v.patch)))
+                """
             case .ref(let ref):
                 return """
                 .revision("\(ref)")
