@@ -1,5 +1,6 @@
 import Foundation
 import Path
+import ImportSpecification
 
 public class Script {
     let name: String

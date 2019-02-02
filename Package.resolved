@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "ImportSpecification",
+        "repositoryURL": "https://github.com/alexito4/ImportSpecification",
+        "state": {
+          "branch": null,
+          "revision": "7351e13c6fd701b7a95aea1a9990e29fba597cb8",
+          "version": "0.3.0"
+        }
+      },
+      {
         "package": "Path.swift",
         "repositoryURL": "https://github.com/mxcl/Path.swift",
         "state": {

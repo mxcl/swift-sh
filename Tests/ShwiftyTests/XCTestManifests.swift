@@ -36,20 +36,6 @@ extension TestingTheTests {
     ]
 }
 
-extension UnitTests {
-    static let __allTests = [
-        ("testCanDoSpecifiedImports", testCanDoSpecifiedImports),
-        ("testCanOverrideImportName", testCanOverrideImportName),
-        ("testCanProvideFullURL", testCanProvideFullURL),
-        ("testCanUseTestable", testCanUseTestable),
-        ("testExact", testExact),
-        ("testMinimalSpaces", testMinimalSpaces),
-        ("testMoreSpaces", testMoreSpaces),
-        ("testTrailingWhitespace", testTrailingWhitespace),
-        ("testWigglyArrow", testWigglyArrow),
-    ]
-}
-
 #if !os(macOS)
 public func __allTests() -> [XCTestCaseEntry] {
     return [

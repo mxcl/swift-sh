@@ -1,6 +1,7 @@
 import Foundation
 import Library
 import Path
+import ImportSpecification
 
 public func eject(_ script: Path, force: Bool) throws {
     guard script.isFile else {
@@ -9,7 +10,7 @@ public func eject(_ script: Path, force: Bool) throws {
 
     let reader = try StreamReader(path: script).makeIterator()
     guard force || reader.next().isShebang else { throw EjectError.notScript }
-    let deps = reader.compactMap(parse)
+    let deps = reader.compactMap(ImportSpecification.init(line:))
     let name = script.basename(dropExtension: true).capitalized
     let containingDirectory = script.parent
 
