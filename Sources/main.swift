@@ -1,3 +1,4 @@
+import LegibleError
 import Foundation
 import Command
 import Library
@@ -32,6 +33,6 @@ do {
         """, stderr)
     exit(3)
 } catch {
-    fputs("error: \(error.legibleDescription)\n", stderr)
+    fputs("error: \(error.legibleLocalizedDescription)\n", stderr)
     exit(2)
 }
