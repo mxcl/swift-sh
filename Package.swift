@@ -10,12 +10,15 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/mxcl/Path.swift", from: "0.10.0"),
+        .package(url: "https://github.com/mxcl/LegibleError", from: "1.0.0"),
         .package(url: "https://github.com/alexito4/ImportSpecification", from: "0.3.0")
     ],
     targets: [
-        .target(name: "Executable", dependencies: ["Library", "Command"], path: "Sources", sources: ["main.swift"]),
+        .target(name: "Executable", dependencies: ["Library", "Command", "LegibleError"], path: "Sources", sources: ["main.swift"]),
         .target(name: "Library", dependencies: ["Path", "ImportSpecification"], path: "Sources/Library"),
         .target(name: "Command", dependencies: ["Library"], path: "Sources/Command"),
         .testTarget(name: "ShwiftyTests", dependencies: ["Executable"]),
     ]
 )
+
+package.swiftLanguageVersions = [.v4_2]
