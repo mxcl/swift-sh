@@ -27,9 +27,15 @@ public class Script {
         //TODO we only support Swift 4.2 basically
         //TODO dependency module names can be anything so we need to parse Package.swifts for all deps to get module lists
 
+    #if swift(>=5)
+        let toolsVersion = "5.0"
+    #else
+        let toolsVersion = "4.2"
+    #endif
+
         try path.mkdir(.p)
         try """
-            // swift-tools-version:4.2
+            // swift-tools-version:\(toolsVersion)
             import PackageDescription
 
             let pkg = Package(name: "\(name)")
