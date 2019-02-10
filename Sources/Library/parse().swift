@@ -1,4 +1,5 @@
 import Foundation
+import Version
 
 /// - Parameter line: Contract: Single line string trimmed of whitespace.
 public func parse(_ line: String) -> ImportSpecification? {
