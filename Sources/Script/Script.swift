@@ -1,4 +1,5 @@
 import Foundation
+import Utility
 import Path
 
 public class Script {
@@ -85,7 +86,7 @@ public class Script {
         public var errorDescription: String? {
             switch self {
             case .execv(let executablePath, let errno):
-                return "execv failed: \(Library.strerror(errno)): \(executablePath)"
+                return "execv failed: \(strerror(errno)): \(executablePath)"
             }
         }
     }

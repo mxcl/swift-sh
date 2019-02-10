@@ -1,4 +1,4 @@
-@testable import Library
+@testable import Script
 import Version
 import XCTest
 import Path

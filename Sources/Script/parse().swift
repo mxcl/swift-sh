@@ -1,4 +1,5 @@
 import Foundation
+import Utility
 import Version
 
 /// - Parameter line: Contract: Single line string trimmed of whitespace.

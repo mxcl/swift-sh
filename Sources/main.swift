@@ -1,7 +1,6 @@
 import LegibleError
 import Foundation
 import Command
-import Library
 import Path
 
 do {

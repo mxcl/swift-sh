@@ -1,5 +1,6 @@
 import struct Foundation.Data
-import Library
+import Utility
+import Script
 import Path
 
 #if !os(Linux)
@@ -31,7 +32,7 @@ private func run<T>(reader: StreamReader, name: String, arguments: T) throws -> 
 
         let trimmed = line.trimmingCharacters(in: .whitespaces)
 
-        if trimmed.hasPrefix("import") || trimmed.hasPrefix("@testable"), let parse = Library.parse(trimmed) {
+        if trimmed.hasPrefix("import") || trimmed.hasPrefix("@testable"), let parse = parse(trimmed) {
             deps.append(parse)
         }
 

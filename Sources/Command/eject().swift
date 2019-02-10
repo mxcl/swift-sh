@@ -1,5 +1,6 @@
 import Foundation
-import Library
+import Utility
+import Script
 import Path
 
 public func eject(_ script: Path, force: Bool) throws {
