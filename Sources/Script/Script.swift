@@ -86,7 +86,7 @@ public class Script {
         public var errorDescription: String? {
             switch self {
             case .execv(let executablePath, let errno):
-                return "execv failed: \(strerror(errno)): \(executablePath)"
+                return "execv failed: \(Utility.strerror(errno)): \(executablePath)"
             }
         }
     }
