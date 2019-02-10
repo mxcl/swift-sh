@@ -1,4 +1,5 @@
 import struct Foundation.URL
+import Version
 
 public enum Constraint {
     case upToNextMajor(from: Version)

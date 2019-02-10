@@ -1,28 +1,13 @@
-import protocol Foundation.LocalizedError
-
-public extension CommandLine {
-    static let usage = """
-        swift sh <script> [arguments]
-        swift sh eject <script> [-f|--force]
-        """
-
-    enum Error: LocalizedError {
-        case invalidUsage
-
-        public var errorDescription: String? {
-            switch self {
-            case .invalidUsage:
-                return CommandLine.usage
-            }
-        }
-    }
-}
+//MARK: Collection helpers
 
 public extension Collection {
     subscript(safe index: Index) -> Element? {
         return indices.contains(index) ? self[index] : nil
     }
 }
+
+
+//MARK: strerror
 
 #if os(Linux)
 import func Glibc.strerror_r
@@ -34,7 +19,7 @@ import var Darwin.EINVAL
 import var Darwin.ERANGE
 #endif
 
-func strerror(_ code: Int32) -> String {
+public func strerror(_ code: Int32) -> String {
     var cap = 64
     while cap <= 16 * 1024 {
         var buf = [Int8](repeating: 0, count: cap)
@@ -52,4 +37,24 @@ func strerror(_ code: Int32) -> String {
         return "\(String(cString: buf)) (\(code))"
     }
     return "fatal: strerror_r: ERANGE"
+}
+
+
+//MARK: Regular Expression helpers
+
+import struct Foundation.NSRange
+import class Foundation.NSTextCheckingResult
+import class Foundation.NSRegularExpression
+
+public extension NSRegularExpression {
+    func firstMatch(in str: String) -> NSTextCheckingResult? {
+        let range = NSRange(location: 0, length: str.utf16.count)
+        return firstMatch(in: str, range: range)
+    }
+}
+
+public extension String {
+    subscript(range: NSRange) -> Substring {
+        return self[Range(range, in: self)!]
+    }
 }

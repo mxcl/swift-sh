@@ -1,8 +1,8 @@
 import XCTest
 
-import ShwiftyTests
+import All
 
 var tests = [XCTestCaseEntry]()
-tests += ShwiftyTests.__allTests()
+tests += All.__allTests()
 
 XCTMain(tests)
