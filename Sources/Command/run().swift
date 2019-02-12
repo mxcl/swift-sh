@@ -13,7 +13,7 @@ import struct Glibc.FILE
 // should we update packages? maybe in background when running scripts
 
 private func run<T>(reader: StreamReader, name: String, arguments: T) throws -> Never where T: Collection, T.Element == String {
-    var tee = [String]()
+    var tee = [""]  // initial blank line keeps line-numbers in sync
     var deps = [ImportSpecification]()
 
     // We are not a thorough parser, and that would be inefficient.
