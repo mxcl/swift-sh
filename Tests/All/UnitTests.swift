@@ -78,6 +78,15 @@ class UnitTests: XCTestCase {
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
+
+    func testSwiftVersion() {
+    #if swift(>=5) || compiler(>=5.0)
+        let expected = "5.0"
+    #else
+        let expected = "4.2"
+    #endif
+        XCTAssertEqual(swiftVersion, expected)
+    }
 }
 
 extension Constraint: Equatable {

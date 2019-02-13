@@ -47,6 +47,7 @@ extension UnitTests {
         ("testExact", testExact),
         ("testMinimalSpaces", testMinimalSpaces),
         ("testMoreSpaces", testMoreSpaces),
+        ("testSwiftVersion", testSwiftVersion),
         ("testTrailingWhitespace", testTrailingWhitespace),
         ("testWigglyArrow", testWigglyArrow),
     ]
