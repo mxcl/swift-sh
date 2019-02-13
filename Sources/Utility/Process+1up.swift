@@ -3,12 +3,7 @@ import Dispatch
 import Path
 
 public extension Process {
-#if os(Linux)
-    public func go() throws {
-        guard Path.root.join(launchPath!).isExecutable else { throw FileNotFoundError(launchPath: launchPath!) }
-        launch()  // `run` is not available for some reason
-    }
-#else
+#if !os(Linux)
     func go() throws {
         if #available(OSX 10.13, *) {
             try run()
@@ -16,6 +11,20 @@ public extension Process {
             // throws an ObjC exception if it fails, we cannot catch that
             launch()
         }
+    }
+#elseif swift(>=5)
+    func go() throws {
+        try run()
+    }
+#else
+    public func go() throws {
+        guard let launchPath = launchPath.flatMap(Path.init) else {
+            throw CocoaError.error(.fileReadNoSuchFile)
+        }
+        guard launchPath.isExecutable else {
+            throw CocoaError.error(.fileReadNoPermission)
+        }
+        launch()  // fatals if the above is false
     }
 #endif
 
@@ -36,26 +45,78 @@ public extension Process {
         }
     }
 
-#if os(Linux)
-    public struct FileNotFoundError: LocalizedError {
-        public let launchPath: String
-        public var errorDescription: String? {
-            return "executable file not found: \(launchPath)"
-        }
-    }
-#endif
-    
     struct ExecutionError: LocalizedError {
-        public let stdout: Output
-        public let stderr: Output
+        public let stdout: Output?
+        public let stderr: Output?
         public let status: Int32
-        public let arg0: String
+        public let arg0: String?
         public let args: [String]
 
         public var errorDescription: String? {
-            //TODO better
-            return "\(arg0) \(args): \(status): \(stderr) \(stdout)"
+            var args: String {
+                return self.args.map {
+                    $0.replacingOccurrences(of: " ", with: "\\ ")
+                }.joined(separator: " ")
+            }
+            var arg0: String {
+                return self.arg0 ?? "<nil>"
+            }
+            var stdout: String? {
+                return self.stdout?.string.map{ "out: `\($0)`" }
+            }
+            var stderr: String? {
+                return self.stderr?.string.map{ "err: `\($0)`" }
+            }
+            let outs = [stdout, stderr].compactMap{ $0 }
+            var rv = "\(status) <(\(arg0) \(args))"
+            if !outs.isEmpty {
+                rv += " -> " + outs.joined(separator: ", ")
+            }
+            return rv
         }
+    }
+
+    enum OutputType {
+        case stdout
+    }
+
+    func runSync(_: OutputType) throws -> Output {
+        let q = DispatchQueue(label: "output-queue")
+
+        var out = Data()
+
+        let outpipe = Pipe()
+        standardOutput = outpipe
+
+      #if !os(Linux)
+        outpipe.fileHandleForReading.readabilityHandler = { handler in
+            q.async {
+                out.append(handler.availableData)
+            }
+        }
+      #endif
+
+        try go()
+        waitUntilExit()
+
+      #if os(Linux)
+        out = outpipe.fileHandleForReading.readDataToEndOfFile()
+      #endif
+
+        func finish() throws -> Output {
+            guard terminationStatus == 0, terminationReason == .exit else {
+                throw ExecutionError(stdout: .init(out), stderr: nil, status: terminationStatus, arg0: launchPath, args: arguments ?? [])
+            }
+            return Output(out)
+        }
+
+        #if !os(Linux)
+        outpipe.fileHandleForReading.readabilityHandler = nil
+
+        return try q.sync(execute: finish)
+        #else
+        return try finish()
+        #endif
     }
 
     func runSync(tee: Bool = false) throws -> (stdout: Output, stderr: Output) {
@@ -103,7 +164,7 @@ public extension Process {
 
         func finish() throws -> (stdout: Output, stderr: Output) {
             guard terminationStatus == 0, terminationReason == .exit else {
-                throw ExecutionError(stdout: .init(out), stderr: .init(err), status: terminationStatus, arg0: launchPath!, args: arguments ?? [])
+                throw ExecutionError(stdout: .init(out), stderr: .init(err), status: terminationStatus, arg0: launchPath, args: arguments ?? [])
             }
             return (stdout: Output(out), stderr: Output(err))
         }
@@ -123,8 +184,7 @@ public extension Process {
         waitUntilExit()
 
         guard terminationReason == .exit, terminationStatus == 0 else {
-            let output = Output(Data())
-            throw ExecutionError(stdout: output, stderr: output, status: terminationStatus, arg0: launchPath ?? "<nil>", args: arguments ?? [])
+            throw ExecutionError(stdout: nil, stderr: nil, status: terminationStatus, arg0: launchPath, args: arguments ?? [])
         }
     }
 }
