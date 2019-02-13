@@ -17,11 +17,10 @@ class RunIntegrationTests: XCTestCase {
     }
 
     func testNamingMismatch() {
-        XCTAssertEqual("Promise(3)", exec: """
-            import PMKFoundation  // PromiseKit/Foundation ~> 3
-            import PromiseKit
+        XCTAssertEqual("/", exec: """
+            import Path  // mxcl/Path.swift ~> 0.15
 
-            print(Promise.value(3))
+            print(Path.root)
             """)
     }
 
@@ -125,7 +124,7 @@ class RunIntegrationTests: XCTestCase {
             task.launchPath = "/bin/sh"
             task.arguments = ["-c", "./\(file.basename())"]
             task.currentDirectoryPath = file.parent.string
-            let stdout = try task.runSync(tee: true).stdout.string?.chuzzled()
+            let stdout = try task.runSync(.stdout).string?.chuzzled()
             XCTAssertEqual(stdout, "123")
         }
     }
@@ -171,7 +170,7 @@ class EjectIntegrationTests: XCTestCase {
 
                 let build = Process(arg0: Path.swift, arg1: "run")
                 build.currentDirectoryPath = d.string
-                let out = try build.runSync().stdout.string
+                let out = try build.runSync(.stdout).string
                 XCTAssertEqual(out, String.resultScriptOutput)
             }
         }
@@ -267,13 +266,13 @@ class EjectIntegrationTests: XCTestCase {
 
 class TestingTheTests: XCTestCase {
     func testSwiftVersionIsWhatTestsExpect() {
-        #if swift(>=5)
+      #if swift(>=5)
         let expected = "5"
-        #elseif swift(>=4.2)
+      #elseif swift(>=4.2)
         let expected = "4.2"
-        #else
+      #else
         fatalError()
-        #endif
+      #endif
         XCTAssertEqual(expected, exec: """
             #if swift(>=5)
             print(5)
@@ -335,7 +334,7 @@ private func XCTAssertEqual(_ expected: String, exec: String, arg: String? = nil
     do {
         try write(script: exec, line: line) { file in
             let task = Process(arg0: file, arg1: arg)
-            let stdout = try task.runSync(tee: true).stdout.string?.chuzzled()
+            let stdout = try task.runSync(.stdout).string?.chuzzled()
             XCTAssertEqual(stdout, expected, line: line)
         }
     } catch {
