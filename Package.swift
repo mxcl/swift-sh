@@ -20,11 +20,6 @@ let package = Package(
         .target(name: "Utility", dependencies: ["Path", "Version"]),
         .target(name: "Command", dependencies: ["Script"]),
         .testTarget(name: "All", dependencies: ["Executable"]),
-    ]
+    ],
+    swiftLanguageVersions: [.v4_2, .version("5")]
 )
-
-#if swift(>=5)
-package.swiftLanguageVersions = [.v5]
-#else
-package.swiftLanguageVersions = [.v4_2]
-#endif

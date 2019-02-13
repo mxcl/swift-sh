@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/mxcl/Path.swift",
         "state": {
           "branch": null,
-          "revision": "28f84d396102d58c5b88e624cb8724dc1be5a74d",
-          "version": "0.15.1"
+          "revision": "2880aa556bf5fbebb2d3811501ba1687283081ff",
+          "version": "0.15.2"
         }
       },
       {
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/mxcl/Version",
         "state": {
           "branch": null,
-          "revision": "8995f058f05e4521dc4c923ca1470d0598ced3ea",
-          "version": "1.0.0"
+          "revision": "e81882f84b46932e4b3e14896039f906551d6451",
+          "version": "1.0.1"
         }
       }
     ]
