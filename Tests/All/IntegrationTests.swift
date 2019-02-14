@@ -266,20 +266,14 @@ class EjectIntegrationTests: XCTestCase {
 
 class TestingTheTests: XCTestCase {
     func testSwiftVersionIsWhatTestsExpect() {
-      #if swift(>=5)
-        let expected = "5"
-      #elseif swift(>=4.2)
-        let expected = "4.2"
-      #else
-        fatalError()
-      #endif
+        let expected = swiftVersion
         XCTAssertEqual(expected, exec: """
             #if swift(>=5)
-            print(5)
+                print(5.0)
             #elseif swift(>=4.2)
-            print(4.2)
+                print(4.2)
             #else
-            fatalError()
+                fatalError()
             #endif
             """)
     }

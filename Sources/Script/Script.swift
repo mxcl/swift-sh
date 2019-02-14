@@ -22,20 +22,14 @@ public class Script {
     var shouldWriteFiles: Bool {
         return (try? String(contentsOf: path/"main.swift")) != script
     }
-    
+
     func write() throws {
         //TODO we only support Swift 4.2 basically
         //TODO dependency module names can be anything so we need to parse Package.swifts for all deps to get module lists
 
-    #if swift(>=5)
-        let toolsVersion = "5.0"
-    #else
-        let toolsVersion = "4.2"
-    #endif
-
         try path.mkdir(.p)
         try """
-            // swift-tools-version:\(toolsVersion)
+            // swift-tools-version:\(swiftVersion)
             import PackageDescription
 
             let pkg = Package(name: "\(name)")
@@ -68,7 +62,7 @@ public class Script {
         task.launchPath = Path.swift.string
         task.arguments = ["build", "-Xswiftc", "-suppress-warnings"]
         task.currentDirectoryPath = path.string
-      #if !os(Linux) || swift(>=5)
+      #if !os(Linux)
         task.standardOutput = task.standardError
       #else
         // setting it stderr or `nil` CRASHES ffs
@@ -184,3 +178,25 @@ extension Path {
       #endif
     }
 }
+
+var swiftVersion: String {
+    do {
+        let task = Process()
+        task.launchPath = Path.swift.string
+        task.arguments = ["--version"]
+        if let input = try task.runSync(.stdout).string {
+            let range = input.range(of: "Swift version \\d+\\.\\d+", options: .regularExpression)!
+            if let found = input[range].split(separator: " ").last {
+                return String(found)
+            }
+        }
+    } catch {
+        assert(false)  // shouldn't happen during testing so let’s catch it
+    }
+#if swift(>=5)
+    return "5.0"
+#else
+    return "4.2"
+#endif
+}
+
