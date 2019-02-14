@@ -62,7 +62,7 @@ public class Script {
         task.launchPath = Path.swift.string
         task.arguments = ["build", "-Xswiftc", "-suppress-warnings"]
         task.currentDirectoryPath = path.string
-      #if !os(Linux) || swift(>=5)
+      #if !os(Linux)
         task.standardOutput = task.standardError
       #else
         // setting it stderr or `nil` CRASHES ffs
