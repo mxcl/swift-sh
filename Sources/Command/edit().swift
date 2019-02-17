@@ -14,8 +14,7 @@ public func edit(path: Path) throws -> Never {
     //TODO only regenerate if necessary
     let task = Process()
     task.launchPath = "/usr/bin/swift"
-    task.arguments = ["package", "generate-xcodeproj"]
-    task.currentDirectoryPath = script.buildDirectory.string
+    task.arguments = ["package", "--package-path", script.buildDirectory.string, "generate-xcodeproj"]
     try task.launchAndWaitForSuccessfulExit()
 
     let xcodeproj = script.buildDirectory/"\(script.name).xcodeproj"
