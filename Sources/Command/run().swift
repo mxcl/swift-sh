@@ -9,13 +9,15 @@ import struct Darwin.FILE
 import struct Glibc.FILE
 #endif
 
+private enum Input {
+    case stdin
+    case file(Path)
+}
+
 //TODO
 // should we update packages? maybe in background when running scripts
 
-private func run<T>(reader: StreamReader, name: String, arguments: T) throws -> Never where T: Collection, T.Element == String {
-    var tee = [""]  // initial blank line keeps line-numbers in sync
-    var deps = [ImportSpecification]()
-
+private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> Never where T: Collection, T.Element == String {
     // We are not a thorough parser, and that would be inefficient.
     // Since any line starting with import that is not in a comment
     // must be at file-scope or it is invalid Swift we just look
@@ -27,28 +29,40 @@ private func run<T>(reader: StreamReader, name: String, arguments: T) throws -> 
     //TODO well also could have an import structure where is split
     // over multiple lines with semicolons. So maybe parser?
 
+    var deps = [ImportSpecification]()
+    var lines = [String]()
+
     for (index, line) in reader.enumerated() {
-        if index == 0, line.hasPrefix("#!") { continue }
-
-        let trimmed = line.trimmingCharacters(in: .whitespaces)
-
-        if trimmed.hasPrefix("import") || trimmed.hasPrefix("@testable"), let parse = parse(trimmed) {
-            deps.append(parse)
+        if index == 0, line.hasPrefix("#!") {
+            lines.append("// shebang removed")  // keep line numbers in sync
+            continue
         }
-
-        tee.append(line)
+        if let result = ImportSpecification(line: line) {
+            deps.append(result)
+        }
+        if case .stdin = input {
+            lines.append(line)
+        }
     }
 
-    let script = Script(name: name, contents: tee, dependencies: deps, arguments: Array(arguments))
+    var transformedInput: Script.Input {
+        switch input {
+        case .stdin:
+            return .string(name: "<stdin>", content: lines.joined(separator: "\n"))
+        case .file(let path):
+            return .path(path)
+        }
+    }
+
+    let script = Script(for: transformedInput, dependencies: deps, arguments: Array(arguments))
     try script.run()
 }
 
 public func run<T>(_ file: UnsafeMutablePointer<FILE>, arguments: T) throws -> Never where T: Collection, T.Element == String {
-    try run(reader: StreamReader(file: file), name: "<stdin>", arguments: arguments)
+    try run(reader: StreamReader(file: file), input: .stdin, arguments: arguments)
 }
 
 public func run<T>(_ script: Path, arguments: T) throws -> Never where T: Collection, T.Element == String {
-    let name = script.basename(dropExtension: true)
     let reader = try StreamReader(path: script)
-    try run(reader: reader, name: name, arguments: arguments)
+    try run(reader: reader, input:  .file(script), arguments: arguments)
 }

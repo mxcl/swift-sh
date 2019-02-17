@@ -72,6 +72,18 @@ And then run it directly:
 $ ./foo
 ```
 
+# Support mxcl
+
+Hi, I’m Max Howell and I have written a lot of open source software, and
+probably you already use some of it (Homebrew anyone?). Please help me so I
+can continue to make tools and software you need and love. I appreciate it x.
+
+<a href="https://www.patreon.com/mxcl">
+	<img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
+</a>
+
+[Other donation/tipping options](http://mxcl.github.io/donate/)
+
 # Installation
 
 ```
@@ -92,18 +104,6 @@ executable will call this (provided it is in your `PATH`) when you type:
 
 We actively support both Linux and Mac and will support Windows as soon as it is
 possible to do so.
-
-# Support mxcl
-
-Hi, I’m Max Howell and I have written a lot of open source software, and
-probably you already use some of it (Homebrew anyone?). Please help me so I
-can continue to make tools and software you need and love. I appreciate it x.
-
-<a href="https://www.patreon.com/mxcl">
-	<img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
-</a>
-
-[Other donation/tipping options](http://mxcl.github.io/donate/)
 
 # Usage
 
@@ -133,6 +133,12 @@ The above will fetch:
 * https://example.com/bb.git, highest available version `9.0.0..<10.0.0`
 
 It is not necessary to add a comment specification for transitive dependencies.
+
+# Editing in Xcode
+
+```
+$ swift sh edit ./myScript
+```
 
 # Examples
 
