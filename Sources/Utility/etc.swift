@@ -58,3 +58,34 @@ public extension String {
         return self[Range(range, in: self)!]
     }
 }
+
+
+//MARK: Path.which
+
+import class Foundation.ProcessInfo
+import Path
+
+public extension Path {
+    static func which(_ cmd: String) -> Path? {
+        for prefix in PATH {
+            let path = prefix/cmd
+            if path.isExecutable {
+                return path
+            }
+        }
+        return nil
+    }
+}
+
+private var PATH: [Path] {
+    guard let PATH = ProcessInfo.processInfo.environment["PATH"] else {
+        return []
+    }
+    return PATH.split(separator: ":").map {
+        if $0.first == "/" {
+            return Path.root/$0
+        } else {
+            return Path.cwd/$0
+        }
+    }
+}

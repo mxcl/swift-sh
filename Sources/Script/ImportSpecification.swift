@@ -14,6 +14,13 @@ public struct ImportSpecification {
 }
 
 public extension ImportSpecification {
+    init?(line: String) {
+        let trimmed = line.trimmingCharacters(in: .whitespaces)
+        guard trimmed.hasPrefix("import") || trimmed.hasPrefix("@testable") else { return nil }
+        guard let result = parse(line) else { return nil }
+        self = result
+    }
+
     var packageLine: String {
         var requirement: String {
             switch constraint {

@@ -3,31 +3,43 @@ import Utility
 import Path
 
 public class Script {
-    let name: String
+    let input: Input
     let deps: [ImportSpecification]
-    let script: String
     let args: [String]
 
-    var path: Path {
-        return Path.selfCache/name
+    public var name: String {
+        switch input {
+        case .path(let path):
+            return path.basename(dropExtension: true)
+        case .string(let name, _):
+            return name
+        }
     }
 
-    public init(name: String, contents: [String], dependencies: [ImportSpecification], arguments: [String]) {
-        self.name = name
-        script = contents.joined(separator: "\n")
+    public var buildDirectory: Path {
+        return Path.build/name
+    }
+
+    public var mainSwift: Path {
+        return buildDirectory/"main.swift"
+    }
+
+    public enum Input {
+        case path(Path)
+        case string(name: String, content: String)
+    }
+
+    public init(for: Input, dependencies: [ImportSpecification], arguments: [String] = []) {
+        input = `for`
         deps = dependencies
         args = arguments
     }
-    
-    var shouldWriteFiles: Bool {
-        return (try? String(contentsOf: path/"main.swift")) != script
-    }
 
-    func write() throws {
+    public func write() throws {
         //TODO we only support Swift 4.2 basically
         //TODO dependency module names can be anything so we need to parse Package.swifts for all deps to get module lists
 
-        try path.mkdir(.p)
+        try buildDirectory.mkdir(.p)
         try """
             // swift-tools-version:\(swiftVersion)
             import PackageDescription
@@ -44,24 +56,33 @@ public class Script {
                 .target(name: "\(name)", dependencies: [\(deps.mainTargetDependencies)], path: ".", sources: ["main.swift"])
             ]
 
-            """.write(to: path/"Package.swift")
+            """.write(to: buildDirectory/"Package.swift")
 
-        try script.write(to: path/"main.swift")
+        switch input {
+        case .path(let userPath):
+            func mklink() throws { try userPath.symlink(as: mainSwift) }
+
+            if let linkdst = try? mainSwift.readlink(), linkdst != userPath {
+                try mainSwift.delete()
+                try mklink()
+            } else if !mainSwift.exists {
+                try mklink()
+            }
+        case .string(_, let contents):
+            if let currentContents = try? String(contentsOf: mainSwift), currentContents == contents { break }
+            try contents.write(to: mainSwift)
+        }
     }
 
     public func run() throws -> Never {
-        if shouldWriteFiles {
-            // don‘t write `main.swift` if would be identical
-            // ∵ prevents swift-build recognizing a null-build
-            // ie. prevents unecessary rebuild of our script
-            try write()
-        }
+
+        try write()
 
         // first arg has to be same as executable path
         let task = Process()
         task.launchPath = Path.swift.string
         task.arguments = ["build", "-Xswiftc", "-suppress-warnings"]
-        task.currentDirectoryPath = path.string
+        task.currentDirectoryPath = buildDirectory.string
       #if !os(Linux)
         task.standardOutput = task.standardError
       #else
@@ -70,93 +91,23 @@ public class Script {
       #endif
         try task.launchAndWaitForSuccessfulExit()
 
-        let exe = path/".build/debug"/name
-        let args = CStringArray([exe.string] + self.args)
-
-        guard execv(exe.string, args.cArray) != -1 else {
-            throw Error.execv(executable: exe, errno: errno)
-        }
-        fatalError("Impossible if execv succeeded")
-    }
-
-    public enum Error: LocalizedError {
-        case execv(executable: Path, errno: Int32)
-
-        public var errorDescription: String? {
-            switch self {
-            case .execv(let executablePath, let errno):
-                return "execv failed: \(Utility.strerror(errno)): \(executablePath)"
-            }
-        }
+        try exec(arg0: buildDirectory/".build/debug"/name, args: args)
     }
 }
 
-private  final class CStringArray {
-    /// The null-terminated array of C string pointers.
-    public let cArray: [UnsafeMutablePointer<Int8>?]
-
-    /// Creates an instance from an array of strings.
-    public init(_ array: [String]) {
-        cArray = array.map({ $0.withCString({ strdup($0) }) }) + [nil]
-    }
-
-    deinit {
-        for case let element? in cArray {
-            free(element)
-        }
-    }
-}
-
-
-
-#if SWIFT_PACKAGE && DEBUG && !Xcode
 extension Path {
     static var swift: Path {
-        do {
-            let yaml = Path.root.join(#file).parent.parent.parent.join(".build/debug.yaml")
-            for line in try StreamReader(path: yaml) {
-                guard let line = line.chuzzled() else { continue }
-                if line.hasPrefix("executable:"), line.hasSuffix("swiftc\"") {
-                    let parts = line.split(separator: ":")
-                    guard parts.count == 2 else { continue }
-                    return Path.root.join(parts[1].trimmingCharacters(in: .init(charactersIn: " \n\""))).parent.join("swift")
-                }
-            }
-            fatalError("Failed to find `swift`")
-        } catch {
-            fatalError("\(error)")
-        }
-    }
-}
-#else
-private var PATH: [Path] {
-    guard let PATH = ProcessInfo.processInfo.environment["PATH"] else {
-        return []
-    }
-    return PATH.split(separator: ":").map {
-        if $0.first == "/" {
-            return Path.root/$0
+        if let path = Path.which("swift") {
+            return path
         } else {
-            return Path.root/FileManager.default.currentDirectoryPath/$0
+            let task = Process()
+            task.launchPath = "/usr/bin/which"
+            task.arguments = ["swift"]
+            let str = (try? task.runSync())?.stdout.string?.chuzzled() ?? "/usr/bin/swift"
+            return Path.root/str
         }
     }
 }
-
-extension Path {
-    static var swift: Path {
-        for path in PATH where path.join("swift").isExecutable {
-            return path/"swift"
-        }
-
-        // else use `which`
-        let task = Process()
-        task.launchPath = "/usr/bin/which"
-        task.arguments = ["swift"]
-        let str = (try? task.runSync())?.stdout.string?.chuzzled() ?? "/usr/bin/swift"
-        return Path.root/str
-    }
-}
-#endif
 
 extension String {
     func chuzzled() -> String? {
@@ -166,7 +117,7 @@ extension String {
 }
 
 extension Path {
-    static var selfCache: Path {
+    static var build: Path {
       #if os(macOS)
         return Path.home/"Library/Developer/swift-sh.cache"
       #else
