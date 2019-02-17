@@ -67,8 +67,11 @@ import Path
 
 public extension Path {
     static func which(_ cmd: String) -> Path? {
-        for path in PATH where path.join(cmd).isExecutable {
-            return path
+        for prefix in PATH {
+            let path = prefix/cmd
+            if path.isExecutable {
+                return path
+            }
         }
         return nil
     }

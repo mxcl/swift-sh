@@ -17,7 +17,7 @@ public class Script {
     }
 
     public var buildDirectory: Path {
-        return Path.selfCache/name
+        return Path.build/name
     }
 
     public var mainSwift: Path {
@@ -95,26 +95,6 @@ public class Script {
     }
 }
 
-#if SWIFT_PACKAGE && DEBUG && !Xcode
-extension Path {
-    static var swift: Path {
-        do {
-            let yaml = Path.root.join(#file).parent.parent.parent.join(".build/debug.yaml")
-            for line in try StreamReader(path: yaml) {
-                guard let line = line.chuzzled() else { continue }
-                if line.hasPrefix("executable:"), line.hasSuffix("swiftc\"") {
-                    let parts = line.split(separator: ":")
-                    guard parts.count == 2 else { continue }
-                    return Path.root.join(parts[1].trimmingCharacters(in: .init(charactersIn: " \n\""))).parent.join("swift")
-                }
-            }
-            fatalError("Failed to find `swift`")
-        } catch {
-            fatalError("\(error)")
-        }
-    }
-}
-#else
 extension Path {
     static var swift: Path {
         if let path = Path.which("swift") {
@@ -128,7 +108,6 @@ extension Path {
         }
     }
 }
-#endif
 
 extension String {
     func chuzzled() -> String? {
@@ -138,7 +117,7 @@ extension String {
 }
 
 extension Path {
-    static var selfCache: Path {
+    static var build: Path {
       #if os(macOS)
         return Path.home/"Library/Developer/swift-sh.cache"
       #else

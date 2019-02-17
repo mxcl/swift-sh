@@ -6,8 +6,8 @@ import Path
 
 class RunIntegrationTests: XCTestCase {
     override class func setUp() {
-        guard Path.selfCache.isDirectory else { return }
-        for entry in try! Path.selfCache.ls() where entry.kind == .directory && entry.path.basename().hasPrefix(scriptBaseName) {
+        guard Path.build.isDirectory else { return }
+        for entry in try! Path.build.ls() where entry.kind == .directory && entry.path.basename().hasPrefix(scriptBaseName) {
             try! entry.path.delete()
         }
     }
@@ -319,6 +319,22 @@ private extension Process {
         let path = Path.root.join(CommandLine.arguments[0]).parent.parent.parent.parent.parent.parent.parent.parent.parent
         var env = ProcessInfo.processInfo.environment
         env["DEVELOPER_DIR"] = path.string
+        environment = env
+    #else
+        func swiftPath() throws -> String {
+            let yaml = Path.root.join(#file).parent.parent.parent.join(".build/debug.yaml")
+            for line in try StreamReader(path: yaml) {
+                guard let line = line.chuzzled() else { continue }
+                if line.hasPrefix("executable:"), line.hasSuffix("swiftc\"") {
+                    let parts = line.split(separator: ":")
+                    guard parts.count == 2 else { continue }
+                    return Path.root.join(parts[1].trimmingCharacters(in: .init(charactersIn: " \n\""))).parent.string
+                }
+            }
+            return "/usr/bin"
+        }
+        var env = ProcessInfo.processInfo.environment
+        env["PATH"] = "\(try! swiftPath()):\(ProcessInfo.processInfo.environment["PATH"]!)"
         environment = env
     #endif
     }
