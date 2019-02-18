@@ -136,9 +136,16 @@ It is not necessary to add a comment specification for transitive dependencies.
 
 # Editing in Xcode
 
+The following will generate an Xcode project (not in the working directory, we
+keep it out the way in our cache directory) and open it, edits are saved to your
+script file.
+
 ```
 $ swift sh edit ./myScript
 ```
+
+> **Note**, any modifications to the `Package.swift` in the generated project
+> are not propagated back to your script!
 
 # Examples
 
