@@ -114,7 +114,7 @@ Your dependencies are determined via your `import` lines:
 ```swift
 #!/usr/bin/swift sh
 import PromiseKit  // @mxcl ~> 6.5
-import Foo         // @bar == 6.5
+import Foo         // @foo == 6.5
 import Baz         // @bar == b4de8c
 import Floobles    // mxcl/Flub == master
 import BumbleButt  // https://example.com/bb.git ~> 9
