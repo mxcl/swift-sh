@@ -19,20 +19,20 @@ jobs:
       osx_image: xcode10.1
       script: swift test
 
-    - name: macOS / Swift 5.0 (Xcode 10.2)
+    - name: macOS / Swift 5.0.0-beta (Xcode 10.2)
       os: osx
       language: swift
       osx_image: xcode10.2
       script: swift test
 
     - &linux
-      name: Linux / Swift 4.2.1
-      env: SWIFT_VERSION=4.2.1
+      name: Linux / Swift 4.2.2
+      env: SWIFT_VERSION=4.2.2
       install: eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"
       script: swift test
       
     - <<: *linux
-      name: Linux / Swift 5.0.0-dev (2019-02-03)
+      name: Linux / Swift 5.0.0-dev+2019.02.03
       env: SWIFT_VERSION=DEVELOPMENT-SNAPSHOT-2019-02-03-a
 
     - name: Bump Formula

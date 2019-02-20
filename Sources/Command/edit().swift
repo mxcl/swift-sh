@@ -3,31 +3,12 @@ import Utility
 import Script
 import Path
 
+#if os(macOS)
 public func edit(path: Path) throws -> Never {
-    let reader = try StreamReader(path: path)
-    let deps = reader.compactMap(ImportSpecification.init)
-
+    let deps = try StreamReader(path: path).compactMap(ImportSpecification.init)
     let script = Script(for: .path(path), dependencies: deps)
     try script.write()
-
-#if !os(Linux)
-    //TODO only regenerate if necessary
-    let task = Process()
-    task.launchPath = "/usr/bin/swift"
-    task.arguments = ["package", "--package-path", script.buildDirectory.string, "generate-xcodeproj"]
-    try task.launchAndWaitForSuccessfulExit()
-
-    let xcodeproj = script.buildDirectory/"\(script.name).xcodeproj"
-    try exec(arg0: Path.root.usr.bin.open, args: [xcodeproj.string])
-#else
-    guard let editor = ProcessInfo.processInfo.environment["EDITOR"] else {
-        fatalError("EDITOR undefined")
-    }
-    guard let path = Path(editor) ?? Path.which(editor) else {
-        fatalError("EDITOR not in PATH")
-    }
-    try exec(arg0: path, args: [script.mainSwift.string])
-#endif
+    try exec(arg0: "/usr/bin/swift", args: ["sh-edit", path.string, script.buildDirectory.string])
 }
 
 public extension CommandLine {
@@ -39,3 +20,4 @@ public extension CommandLine {
         return Path(arg) ?? Path.cwd/arg
     }
 }
+#endif
