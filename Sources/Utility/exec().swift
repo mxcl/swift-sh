@@ -1,10 +1,10 @@
 import Foundation
 import Path
 
-public func exec(arg0: Path, args: [String]) throws -> Never {
-    let args = CStringArray([arg0.string] + args)
+public func exec(arg0: String, args: [String]) throws -> Never {
+    let args = CStringArray([arg0] + args)
 
-    guard execv(arg0.string, args.cArray) != -1 else {
+    guard execv(arg0, args.cArray) != -1 else {
         throw POSIXError.execv(executable: arg0, errno: errno)
     }
 
@@ -12,7 +12,7 @@ public func exec(arg0: Path, args: [String]) throws -> Never {
 }
 
 public enum POSIXError: LocalizedError {
-    case execv(executable: Path, errno: Int32)
+    case execv(executable: String, errno: Int32)
 
     public var errorDescription: String? {
         switch self {

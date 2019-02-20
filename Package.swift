@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "swift-sh",
     products: [
-        .executable(name: "swift-sh", targets: ["Executable"]),
+        .executable(name: "swift-sh", targets: ["swift-sh"]),
         .library(name: "Script", targets: ["Script"]),
         .library(name: "Utility", targets: ["Utility"]),
         .library(name: "Command", targets: ["Command"]),
@@ -15,11 +15,17 @@ let package = Package(
         .package(url: "https://github.com/mxcl/Version", from: "1.0.0"),
     ],
     targets: [
-        .target(name: "Executable", dependencies: ["Command", "LegibleError"], path: "Sources", sources: ["main.swift"]),
+        .target(name: "swift-sh", dependencies: ["Command", "LegibleError"], path: "Sources", sources: ["main.swift"]),
         .target(name: "Script", dependencies: ["Utility"]),
         .target(name: "Utility", dependencies: ["Path", "Version"]),
         .target(name: "Command", dependencies: ["Script"]),
-        .testTarget(name: "All", dependencies: ["Executable"]),
+        .testTarget(name: "All", dependencies: ["swift-sh"]),
     ],
     swiftLanguageVersions: [.v4_2, .version("5")]
 )
+
+#if os(macOS)
+package.products.append(.executable(name: "swift-sh-edit", targets: ["swift-sh-edit"]))
+package.targets.append(.target(name: "swift-sh-edit", dependencies: ["xcodeproj", "Utility"]))
+package.dependencies.append(.package(url: "https://github.com/tuist/xcodeproj", from: "6.5.0"))
+#endif

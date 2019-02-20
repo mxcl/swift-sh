@@ -91,7 +91,7 @@ public class Script {
       #endif
         try task.launchAndWaitForSuccessfulExit()
 
-        try exec(arg0: buildDirectory/".build/debug"/name, args: args)
+        try exec(arg0: (buildDirectory/".build/debug"/name).string, args: args)
     }
 }
 

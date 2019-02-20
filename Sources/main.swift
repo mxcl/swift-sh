@@ -10,9 +10,11 @@ do {
     case "eject"?:
         let parser = try CommandLine.parse(eject: CommandLine.arguments[2...])
         try Command.eject(parser.path, force: parser.force)
+#if os(macOS)
     case "edit"?:
         let path = try CommandLine.parse(edit: CommandLine.arguments[2...])
         try Command.edit(path: path)
+#endif
     case "-"?:
         try Command.run(stdin, arguments: CommandLine.arguments.dropFirst(2))
     default:
