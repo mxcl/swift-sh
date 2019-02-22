@@ -178,31 +178,6 @@ the script is then executed via `swift run`.
 
 † We use the FreeDesktop specified cache location on Linux.
 
-# TODO
-
-* More types of version specifications
-* Removing SwiftPM output unless there are errors
-* Optimizing the cache (creating a library structure more like `gem` or `pip`
-    would)
-* Error out if the import specification is invalid, currently we silently ignore
-    such lines
-
-# Limitations
-
-Our logic for determining package modules is insufficient. It works for most
-packages, but will fail for packages with multiple modules. I’ll fix this once
-I need to, but feel free to PR it. Doing this properly is probably easiest if
-we depend on SwiftPM itself and use its machinery to get module information.
-
-Alternatively we could require all imports that a script depends on to be
-specified in the form that we already do. Or we could assume all imports that
-are not Apple imports to be dependencies for the generated `Package.swift`. Or
-we could manage the build ourselves which isn’t too hard and would be the
-solution that simplifies our system the most.
-
-If you have two scripts with the same name we will (currently) always need to 
-rebuild whenever you rotate between them. 
-
 # Alternatives
 
 * [Beak](https://github.com/yonaskolb/Beak)
