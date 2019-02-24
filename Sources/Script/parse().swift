@@ -4,15 +4,16 @@ import Version
 
 /// - Parameter line: Contract: Single line string trimmed of whitespace.
 func parse(_ line: String) -> ImportSpecification? {
-    let pattern = "import\\s+(.*?)\\s*//\\s*(.*?)\\s*(==|~>)\\s*([^\\s]*)"
+    let pattern = "import\\s+(.*?)\\s*\\/\\/\\s*(@?[\\w\\/:\\.]+)\\s*(?:(==|~>)\\s*([^\\s]+))?"
     let rx = try! NSRegularExpression(pattern: pattern)
     guard let match = rx.firstMatch(in: line) else { return nil }
-    guard match.numberOfRanges == 5 else { return nil }
+
+    guard match.numberOfRanges == 5 else {
+        return nil
+    }
 
     let importName = extractImport(line: line[match.range(at: 1)])
     let depSpec = line[match.range(at: 2)]
-    let constrainer = line[match.range(at: 3)]
-    let requirement = line[match.range(at: 4)]
 
     let depName: String
     if depSpec.hasPrefix("@") {
@@ -22,14 +23,24 @@ func parse(_ line: String) -> ImportSpecification? {
     }
 
     let constraint: Constraint
-    if let v = Version(tolerant: String(requirement)) {
-        if constrainer == "~>" {
-            constraint = .upToNextMajor(from: v)
+    if match.isMatch(at: 3), match.isMatch(at: 4) {
+        let constrainer = line[match.range(at: 3)]
+        let requirement = line[match.range(at: 4)]
+
+        if let v = Version(tolerant: String(requirement)) {
+            if constrainer == "~>" {
+                constraint = .upToNextMajor(from: v)
+            } else {
+                constraint = .exact(v)
+            }
         } else {
-            constraint = .exact(v)
+            constraint = .ref(String(requirement))
         }
+    } else if match.isMatch(at: 3) || match.isMatch(at: 4) {
+        //TODO show warning
+        return nil
     } else {
-        constraint = .ref(String(requirement))
+        constraint = .latest
     }
 
     return ImportSpecification(importName: importName, dependencyName: depName, constraint: constraint)

@@ -60,6 +60,14 @@ class RunIntegrationTests: XCTestCase {
             """)
     }
 
+    func testTestableLatest() {
+        XCTAssertEqual("1.2.3", exec: """
+            import Version  // @mxcl
+
+            print(Version(1,2,3))
+            """)
+    }
+
     func testStandardInputCanBeUsedInScript() throws {
         let stdin = Pipe()
         let stdout = Pipe()
@@ -354,7 +362,7 @@ private func XCTAssertEqual(_ expected: String, exec: String, arg: String? = nil
 
 private var shebang: String {
 #if Xcode
-    return Bundle(for: RunIntegrationTests.self).path.parent.join("Executable").string
+    return Bundle(for: RunIntegrationTests.self).path.parent.join("swift-sh").string
 #elseif os(Linux)
     // Bundle(for:) is unimplemented
     return Path.root.join(#file).parent.parent.parent.join(".build/debug/swift-sh").string
