@@ -10,7 +10,7 @@ jobs:
       install: swift test --generate-linuxmain
       script: git diff --exit-code
       os: osx
-      osx_image: xcode10.1
+      osx_image: xcode10.2
 
     - name: macOS / Swift 4.2.1 (Xcode 10.1)
       stage: test

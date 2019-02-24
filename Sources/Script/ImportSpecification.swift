@@ -5,6 +5,7 @@ public enum Constraint {
     case upToNextMajor(from: Version)
     case exact(Version)
     case ref(String)
+    case latest
 }
 
 public struct ImportSpecification {
@@ -35,6 +36,10 @@ public extension ImportSpecification {
             case .ref(let ref):
                 return """
                 .revision("\(ref)")
+                """
+            case .latest:
+                return """
+                Version(0,0,0)...Version(1_000_000,0,0)
                 """
             }
         }

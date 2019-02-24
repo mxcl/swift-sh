@@ -113,24 +113,27 @@ Your dependencies are determined via your `import` lines:
 
 ```swift
 #!/usr/bin/swift sh
-import PromiseKit  // @mxcl ~> 6.5
-import Foo         // @bar == 6.5
-import Baz         // @bar == b4de8c
-import Floobles    // mxcl/Flub == master
-import BumbleButt  // https://example.com/bb.git ~> 9
+import AppUpdater    // @mxcl
+// ^^ https://github.com/mxcl/AppUpdater, latest version
+
+import PromiseKit    // @mxcl ~> 6.5
+// ^^ mxcl/PromiseKit, version 6.5.0 or higher up to but not including 7.0.0 or higher
+
+import Chalk         // @mxcl == 0.3.1
+// ^^ mxcl/Chalk, only version 0.3.1
+
+import LegibleError  // @mxcl == b4de8c12
+// ^^ mxcl/LegibleError, the precise commit `b4de8c12`
+
+import Path          // mxcl/Path.swift ~> 0.16
+// ^^ for when the module-name and repo-name are not identical
+
+import BumbleButt    // https://example.com/bb.git ~> 9
+// ^^ non-GitHub URLs are fine
 ```
 
 `swift-sh` reads the comments after your imports and fetches the requested
 SwiftPM dependencies.
-
-The above will fetch:
-
-* https://github.com/mxcl/PromiseKit, the highest available version that is
-    greater than or equal to 6.5.0 but less than 7.0.0
-* https://github.com/bar/Foo version precisely 6.5.0
-* https://github.com/bar/Baz, with the specific Git SHA `b4de8c`
-* https://github.com/mxcl/Flub, master branch
-* https://example.com/bb.git, highest available version `9.0.0..<10.0.0`
 
 It is not necessary to add a comment specification for transitive dependencies.
 

@@ -45,11 +45,19 @@ public func strerror(_ code: Int32) -> String {
 import struct Foundation.NSRange
 import class Foundation.NSTextCheckingResult
 import class Foundation.NSRegularExpression
+import var Foundation.NSNotFound
 
 public extension NSRegularExpression {
     func firstMatch(in str: String) -> NSTextCheckingResult? {
         let range = NSRange(location: 0, length: str.utf16.count)
         return firstMatch(in: str, range: range)
+    }
+}
+
+public extension NSTextCheckingResult {
+    func isMatch(at: Int) -> Bool {
+        guard at < numberOfRanges else { return false }
+        return range(at: at).location != NSNotFound
     }
 }
 

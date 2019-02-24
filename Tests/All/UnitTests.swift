@@ -79,6 +79,13 @@ class UnitTests: XCTestCase {
         XCTAssertEqual(b?.importName, "Foo")
     }
 
+    func testLatestVersion() {
+        let b = parse("import Foo  // @bar")
+        XCTAssertEqual(b?.dependencyName, "bar/Foo")
+        XCTAssertEqual(b?.constraint, .latest)
+        XCTAssertEqual(b?.importName, "Foo")
+    }
+
     func testSwiftVersion() {
     #if swift(>=5) || compiler(>=5.0)
         let expected = "5.0"
@@ -96,7 +103,15 @@ extension Constraint: Equatable {
             return v1 == v2
         case let (.ref(ref1), .ref(ref2)):
             return ref1 == ref2
-        default:
+        case (.latest, .latest):
+            return true
+        case (.latest, _):
+            return false
+        case (.ref, _):
+            return false
+        case (.exact, _):
+            return false
+        case (.upToNextMajor, _):
             return false
         }
     }
