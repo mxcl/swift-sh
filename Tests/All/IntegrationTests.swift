@@ -12,6 +12,16 @@ class RunIntegrationTests: XCTestCase {
         }
     }
 
+    override func tearDown() {
+    #if swift(>=5)
+    #else
+        // sleep or race condition bug in SwiftPM 4.2 causes
+        // changes to be ignored if the same script name
+        // is executed twice in quick succession.
+        usleep(500_000)
+    #endif
+    }
+
     func testConventional() {
         XCTAssertEqual(.resultScriptOutput, exec: .resultScript)
     }
@@ -133,13 +143,13 @@ class RunIntegrationTests: XCTestCase {
     }
 
     func testProcessSubstitution() throws {
-        try write(script: "print(123)") { script in
+        try write(script: "print(\"\(#function)\")") { script in
             let task = Process(arg0: "/bin/bash")
             task.arguments = [
                 "-c", "\(shebang) <(cat \"\(script)\")"
             ]
             let stdout = try task.runSync(.stdout).string
-            XCTAssertEqual(stdout, "123")
+            XCTAssertEqual(stdout, #function)
         }
     }
 
@@ -147,10 +157,10 @@ class RunIntegrationTests: XCTestCase {
         try write(script: "print(CommandLine.arguments[1])") { script in
             let task = Process(arg0: "/bin/bash")
             task.arguments = [
-                "-c", "\(shebang) <(cat \"\(script)\") foo"
+                "-c", "\(shebang) <(cat \"\(script)\") \"\(#function)\""
             ]
             let stdout = try task.runSync(.stdout).string
-            XCTAssertEqual(stdout, "foo")
+            XCTAssertEqual(stdout, #function)
         }
     }
 
@@ -211,7 +221,7 @@ class RunIntegrationTests: XCTestCase {
 
             return String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
         }
-        for x in 1...50 {
+        for x in 1...3 {
             XCTAssertEqual(try go(input: "print(\(x))"), "\(x)\n")
 
         #if swift(>=5)
