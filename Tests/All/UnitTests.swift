@@ -45,12 +45,26 @@ class UnitTests: XCTestCase {
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
+    
+    func testCanOverrideImportNameUsingNameWithHyphen() {
+        let b = parse("import Bar  // mxcl/swift-bar ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, "mxcl/swift-bar")
+        XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(b?.importName, "Bar")
+    }
 
     func testCanProvideFullURL() {
         let b = parse("import Foo  // https://example.com/mxcl/Bar.git ~> 1.0")
         XCTAssertEqual(b?.dependencyName, "https://example.com/mxcl/Bar.git")
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
+    }
+
+    func testCanProvideFullURLWithHyphen() {
+        let b = parse("import Bar  // https://example.com/mxcl/swift-bar.git ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, "https://example.com/mxcl/swift-bar.git")
+        XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(b?.importName, "Bar")
     }
 
     func testCanDoSpecifiedImports() {

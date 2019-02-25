@@ -4,7 +4,7 @@ import Version
 
 /// - Parameter line: Contract: Single line string trimmed of whitespace.
 func parse(_ line: String) -> ImportSpecification? {
-    let pattern = "import\\s+(.*?)\\s*\\/\\/\\s*(@?[\\w\\/:\\.]+)\\s*(?:(==|~>)\\s*([^\\s]+))?"
+    let pattern = "import\\s+(.*?)\\s*\\/\\/\\s*(@?[\\w\\/:\\.\\-]+)\\s*(?:(==|~>)\\s*([^\\s]+))?"
     let rx = try! NSRegularExpression(pattern: pattern)
     guard let match = rx.firstMatch(in: line) else { return nil }
 
