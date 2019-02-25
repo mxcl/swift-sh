@@ -59,7 +59,9 @@ extension UnitTests {
     static let __allTests__UnitTests = [
         ("testCanDoSpecifiedImports", testCanDoSpecifiedImports),
         ("testCanOverrideImportName", testCanOverrideImportName),
+        ("testCanOverrideImportNameUsingNameWithHyphen", testCanOverrideImportNameUsingNameWithHyphen),
         ("testCanProvideFullURL", testCanProvideFullURL),
+        ("testCanProvideFullURLWithHyphen", testCanProvideFullURLWithHyphen),
         ("testCanUseTestable", testCanUseTestable),
         ("testExact", testExact),
         ("testLatestVersion", testLatestVersion),
