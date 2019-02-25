@@ -58,9 +58,7 @@ jobs:
         git push origin master
 
     - name: Publish Release
-      before_install: curl -O https://raw.githubusercontent.com/mxcl/Path.swift/master/.github/deploy
-      install: chmod u+x deploy
       before_script: brew install mxcl/made/swift-sh
-      script: ./deploy publish-release
+      script: swift sh <(curl https://raw.githubusercontent.com/mxcl/Path.swift/master/.github/deploy) publish-release
       os: osx
       osx_image: xcode10.2

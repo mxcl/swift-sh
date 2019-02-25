@@ -171,7 +171,7 @@ creates a Swift package in `./Foo`, from now on use `swift build` in the
 If you want to make scripts available to people using CI; use `stdin`:
 
     brew install mxcl/made/swift-sh
-    swift sh <(curl http://example.com/yourscript)
+    swift sh <(curl http://example.com/yourscript) arg1 arg2
 
 # Internal Details
 
