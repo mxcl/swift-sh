@@ -62,3 +62,5 @@ jobs:
       install: chmod u+x deploy
       before_script: brew install mxcl/made/swift-sh
       script: ./deploy publish-release
+      os: osx
+      osx_image: xcode10.2
