@@ -16,18 +16,23 @@ do {
         try Command.edit(path: path)
 #endif
     case "-"?:
-        try Command.run(stdin, arguments: CommandLine.arguments.dropFirst(2))
+        try Command.run(stdin, arguments: CommandLine.arguments[2...])
     default:
+        let stdin_is_TTY = isatty(fileno(stdin)) == 1
+
         if CommandLine.arguments.count >= 2 {
             let arg1 = CommandLine.arguments[1]
             let path = Path(arg1) ?? Path.cwd/arg1
-            let args = CommandLine.arguments.dropFirst(2)
-            try Command.run(path, arguments: args)
-        } else if isatty(fileno(stdin)) == 1 {
+            if !stdin_is_TTY && !path.isFile {
+                try Command.run(stdin, arguments: CommandLine.arguments[1...])
+            } else {
+                try Command.run(path, arguments: CommandLine.arguments[2...])
+            }
+        } else if stdin_is_TTY {
             // stdin is a terminal, show usage
             throw CommandLine.Error.invalidUsage
         } else {
-            try Command.run(stdin, arguments: CommandLine.arguments.dropFirst())
+            try Command.run(stdin, arguments: CommandLine.arguments[1...])
         }
     }
 } catch CommandLine.Error.invalidUsage {

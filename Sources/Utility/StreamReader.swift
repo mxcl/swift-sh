@@ -35,7 +35,7 @@ public class StreamReader  {
     }
 
     deinit {
-        self.close()
+        close()
     }
 
     /// Return next line, or nil on EOF.

@@ -9,11 +9,6 @@ import struct Darwin.FILE
 import struct Glibc.FILE
 #endif
 
-private enum Input {
-    case stdin
-    case file(Path)
-}
-
 //TODO
 // should we update packages? maybe in background when running scripts
 
@@ -40,15 +35,18 @@ private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> 
         if let result = ImportSpecification(line: line) {
             deps.append(result)
         }
-        if case .stdin = input {
+        switch input {
+        case .stdin, .namedPipe:
             lines.append(line)
+        case .file:
+            break
         }
     }
 
     var transformedInput: Script.Input {
         switch input {
-        case .stdin:
-            return .string(name: "<stdin>", content: lines.joined(separator: "\n"))
+        case .stdin, .namedPipe:
+            return .string(name: input.name, content: lines.joined(separator: "\n"))
         case .file(let path):
             return .path(path)
         }
@@ -63,6 +61,14 @@ public func run<T>(_ file: UnsafeMutablePointer<FILE>, arguments: T) throws -> N
 }
 
 public func run<T>(_ script: Path, arguments: T) throws -> Never where T: Collection, T.Element == String {
-    let reader = try StreamReader(path: script)
-    try run(reader: reader, input:  .file(script), arguments: arguments)
+    let reader: StreamReader
+    let input: Input
+    if let namedPipe = script.namedPipe {
+        reader = StreamReader(file: namedPipe)
+        input = .namedPipe(namedPipe)
+    } else {
+        reader = try StreamReader(path: script)
+        input = .file(script)
+    }
+    try run(reader: reader, input: input, arguments: arguments)
 }

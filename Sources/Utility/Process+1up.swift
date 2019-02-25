@@ -110,13 +110,13 @@ public extension Process {
             return Output(out)
         }
 
-        #if !os(Linux)
+      #if !os(Linux)
         outpipe.fileHandleForReading.readabilityHandler = nil
 
         return try q.sync(execute: finish)
-        #else
+      #else
         return try finish()
-        #endif
+      #endif
     }
 
     func runSync(tee: Bool = false) throws -> (stdout: Output, stderr: Output) {
