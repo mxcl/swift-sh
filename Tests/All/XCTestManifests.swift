@@ -38,6 +38,7 @@ extension RunIntegrationTests {
         ("testStandardInputCanBeUsedBySwiftSh", testStandardInputCanBeUsedBySwiftSh),
         ("testStandardInputCanBeUsedBySwiftShWithArgument", testStandardInputCanBeUsedBySwiftShWithArgument),
         ("testStandardInputCanBeUsedInScript", testStandardInputCanBeUsedInScript),
+        ("testStdinScriptChangesAreSeen", testStdinScriptChangesAreSeen),
         ("testTestableExactRevision", testTestableExactRevision),
         ("testTestableExactVersion", testTestableExactVersion),
         ("testTestableFullySpecifiedURL", testTestableFullySpecifiedURL),

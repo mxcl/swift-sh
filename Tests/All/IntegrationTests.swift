@@ -190,6 +190,37 @@ class RunIntegrationTests: XCTestCase {
             """
         XCTAssertEqual(cwd, exec: script)
     }
+
+    func testStdinScriptChangesAreSeen() throws {
+        func go(input: String, line: UInt = #line) throws -> String? {
+            let stdin = Pipe()
+            let stdout = Pipe()
+            let task = Process(arg0: shebang)
+            task.standardInput = stdin
+            task.standardOutput = stdout
+            try task.go()
+
+            stdin.fileHandleForWriting.write(input.data(using: .utf8)!)
+            stdin.fileHandleForWriting.closeFile()
+            task.waitUntilExit()
+
+            XCTAssertEqual(task.terminationReason, .exit, line: line)
+            XCTAssertEqual(task.terminationStatus, 0, line: line)
+
+            XCTAssertEqual(try String(contentsOf: Path.build/"<stdin>/main.swift"), input, line: line)
+
+            return String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
+        }
+        for x in 1...50 {
+            XCTAssertEqual(try go(input: "print(\(x))"), "\(x)\n")
+
+        #if swift(>=5)
+        #else
+            // sleep or race condition bug in SwiftPM 4.2 causes these tests to fail
+            sleep(1)
+        #endif
+        }
+    }
 }
 
 class EjectIntegrationTests: XCTestCase {
