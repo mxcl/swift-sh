@@ -25,29 +25,29 @@ class RunIntegrationTests: XCTestCase {
     }
 
     func testTestableImport() {
-        XCTAssertEqual(".success(4)", exec: """
+        XCTAssertEqual("1.2.3", exec: """
             import Foundation
-            @testable import Result  // @antitypical ~> 4.1
+            @testable import Version  // @mxcl ~> 1.0
 
-            print(Result<Int, CocoaError>.success(4))
+            print(Version(1,2,3))
             """)
     }
 
     func testTestableFullySpecifiedURL() {
-        XCTAssertEqual(".success(5)", exec: """
+        XCTAssertEqual("2.3.4", exec: """
             import Foundation
-            @testable import Result  // https://github.com/antitypical/Result ~> 4.1
+            @testable import Version  // https://github.com/mxcl/Version ~> 1.0
 
-            print(Result<Int, CocoaError>.success(5))
+            print(Version(2,3,4))
             """)
     }
 
     func testTestableExactVersion() {
-        XCTAssertEqual(".success(5)", exec: """
+        XCTAssertEqual("3.4.5", exec: """
             import Foundation
-            @testable import Result  // antitypical/Result == 4.1
+            @testable import Version  // mxcl/Version == 1.0.2
 
-            print(Result<Int, CocoaError>.success(5))
+            print(Version(3,4,5))
             """)
     }
 
@@ -61,10 +61,10 @@ class RunIntegrationTests: XCTestCase {
     }
 
     func testTestableLatest() {
-        XCTAssertEqual("1.2.3", exec: """
+        XCTAssertEqual("7.8.9", exec: """
             import Version  // @mxcl
 
-            print(Version(1,2,3))
+            print(Version(7,8,9))
             """)
     }
 
@@ -101,7 +101,7 @@ class RunIntegrationTests: XCTestCase {
         task.standardOutput = stdout
         try task.go()
 
-        stdin.fileHandleForWriting.write("print(1)".data(using: .utf8)!)
+        stdin.fileHandleForWriting.write("print(\"\(#function)\")".data(using: .utf8)!)
         stdin.fileHandleForWriting.closeFile()
         task.waitUntilExit()
 
@@ -109,7 +109,7 @@ class RunIntegrationTests: XCTestCase {
         XCTAssertEqual(task.terminationStatus, 0)
 
         let out = String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
-        XCTAssertEqual(out, "1\n")
+        XCTAssertEqual(out, "\(#function)\n")
     }
 
     func testStandardInputCanBeUsedBySwiftShWithArgument() throws {
