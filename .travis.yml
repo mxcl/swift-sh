@@ -3,6 +3,12 @@ if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/
 
 language: generic
 
+stages:
+  - name: pretest
+  - name: test
+  - name: deploy
+    if: branch =~ ^\d+\.\d+\.\d+$
+
 jobs:
   include:
     - stage: pretest
@@ -37,7 +43,6 @@ jobs:
 
     - name: Bump Formula
       stage: deploy
-      if: branch =~ ^\d+\.\d+\.\d+$
       script: |
         set -exo pipefail
         URL="https://github.com/mxcl/swift-sh/archive/$TRAVIS_TAG.tar.gz"
@@ -51,3 +56,9 @@ jobs:
         git config user.email "bot@travis-ci.com"
         git commit -m "swift-sh $TRAVIS_TAG"
         git push origin master
+
+    - name: Publish Release
+      before_install: curl -O https://raw.githubusercontent.com/mxcl/Path.swift/master/.github/deploy
+      install: chmod u+x deploy
+      before_script: brew install mxcl/made/swift-sh
+      script: ./deploy publish-release
