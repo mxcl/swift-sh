@@ -1,6 +1,6 @@
 @testable import Command
 @testable import Script
-import class Utility.StreamReader
+import Utility
 import XCTest
 import Path
 
@@ -107,8 +107,53 @@ class RunIntegrationTests: XCTestCase {
 
         XCTAssertEqual(task.terminationReason, .exit)
         XCTAssertEqual(task.terminationStatus, 0)
-        XCTAssertEqual(stdout.fileHandleForReading.readDataToEndOfFile(), "1\n".data(using: .utf8))
+
+        let out = String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
+        XCTAssertEqual(out, "1\n")
     }
+
+    func testStandardInputCanBeUsedBySwiftShWithArgument() throws {
+        let stdin = Pipe()
+        let stdout = Pipe()
+        let task = Process(arg0: shebang)
+        task.arguments = ["foobar"]
+        task.standardInput = stdin
+        task.standardOutput = stdout
+        try task.go()
+
+        stdin.fileHandleForWriting.write("print(CommandLine.arguments[1])".data(using: .utf8)!)
+        stdin.fileHandleForWriting.closeFile()
+        task.waitUntilExit()
+
+        XCTAssertEqual(task.terminationReason, .exit)
+        XCTAssertEqual(task.terminationStatus, 0)
+
+        let out = String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
+        XCTAssertEqual(out, "foobar\n")
+    }
+
+    func testProcessSubstitution() throws {
+        try write(script: "print(123)") { script in
+            let task = Process(arg0: "/bin/bash")
+            task.arguments = [
+                "-c", "\(shebang) <(cat \"\(script)\")"
+            ]
+            let stdout = try task.runSync(.stdout).string
+            XCTAssertEqual(stdout, "123")
+        }
+    }
+
+    func testProcessSubstitutionWithArgument() throws {
+        try write(script: "print(CommandLine.arguments[1])") { script in
+            let task = Process(arg0: "/bin/bash")
+            task.arguments = [
+                "-c", "\(shebang) <(cat \"\(script)\") foo"
+            ]
+            let stdout = try task.runSync(.stdout).string
+            XCTAssertEqual(stdout, "foo")
+        }
+    }
+
 
     func testArguments() {
         XCTAssertEqual(".success(3)", exec: """
