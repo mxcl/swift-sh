@@ -50,31 +50,6 @@ public func eject(_ script: Path, force: Bool) throws {
     }
 }
 
-public extension CommandLine {
-    //TODO find a good third party parser (like obv.)
-    static func parse<T>(eject args: T) throws -> (path: Path, force: Bool) where T: Collection, T.Element == String, T.Index == Int {
-
-        func pathize(at: Int) -> Path {
-            return Path(args[at]) ?? Path.cwd/args[at]
-        }
-
-        switch args.count {
-        case 1:
-            return (path: pathize(at: args.indices.first!), force: false)
-        case 2:
-            guard let flagIndex = args.firstIndex(of: "-f") ?? args.firstIndex(of: "--force") else {
-                throw Error.invalidUsage
-            }
-            let firstIndex = args.indices.first!
-            let pathIndex = flagIndex == firstIndex ? flagIndex.advanced(by: 1) : firstIndex
-            let path = pathize(at: pathIndex)
-            return (path: path, force: true)
-        case 0, _:
-            throw CommandLine.Error.invalidUsage
-        }
-    }
-}
-
 enum EjectError: LocalizedError {
     case notScript
 

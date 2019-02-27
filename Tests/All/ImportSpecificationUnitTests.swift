@@ -3,7 +3,7 @@ import Version
 import XCTest
 import Path
 
-class UnitTests: XCTestCase {
+class ImportSpecificationUnitTests: XCTestCase {
     func testWigglyArrow() {
         let a = parse("import Foo // @mxcl ~> 1.0")
         XCTAssertEqual(a?.dependencyName, "mxcl/Foo")
