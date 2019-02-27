@@ -25,11 +25,7 @@ public class StreamReader  {
         self.init(fileHandle: fileHandle)
     }
 
-    public convenience init(file: UnsafeMutablePointer<FILE>) {
-        self.init(fileHandle: FileHandle(fileDescriptor: fileno(file)))
-    }
-
-    private init(fileHandle: FileHandle) {
+    public init(fileHandle: FileHandle) {
         self.fileHandle = fileHandle
         self.buffer = Data(capacity: chunkSize)
     }

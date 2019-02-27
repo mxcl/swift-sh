@@ -1,3 +1,4 @@
+import class Foundation.FileHandle
 import Utility
 import Path
 
@@ -10,7 +11,7 @@ import Glibc
 enum Input {
     case stdin
     case file(Path)
-    case namedPipe(UnsafeMutablePointer<FILE>)
+    case namedPipe(FileHandle)
 
     var name: String {
         switch self {
@@ -18,14 +19,14 @@ enum Input {
             return "<stdin>"
         case .file(let path):
             return path.basename()
-        case .namedPipe(let fp):
-            return "<named-pipe-\(fileno(fp))>"
+        case .namedPipe(let fh):
+            return "<named-pipe-\(fh.fileDescriptor))>"
         }
     }
 }
 
 extension Path {
-    var namedPipe: UnsafeMutablePointer<FILE>? {
+    var namedPipe: FileHandle? {
         var sbuf = stat()
         guard let fp = fopen(string, "r") else {
             return nil
@@ -42,7 +43,11 @@ extension Path {
         }
     #endif
         if sbuf.st_mode & S_IFMT == S_IFIFO {
-            return fp
+        #if !os(Linux)
+            return FileHandle(fileDescriptor: fileno(fp))
+        #else
+            return FileHandle(fileDescriptor: fp.pointee._fileno)
+        #endif
         } else {
             fclose(fp)
             return nil

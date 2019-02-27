@@ -56,19 +56,22 @@ private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> 
     try script.run()
 }
 
-public func run<T>(_ file: UnsafeMutablePointer<FILE>, arguments: T) throws -> Never where T: Collection, T.Element == String {
-    try run(reader: StreamReader(file: file), input: .stdin, arguments: arguments)
-}
-
-public func run<T>(_ script: Path, arguments: T) throws -> Never where T: Collection, T.Element == String {
+public func run<T>(_ input: Mode.RunType, arguments: T) throws -> Never where T: Collection, T.Element == String {
     let reader: StreamReader
-    let input: Input
-    if let namedPipe = script.namedPipe {
-        reader = StreamReader(file: namedPipe)
-        input = .namedPipe(namedPipe)
-    } else {
-        reader = try StreamReader(path: script)
-        input = .file(script)
+    let input_: Input
+
+    switch input {
+    case .stdin:
+        reader = StreamReader(fileHandle: .standardInput)
+        input_ = .stdin
+    case .file(let script):
+        if let namedPipe = script.namedPipe {
+            reader = StreamReader(fileHandle: namedPipe)
+            input_ = .namedPipe(namedPipe)
+        } else {
+            reader = try StreamReader(path: script)
+            input_ = .file(script)
+        }
     }
-    try run(reader: reader, input: input, arguments: arguments)
+    try run(reader: reader, input: input_, arguments: arguments)
 }
