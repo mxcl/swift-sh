@@ -181,6 +181,19 @@ the script is then executed via `swift run`.
 
 † We use the FreeDesktop specified cache location on Linux.
 
+# Swift Versions
+
+`swift-sh` uses the active tools version, (ie: `xcode-select`) or whichever
+Swift is first in the `PATH` on Linux. It writes a manifest for the package
+it will `swift build` with that tools-version. Thus Xcode 10.1 builds a script
+with Swift 4.2, Xcode 10.2 builds with Swift 5. Dependencies build with the
+Swift versions they declare support for, provided the active toolchain can do
+that (eg. Xcode 10.1 supports Swift 3.4, 4.0 and 4.2, Xcode 10.2 supports
+Swift 4.0, 4.2 and 5.0).
+
+To declare a support for specific Swift versions in your script itself, use
+`#if swift` or `#if compiler` directives.
+
 # Alternatives
 
 * [Beak](https://github.com/yonaskolb/Beak)
