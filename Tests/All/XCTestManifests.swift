@@ -10,6 +10,7 @@ extension EjectIntegrationTests {
         ("testFilenameDirectoryClash", testFilenameDirectoryClash),
         ("testForce", testForce),
         ("testRelativePath", testRelativePath),
+        ("testWorksIfSymlinkBecomesBroken", testWorksIfSymlinkBecomesBroken),
     ]
 }
 

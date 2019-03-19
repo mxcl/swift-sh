@@ -336,6 +336,14 @@ class EjectIntegrationTests: XCTestCase {
         }
     }
 
+    func testWorksIfSymlinkBecomesBroken() {
+        // creates two scripts for the same cache location
+        // thus when the first is complete the `main.swift` symlink becomes broken
+        // this is a regression test
+
+        XCTAssertRuns(exec: "print(1)", line: 100)
+        XCTAssertRuns(exec: "print(2)", line: 100)
+    }
 
     func testFailsIfNotScript() throws {
         try Path.mktemp { tmpdir -> Void in
