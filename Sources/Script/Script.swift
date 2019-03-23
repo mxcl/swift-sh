@@ -1,5 +1,6 @@
 import Foundation
 import Utility
+import Version
 import Path
 
 public class Script {
@@ -50,7 +51,7 @@ public class Script {
     }
 
     public func write() throws {
-        //NOTE we only support Swift > 4.2 basically
+        //NOTE we only support Swift >= 4.2 basically
         //TODO dependency module names might not correspond the products that packages export, must parse `swift package dump-package` output
 
         if depsCache != deps {
@@ -74,7 +75,7 @@ public class Script {
                     .target(name: "\(name)", dependencies: [\(deps.mainTargetDependencies)], path: ".", sources: ["main.swift"])
                 ]
 
-                """.write(to: buildDirectory/"Package.swift")
+                """.write(to: manifestPath)
 
             try JSONEncoder().encode(deps).write(to: depsCachePath)
         }
@@ -99,21 +100,35 @@ public class Script {
         return buildDirectory/".build/debug"/name
     }
 
+    var manifestPath: Path {
+        return buildDirectory.join("Package.swift")
+    }
+
     var scriptChanged: Bool {
         switch input {
+        case .string:
+            // if we don’t have a file we can’t verify that the script is unchanged
+            return true
+
         case .path(let path):
+            guard let line = (try? StreamReader(path: manifestPath))?.pop() else { return true }
+            guard let manifestVersion = line.capture(for: "//\\sswift-tools-version:\\s*(\\d+)\\.\\d+").flatMap({ Int($0) }) else { return true }
+
+            // if the manifest version is less than 5 the script was last built with an ABI-unsafe compiler
+            guard manifestVersion >= 5 else { return true }
+
+            // if the Swift version is less than 5 we are not an ABI safe environment
+            guard let swiftVersion = Float(swiftVersion), swiftVersion >= 5 else { return true }
+
             if let t1 = path.mtime, let t2 = binaryPath.mtime {
                 return t1 > t2
             } else {
                 return true
             }
-        case .string:
-            return true
         }
     }
 
     public func run() throws -> Never {
-
         if scriptChanged {
             try write()
 
@@ -130,7 +145,6 @@ public class Script {
           #endif
             try task.launchAndWaitForSuccessfulExit()
         }
-
         try exec(arg0: binaryPath.string, args: args)
     }
 }
@@ -156,7 +170,7 @@ extension String {
     }
 }
 
-extension Path {
+public extension Path {
     static var build: Path {
       #if os(macOS)
         return Path.home/"Library/Developer/swift-sh.cache"
@@ -170,7 +184,16 @@ extension Path {
     }
 }
 
-var swiftVersion: String {
+private extension String {
+    func capture(for pattern: String) -> Substring? {
+        guard let rx = try? NSRegularExpression(pattern: pattern) else { return nil }
+        guard let match = rx.firstMatch(in: self) else { return nil }
+        guard match.numberOfRanges >= 1 else { return nil }
+        return self[match.range(at: 1)]
+    }
+}
+
+let swiftVersion: String = {
     do {
         let task = Process()
         task.launchPath = Path.swift.string
@@ -189,5 +212,4 @@ var swiftVersion: String {
 #else
     return "4.2"
 #endif
-}
-
+}()

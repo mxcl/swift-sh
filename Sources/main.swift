@@ -1,6 +1,8 @@
 import LegibleError
 import Foundation
 import Command
+import Script
+import Path
 
 do {
     let isTTY = isatty(fileno(stdin)) == 1
@@ -13,6 +15,8 @@ do {
         try Command.eject(path, force: force)
     case .edit(let path):
         try Command.edit(path: path)
+    case .clean:
+        try Path.build.delete()
     case .help:
         print(CommandLine.usage)
     }
