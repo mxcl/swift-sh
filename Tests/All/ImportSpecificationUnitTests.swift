@@ -110,27 +110,6 @@ class ImportSpecificationUnitTests: XCTestCase {
     }
 }
 
-extension Constraint: Equatable {
-    public static func ==(lhs: Constraint, rhs: Constraint) -> Bool {
-        switch (lhs, rhs) {
-        case (.upToNextMajor(let v1), .upToNextMajor(let v2)), (.exact(let v1), .exact(let v2)):
-            return v1 == v2
-        case let (.ref(ref1), .ref(ref2)):
-            return ref1 == ref2
-        case (.latest, .latest):
-            return true
-        case (.latest, _):
-            return false
-        case (.ref, _):
-            return false
-        case (.exact, _):
-            return false
-        case (.upToNextMajor, _):
-            return false
-        }
-    }
-}
-
 extension Version {
     static var one: Version {
         return Version(1,0,0)

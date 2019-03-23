@@ -35,28 +35,49 @@ public class Script {
         args = arguments
     }
 
+    var depsCachePath: Path {
+        return buildDirectory/"deps.json"
+    }
+
+    var depsCache: [ImportSpecification]? {
+        do {
+            guard depsCachePath.isFile else { throw CocoaError.error(.coderInvalidValue) }
+            let data = try Data(contentsOf: depsCachePath)
+            return try JSONDecoder().decode([ImportSpecification].self, from: data)
+        } catch {
+            return nil
+        }
+    }
+
     public func write() throws {
-        //TODO we only support Swift 4.2 basically
-        //TODO dependency module names can be anything so we need to parse Package.swifts for all deps to get module lists
+        //NOTE we only support Swift > 4.2 basically
+        //TODO dependency module names might not correspond the products that packages export, must parse `swift package dump-package` output
 
-        try buildDirectory.mkdir(.p)
-        try """
-            // swift-tools-version:\(swiftVersion)
-            import PackageDescription
+        if depsCache != deps {
+            // this check because SwiftPM has to reparse the manifest if we rewrite it
+            // this is noticably slow, so avoid it if possible
 
-            let pkg = Package(name: "\(name)")
+            try buildDirectory.mkdir(.p)
+            try """
+                // swift-tools-version:\(swiftVersion)
+                import PackageDescription
 
-            pkg.products = [
-                .executable(name: "\(name)", targets: ["\(name)"])
-            ]
-            pkg.dependencies = [
-                \(deps.packageLines)
-            ]
-            pkg.targets = [
-                .target(name: "\(name)", dependencies: [\(deps.mainTargetDependencies)], path: ".", sources: ["main.swift"])
-            ]
+                let pkg = Package(name: "\(name)")
 
-            """.write(to: buildDirectory/"Package.swift")
+                pkg.products = [
+                    .executable(name: "\(name)", targets: ["\(name)"])
+                ]
+                pkg.dependencies = [
+                    \(deps.packageLines)
+                ]
+                pkg.targets = [
+                    .target(name: "\(name)", dependencies: [\(deps.mainTargetDependencies)], path: ".", sources: ["main.swift"])
+                ]
+
+                """.write(to: buildDirectory/"Package.swift")
+
+            try JSONEncoder().encode(deps).write(to: depsCachePath)
+        }
 
         switch input {
         case .path(let userPath):
@@ -74,24 +95,43 @@ public class Script {
         }
     }
 
+    var binaryPath: Path {
+        return buildDirectory/".build/debug"/name
+    }
+
+    var scriptChanged: Bool {
+        switch input {
+        case .path(let path):
+            if let t1 = path.mtime, let t2 = binaryPath.mtime {
+                return t1 > t2
+            } else {
+                return true
+            }
+        case .string:
+            return true
+        }
+    }
+
     public func run() throws -> Never {
 
-        try write()
+        if scriptChanged {
+            try write()
 
-        // first arg has to be same as executable path
-        let task = Process()
-        task.launchPath = Path.swift.string
-        task.arguments = ["build", "-Xswiftc", "-suppress-warnings"]
-        task.currentDirectoryPath = buildDirectory.string
-      #if !os(Linux)
-        task.standardOutput = task.standardError
-      #else
-        // setting it stderr or `nil` CRASHES ffs
-        task.standardOutput = Pipe()
-      #endif
-        try task.launchAndWaitForSuccessfulExit()
+            // first arg has to be same as executable path
+            let task = Process()
+            task.launchPath = Path.swift.string
+            task.arguments = ["build", "-Xswiftc", "-suppress-warnings"]
+            task.currentDirectoryPath = buildDirectory.string
+          #if !os(Linux)
+            task.standardOutput = task.standardError
+          #else
+            // setting it stderr or `nil` CRASHES ffs
+            task.standardOutput = Pipe()
+          #endif
+            try task.launchAndWaitForSuccessfulExit()
+        }
 
-        try exec(arg0: (buildDirectory/".build/debug"/name).string, args: args)
+        try exec(arg0: binaryPath.string, args: args)
     }
 }
 
