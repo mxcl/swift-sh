@@ -35,7 +35,7 @@ public class StreamReader  {
     }
 
     /// Return next line, or nil on EOF.
-    func nextLine() -> String? {
+    public func pop() -> String? {
         precondition(fileHandle != nil, "Attempt to read from closed file")
 
         // Read data chunks from file until a line delimiter is found:
@@ -81,7 +81,7 @@ public class StreamReader  {
 extension StreamReader: Sequence {
     public func makeIterator() -> AnyIterator<String> {
         return AnyIterator {
-            return self.nextLine()
+            return self.pop()
         }
     }
 }
