@@ -72,6 +72,8 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.dependencyName, "ssh://git@github.com:MariusCiocanel/swift-sh.git")
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Bar")
+        let packageLineRemovesSSHScheme = b?.packageLine.contains("ssh://") ?? false
+        XCTAssert(packageLineRemovesSSHScheme)
     }
 
     
