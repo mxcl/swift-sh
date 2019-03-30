@@ -100,7 +100,12 @@ public extension ImportSpecification {
         }
         let urlstr: String
         if let url = URL(string: dependencyName), url.scheme != nil {
-            urlstr = dependencyName
+            let sshPrefix = "ssh://"
+            if dependencyName.hasPrefix(sshPrefix) {
+                urlstr = String(dependencyName.dropFirst(sshPrefix.count))
+            } else {
+                urlstr = dependencyName
+            }
         } else {
             urlstr = "https://github.com/\(dependencyName).git"
         }
