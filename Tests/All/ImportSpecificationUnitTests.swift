@@ -67,6 +67,14 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.importName, "Bar")
     }
 
+    func testCanProvideFullSSHURLWithHyphen() {
+        let b = parse("import Bar  // ssh://git@github.com:MariusCiocanel/swift-sh.git ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, "ssh://git@github.com:MariusCiocanel/swift-sh.git")
+        XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(b?.importName, "Bar")
+    }
+
+    
     func testCanDoSpecifiedImports() {
         let kinds = [
             "struct",
