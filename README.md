@@ -133,6 +133,13 @@ import Path          // mxcl/Path.swift ~> 0.16
 
 import BumbleButt    // https://example.com/bb.git ~> 9
 // ^^ non-GitHub URLs are fine
+
+import CommonTaDa    // git@github.com:mxcl/tada.git ~> 1
+// ^^ ssh URLs are fine
+
+import TaDa    // ssh://git@github.com:mxcl/tada.git ~> 1
+// ^^ this style of ssh URLs are fine too
+
 ```
 
 `swift-sh` reads the comments after your imports and fetches the requested

@@ -98,11 +98,27 @@ public extension ImportSpecification {
                 """
             }
         }
-        let urlstr: String
-        if let url = URL(string: dependencyName), url.scheme != nil {
-            urlstr = dependencyName
-        } else {
-            urlstr = "https://github.com/\(dependencyName).git"
+        var urlstr: String = "https://github.com/\(dependencyName).git"
+        if let url = URL(string: dependencyName) {
+            switch url.scheme {
+            case .some(let scheme):
+                switch scheme {
+                case "ssh":
+                    let sshPrefix = "ssh://"
+                    if dependencyName.hasPrefix(sshPrefix) {
+                        urlstr = String(dependencyName.dropFirst(sshPrefix.count))
+                    }
+                default:
+                    urlstr = dependencyName
+                }
+            case .none:
+                let matchesCommonSSHURLFormat = dependencyName.contains("@") && dependencyName.contains(":")
+                if matchesCommonSSHURLFormat {
+                    urlstr = dependencyName
+                } else {
+                    urlstr = "https://github.com/\(dependencyName).git"
+                }
+            }
         }
         return """
         .package(url: "\(urlstr)", \(requirement))
