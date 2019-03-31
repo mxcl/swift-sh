@@ -4,88 +4,88 @@ import XCTest
 import Path
 
 class ImportSpecificationUnitTests: XCTestCase {
-    func testWigglyArrow() {
-        let a = parse("import Foo // @mxcl ~> 1.0")
-        XCTAssertEqual(a?.dependencyName, "mxcl/Foo")
+    func testWigglyArrow() throws {
+        let a = try parse("import Foo // @mxcl ~> 1.0")
+        XCTAssertEqual(a?.dependencyName, .github(user: "mxcl", repo: "Foo"))
         XCTAssertEqual(a?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(a?.importName, "Foo")
     }
 
-    func testTrailingWhitespace() {
-        let a = parse("import Foo // @mxcl ~> 1.0 ")
-        XCTAssertEqual(a?.dependencyName, "mxcl/Foo")
+    func testTrailingWhitespace() throws {
+        let a = try parse("import Foo // @mxcl ~> 1.0 ")
+        XCTAssertEqual(a?.dependencyName, .github(user: "mxcl", repo: "Foo"))
         XCTAssertEqual(a?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(a?.importName, "Foo")
     }
 
-    func testExact() {
-        let a = parse("import Foo // @mxcl == 1.0")
-        XCTAssertEqual(a?.dependencyName, "mxcl/Foo")
+    func testExact() throws {
+        let a = try parse("import Foo // @mxcl == 1.0")
+        XCTAssertEqual(a?.dependencyName, .github(user: "mxcl", repo: "Foo"))
         XCTAssertEqual(a?.constraint, .exact(.one))
         XCTAssertEqual(a?.importName, "Foo")
     }
 
-    func testMoreSpaces() {
-        let b = parse("import    Foo       //     @mxcl    ~>      1.0")
-        XCTAssertEqual(b?.dependencyName, "mxcl/Foo")
+    func testMoreSpaces() throws {
+        let b = try parse("import    Foo       //     @mxcl    ~>      1.0")
+        XCTAssertEqual(b?.dependencyName, .github(user: "mxcl", repo: "Foo"))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
 
-    func testMinimalSpaces() {
-        let b = parse("import Foo//@mxcl~>1.0")
-        XCTAssertEqual(b?.dependencyName, "mxcl/Foo")
+    func testMinimalSpaces() throws {
+        let b = try parse("import Foo//@mxcl~>1.0")
+        XCTAssertEqual(b?.dependencyName, .github(user: "mxcl", repo: "Foo"))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
 
-    func testCanOverrideImportName() {
-        let b = parse("import Foo  // mxcl/Bar ~> 1.0")
-        XCTAssertEqual(b?.dependencyName, "mxcl/Bar")
+    func testCanOverrideImportName() throws {
+        let b = try parse("import Foo  // mxcl/Bar ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, .github(user: "mxcl", repo: "Bar"))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
     
-    func testCanOverrideImportNameUsingNameWithHyphen() {
-        let b = parse("import Bar  // mxcl/swift-bar ~> 1.0")
-        XCTAssertEqual(b?.dependencyName, "mxcl/swift-bar")
+    func testCanOverrideImportNameUsingNameWithHyphen() throws {
+        let b = try parse("import Bar  // mxcl/swift-bar ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, .github(user: "mxcl", repo: "swift-bar"))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Bar")
     }
 
-    func testCanProvideFullURL() {
-        let b = parse("import Foo  // https://example.com/mxcl/Bar.git ~> 1.0")
-        XCTAssertEqual(b?.dependencyName, "https://example.com/mxcl/Bar.git")
+    func testCanProvideFullURL() throws {
+        let b = try parse("import Foo  // https://example.com/mxcl/Bar.git ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, .url(URL(string: "https://example.com/mxcl/Bar.git")!))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
 
-    func testCanProvideFullURLWithHyphen() {
-        let b = parse("import Bar  // https://example.com/mxcl/swift-bar.git ~> 1.0")
-        XCTAssertEqual(b?.dependencyName, "https://example.com/mxcl/swift-bar.git")
+    func testCanProvideFullURLWithHyphen() throws {
+        let b = try parse("import Bar  // https://example.com/mxcl/swift-bar.git ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, .url(URL(string: "https://example.com/mxcl/swift-bar.git")!))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Bar")
     }
 
-    func testCanProvideFullSSHURLWithHyphen() {
-        let b = parse("import Bar  // ssh://git@github.com:MariusCiocanel/swift-sh.git ~> 1.0")
-        XCTAssertEqual(b?.dependencyName, "ssh://git@github.com:MariusCiocanel/swift-sh.git")
+    func testCanProvideFullSSHURLWithHyphen() throws {
+        let url = "ssh://git@github.com/MariusCiocanel/swift-sh.git"
+        let b = try parse("import Bar  // \(url) ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, .url(URL(string: url)!))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Bar")
-        let packageLineUsesCommonSSHAddress = b?.packageLine.contains("url: \"git@github.com:MariusCiocanel/swift-sh.git\"") ?? false
-        XCTAssert(packageLineUsesCommonSSHAddress)
+        XCTAssertEqual(b?.dependencyName.urlString, url)
     }
 
-    func testCanProvideCommonSSHURLStyleWithHyphen() {
-        let b = parse("import Bar  // git@github.com:MariusCiocanel/swift-sh.git ~> 1.0")
-        XCTAssertEqual(b?.dependencyName, "git@github.com:MariusCiocanel/swift-sh.git")
+    func testCanProvideCommonSSHURLStyleWithHyphen() throws {
+        let uri = "git@github.com:MariusCiocanel/swift-sh.git"
+        let b = try parse("import Bar  // \(uri) ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, .scp(uri))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Bar")
-        let packageLineUsesCommonSSHAddress = b?.packageLine.contains("url: \"git@github.com:MariusCiocanel/swift-sh.git\"") ?? false
-        XCTAssert(packageLineUsesCommonSSHAddress)
+        XCTAssertEqual(b?.dependencyName.urlString, "git@github.com:MariusCiocanel/swift-sh.git")
     }
 
-    func testCanDoSpecifiedImports() {
+    func testCanDoSpecifiedImports() throws {
         let kinds = [
             "struct",
              "class",
@@ -97,23 +97,23 @@ class ImportSpecificationUnitTests: XCTestCase {
              "var"
         ]
         for kind in kinds {
-            let b = parse("import \(kind) Foo.bar  // https://example.com/mxcl/Bar.git ~> 1.0")
-            XCTAssertEqual(b?.dependencyName, "https://example.com/mxcl/Bar.git")
+            let b = try parse("import \(kind) Foo.bar  // https://example.com/mxcl/Bar.git ~> 1.0")
+            XCTAssertEqual(b?.dependencyName, .url(URL(string: "https://example.com/mxcl/Bar.git")!))
             XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
             XCTAssertEqual(b?.importName, "Foo")
         }
     }
 
-    func testCanUseTestable() {
-        let b = parse("@testable import Foo  // @bar ~> 1.0")
-        XCTAssertEqual(b?.dependencyName, "bar/Foo")
+    func testCanUseTestable() throws {
+        let b = try parse("@testable import Foo  // @bar ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, .github(user: "bar", repo: "Foo"))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
 
-    func testLatestVersion() {
-        let b = parse("import Foo  // @bar")
-        XCTAssertEqual(b?.dependencyName, "bar/Foo")
+    func testLatestVersion() throws {
+        let b = try parse("import Foo  // @bar")
+        XCTAssertEqual(b?.dependencyName, .github(user: "bar", repo: "Foo"))
         XCTAssertEqual(b?.constraint, .latest)
         XCTAssertEqual(b?.importName, "Foo")
     }

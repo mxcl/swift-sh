@@ -32,7 +32,7 @@ private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> 
             lines.append("// shebang removed")  // keep line numbers in sync
             continue
         }
-        if let result = ImportSpecification(line: line) {
+        if let result = try ImportSpecification(line: line) {
             deps.append(result)
         }
         switch input {

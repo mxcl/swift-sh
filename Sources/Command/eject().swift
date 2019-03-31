@@ -10,7 +10,7 @@ public func eject(_ script: Path, force: Bool) throws {
 
     let reader = try StreamReader(path: script).makeIterator()
     guard force || reader.next().isShebang else { throw EjectError.notScript }
-    let deps = reader.compactMap(ImportSpecification.init)
+    let deps = try reader.compactMap(ImportSpecification.init)
     let name = script.basename(dropExtension: true).capitalized
     let containingDirectory = script.parent
 
