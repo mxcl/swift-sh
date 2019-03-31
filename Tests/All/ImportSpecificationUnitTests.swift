@@ -72,11 +72,19 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.dependencyName, "ssh://git@github.com:MariusCiocanel/swift-sh.git")
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Bar")
-        let packageLineContainsSSHScheme = b?.packageLine.contains("ssh://") ?? true
-        XCTAssertFalse(packageLineContainsSSHScheme)
+        let packageLineUsesCommonSSHAddress = b?.packageLine.contains("url: \"git@github.com:MariusCiocanel/swift-sh.git\"") ?? false
+        XCTAssert(packageLineUsesCommonSSHAddress)
     }
 
-    
+    func testCanProvideCommonSSHURLStyleWithHyphen() {
+        let b = parse("import Bar  // git@github.com:MariusCiocanel/swift-sh.git ~> 1.0")
+        XCTAssertEqual(b?.dependencyName, "git@github.com:MariusCiocanel/swift-sh.git")
+        XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
+        XCTAssertEqual(b?.importName, "Bar")
+        let packageLineUsesCommonSSHAddress = b?.packageLine.contains("url: \"git@github.com:MariusCiocanel/swift-sh.git\"") ?? false
+        XCTAssert(packageLineUsesCommonSSHAddress)
+    }
+
     func testCanDoSpecifiedImports() {
         let kinds = [
             "struct",

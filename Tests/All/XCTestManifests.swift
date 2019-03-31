@@ -22,6 +22,7 @@ extension ImportSpecificationUnitTests {
         ("testCanDoSpecifiedImports", testCanDoSpecifiedImports),
         ("testCanOverrideImportName", testCanOverrideImportName),
         ("testCanOverrideImportNameUsingNameWithHyphen", testCanOverrideImportNameUsingNameWithHyphen),
+        ("testCanProvideCommonSSHURLStyleWithHyphen", testCanProvideCommonSSHURLStyleWithHyphen),
         ("testCanProvideFullSSHURLWithHyphen", testCanProvideFullSSHURLWithHyphen),
         ("testCanProvideFullURL", testCanProvideFullURL),
         ("testCanProvideFullURLWithHyphen", testCanProvideFullURLWithHyphen),
