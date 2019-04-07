@@ -61,6 +61,14 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(homePath.string)\"")
     }
 
+    func testCanProvideLocalPathWithTilde() throws {
+        let homePath = Path.home
+        let b = try parse("import Bar  // ~/")
+        XCTAssertEqual(b?.dependencyName, .local(homePath))
+        XCTAssertEqual(b?.importName, "Bar")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(homePath.string)\"")
+    }
+
     func testCanProvideFullURL() throws {
         let b = try parse("import Foo  // https://example.com/mxcl/Bar.git ~> 1.0")
         XCTAssertEqual(b?.dependencyName, .url(URL(string: "https://example.com/mxcl/Bar.git")!))

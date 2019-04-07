@@ -8,7 +8,7 @@ enum E: Error {
 
 /// - Parameter line: Contract: Single line string trimmed of whitespace.
 func parse(_ line: String) throws -> ImportSpecification? {
-    let pattern = "import\\s+(.*?)\\s*\\/\\/\\s*(@?[\\w\\/(@|:)\\.\\-]+)\\s*(?:(==|~>)\\s*([^\\s]+))?"
+    let pattern = "import\\s+(.*?)\\s*\\/\\/\\s*([~@]?[\\w\\/(@|:)\\.\\-]+)\\s*(?:(==|~>)\\s*([^\\s]+))?"
     let rx = try! NSRegularExpression(pattern: pattern)
 
     // doesn’t look like an import line, we have to silently ignore it, even though it could
