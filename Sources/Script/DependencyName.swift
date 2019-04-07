@@ -1,6 +1,7 @@
 import struct Foundation.URLComponents
 import struct Foundation.CharacterSet
 import struct Foundation.URL
+import Path
 
 extension ImportSpecification.DependencyName: Codable {
     enum E: Error {
@@ -27,6 +28,11 @@ extension ImportSpecification.DependencyName: Codable {
             throw E.invalidDependencySpecification(string)
         }
         if cc.scheme == nil {
+            if let p = Path(cc.path), p.exists {
+                self = .local(p)
+                return
+            }
+
             guard let (user, repo) = pair(cc.path) else {
                 throw E.invalidDependencySpecification(string)
             }
@@ -46,8 +52,10 @@ extension ImportSpecification.DependencyName: Codable {
             self = .scp(str)
         } else if let cc = URLComponents(string: str), cc.host == "github.com", let (user, repo) = pair(cc) {
             self = .github(user: user, repo: repo)
-        } else if let url = URL(string: str) {
+        } else if let url = URL(string: str), url.scheme != nil {
             self = .url(url)
+        } else if let p = Path(str), p.exists {
+            self = .local(p)
         } else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid DependencyName")
         }
@@ -66,6 +74,8 @@ extension ImportSpecification.DependencyName: Codable {
             return url.absoluteString
         case .scp(let str):
             return str
+        case .local(let path):
+            return path.string
         }
     }
 }
