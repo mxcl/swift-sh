@@ -26,6 +26,8 @@ extension ImportSpecificationUnitTests {
         ("testCanProvideFullSSHURLWithHyphen", testCanProvideFullSSHURLWithHyphen),
         ("testCanProvideFullURL", testCanProvideFullURL),
         ("testCanProvideFullURLWithHyphen", testCanProvideFullURLWithHyphen),
+        ("testCanProvideLocalPath", testCanProvideLocalPath),
+        ("testCanProvideLocalPathWithTilde", testCanProvideLocalPathWithTilde),
         ("testCanUseTestable", testCanUseTestable),
         ("testExact", testExact),
         ("testLatestVersion", testLatestVersion),

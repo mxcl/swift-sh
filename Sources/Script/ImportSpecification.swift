@@ -10,6 +10,7 @@ public struct ImportSpecification: Codable, Equatable {
     enum DependencyName: Equatable {
         case url(URL)
         case scp(String)
+        case local(Path)
         case github(user: String, repo: String)
     }
 
@@ -30,9 +31,16 @@ extension ImportSpecification {
     }
 
     public var packageLine: String {
-        return """
-        .package(url: "\(dependencyName.urlString)", \(requirement))
-        """
+        switch dependencyName {
+        case .local:
+            return """
+            .package(path: "\(dependencyName.urlString)"
+            """
+        default:
+            return """
+            .package(url: "\(dependencyName.urlString)", \(requirement))
+            """
+        }
     }
 
     private var requirement: String {

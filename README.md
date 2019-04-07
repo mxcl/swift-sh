@@ -140,6 +140,12 @@ import CommonTaDa    // git@github.com:mxcl/tada.git ~> 1
 import TaDa    // ssh://git@github.com:mxcl/tada.git ~> 1
 // ^^ this style of ssh URLs are fine too
 
+import Foo // /Users/max/Desktop/foo
+// ^^ support for local dependencies (assuming the directory path is valid)
+
+import Foo // ~/Desktop/foo
+// ^^ using "~/" for local dependencies is fine too
+
 ```
 
 `swift-sh` reads the comments after your imports and fetches the requested
