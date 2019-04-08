@@ -33,6 +33,14 @@ extension ImportSpecification.DependencyName: Codable {
                 return
             }
 
+            if cc.path.hasPrefix(".") || cc.path.hasPrefix("..") {
+                let localRelativePath = Path.cwd/cc.path
+                if localRelativePath.exists {
+                    self = .local(localRelativePath)
+                    return
+                }
+            }
+
             guard let (user, repo) = pair(cc.path) else {
                 throw E.invalidDependencySpecification(string)
             }
