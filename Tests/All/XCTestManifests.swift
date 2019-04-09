@@ -86,6 +86,7 @@ extension RunIntegrationTests {
         ("testTestableFullySpecifiedURL", testTestableFullySpecifiedURL),
         ("testTestableImport", testTestableImport),
         ("testTestableLatest", testTestableLatest),
+        ("testUseLocalDependency", testUseLocalDependency),
     ]
 }
 

@@ -78,6 +78,23 @@ class RunIntegrationTests: XCTestCase {
             """)
     }
 
+    func testUseLocalDependency() throws {
+        let tmpdir = try Path.cwd.join("local_dep").mkdir()
+        defer {_ = try? FileManager.default.removeItem(at: tmpdir.url)}
+
+        let task = Process(arg0: "/bin/bash")
+        task.currentDirectoryPath = tmpdir.string
+        task.arguments = ["-c", "swift package init"]
+        let stdout = Pipe()
+        task.standardOutput = stdout
+        try task.go()
+        task.waitUntilExit()
+
+        XCTAssertRuns(exec: """
+            import local_dep  // \(tmpdir.string)
+            """)
+    }
+
     func testStandardInputCanBeUsedInScript() throws {
         let stdin = Pipe()
         let stdout = Pipe()
