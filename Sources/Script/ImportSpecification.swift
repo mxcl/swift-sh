@@ -34,7 +34,7 @@ extension ImportSpecification {
         switch dependencyName {
         case .local:
             return """
-            .package(path: "\(dependencyName.urlString)"
+            .package(path: "\(dependencyName.urlString)")
             """
         default:
             return """
