@@ -78,7 +78,7 @@ class RunIntegrationTests: XCTestCase {
             """)
     }
 
-    func testUseLocalDependency() throws {
+    func testUseLocalDependencyWithAbsolutePath() throws {
         let tmpdir = try Path.cwd.join("local_dep").mkdir()
         defer {_ = try? FileManager.default.removeItem(at: tmpdir.url)}
 
@@ -92,6 +92,24 @@ class RunIntegrationTests: XCTestCase {
 
         XCTAssertRuns(exec: """
             import local_dep  // \(tmpdir.string)
+            """)
+    }
+
+    func testUseLocalDependencyWithRelativePath() throws {
+        let depName = "local_dep"
+        let tmpdir = try Path.cwd.join(depName).mkdir()
+        defer {_ = try? FileManager.default.removeItem(at: tmpdir.url)}
+
+        let task = Process(arg0: "/bin/bash")
+        task.currentDirectoryPath = tmpdir.string
+        task.arguments = ["-c", "swift package init"]
+        let stdout = Pipe()
+        task.standardOutput = stdout
+        try task.go()
+        task.waitUntilExit()
+
+        XCTAssertRuns(exec: """
+            import local_dep  // ./\(depName)
             """)
     }
 
