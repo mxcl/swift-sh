@@ -69,6 +69,30 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(homePath.string)\")")
     }
 
+    func testCanProvideLocalRelativeCurrentPath() throws {
+        let cwd = Path.cwd
+        let b = try parse("import Bar  // ./")
+        XCTAssertEqual(b?.dependencyName, .local(cwd))
+        XCTAssertEqual(b?.importName, "Bar")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwd.string)\")")
+    }
+
+    func testCanProvideLocalRelativeParentPath() throws {
+        let cwd = Path.cwd/"../"
+        let b = try parse("import Bar  // ../")
+        XCTAssertEqual(b?.dependencyName, .local(cwd))
+        XCTAssertEqual(b?.importName, "Bar")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwd.string)\")")
+    }
+
+    func testCanProvideLocalRelativeTwoParentsUpPath() throws {
+        let cwd = Path.cwd/"../../"
+        let b = try parse("import Bar  // ../../")
+        XCTAssertEqual(b?.dependencyName, .local(cwd))
+        XCTAssertEqual(b?.importName, "Bar")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwd.string)\")")
+    }
+
     func testCanProvideFullURL() throws {
         let b = try parse("import Foo  // https://example.com/mxcl/Bar.git ~> 1.0")
         XCTAssertEqual(b?.dependencyName, .url(URL(string: "https://example.com/mxcl/Bar.git")!))

@@ -28,6 +28,9 @@ extension ImportSpecificationUnitTests {
         ("testCanProvideFullURLWithHyphen", testCanProvideFullURLWithHyphen),
         ("testCanProvideLocalPath", testCanProvideLocalPath),
         ("testCanProvideLocalPathWithTilde", testCanProvideLocalPathWithTilde),
+        ("testCanProvideLocalRelativeCurrentPath", testCanProvideLocalRelativeCurrentPath),
+        ("testCanProvideLocalRelativeParentPath", testCanProvideLocalRelativeParentPath),
+        ("testCanProvideLocalRelativeTwoParentsUpPath", testCanProvideLocalRelativeTwoParentsUpPath),
         ("testCanUseTestable", testCanUseTestable),
         ("testExact", testExact),
         ("testLatestVersion", testLatestVersion),
@@ -86,7 +89,8 @@ extension RunIntegrationTests {
         ("testTestableFullySpecifiedURL", testTestableFullySpecifiedURL),
         ("testTestableImport", testTestableImport),
         ("testTestableLatest", testTestableLatest),
-        ("testUseLocalDependency", testUseLocalDependency),
+        ("testUseLocalDependencyWithAbsolutePath", testUseLocalDependencyWithAbsolutePath),
+        ("testUseLocalDependencyWithRelativePath", testUseLocalDependencyWithRelativePath),
     ]
 }
 
