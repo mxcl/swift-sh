@@ -15,6 +15,8 @@ do {
         try Command.eject(path, force: force)
     case .edit(let path):
         try Command.edit(path: path)
+    case .editor(let path):
+        try Command.editor(path: path)
     case .clean:
         try Path.build.delete()
     case .help:
