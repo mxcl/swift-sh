@@ -9,6 +9,7 @@ public extension CommandLine {
             swift sh <script> [arguments]
             swift sh eject <script> [-f|--force]
             swift sh --clean-cache [-C]
+            swift sh editor <script>
             """
       #if os(macOS)
         rv += "\nswift sh edit <script>"
@@ -97,6 +98,7 @@ public enum Mode {
     case run(RunType, args: ArraySlice<String>)
     case eject(Path, force: Bool)
     case edit(Path)
+    case editor(Path)
     case clean
     case help
 
@@ -127,6 +129,14 @@ public enum Mode {
                 throw CommandLine.Error.invalidUsage
             }
             self = .edit(Path(arg1) ?? Path.cwd/arg1)
+        case "editor"?:
+            guard let arg1 = parser.pop() else {
+                throw CommandLine.Error.invalidUsage
+            }
+            guard parser.isEmpty else {
+                throw CommandLine.Error.invalidUsage
+            }
+            self = .editor(Path(arg1) ?? Path.cwd/arg1)
         case "-"?, "--"?:
             self = .run(.stdin, args: parser.remainder)
         case "--help"?, "-h"?:
