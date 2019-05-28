@@ -19,6 +19,7 @@ jobs:
       script: git diff --exit-code
 
     - name: macOS / Swift 4.2.1 (Xcode 10.1)
+      osx_image: xcode10.1
       stage: test
       script: swift test
 
@@ -26,8 +27,8 @@ jobs:
       script: swift test
 
     - &linux
-      name: Linux / Swift 4.2.2
-      env: SWIFT_VERSION=4.2.2
+      name: Linux / Swift 4.2.3
+      env: SWIFT_VERSION=4.2.3
       install: eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"
       os: linux
       osx_image: null
@@ -35,8 +36,8 @@ jobs:
       script: swift test
       
     - <<: *linux
-      name: Linux / Swift 5.0.0
-      env: SWIFT_VERSION=5.0
+      name: Linux / Swift 5.0.1
+      env: SWIFT_VERSION=5.0.1
 
     - stage: deploy
       script: |
