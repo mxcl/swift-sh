@@ -137,15 +137,17 @@ import BumbleButt    // https://example.com/bb.git ~> 9
 import CommonTaDa    // git@github.com:mxcl/tada.git ~> 1
 // ^^ ssh URLs are fine
 
-import TaDa    // ssh://git@github.com:mxcl/tada.git ~> 1
-// ^^ this style of ssh URLs are fine too
+import TaDa          // ssh://git@github.com:mxcl/tada.git ~> 1
+// ^^ this style of ssh URL is also fine
 
-import Foo // /Users/max/Desktop/foo
+import Foo           // /Users/max/Desktop/foo
 // ^^ support for local dependencies (assuming the directory path is valid)
 
-import Foo // ~/Desktop/foo
+import Foo           // ~/Desktop/foo
 // ^^ using "~/" for local dependencies is fine too
 
+// We don’t support relative paths because it conflicts with our original
+// allowance for `foo/bar` github specifications. Sorry about that.
 ```
 
 `swift-sh` reads the comments after your imports and fetches the requested
