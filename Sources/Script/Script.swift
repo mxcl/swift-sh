@@ -79,7 +79,7 @@ public class Script {
                     .target(name: "\(name)", dependencies: [\(deps.mainTargetDependencies)], path: ".", sources: ["main.swift"])
                 ]
 
-                #if swift(>=5)
+                #if swift(>=5) && os(macOS)
                 pkg.platforms = [
                    .macOS(.v10_\(osx))
                 ]
