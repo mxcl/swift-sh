@@ -1,5 +1,6 @@
 @testable import Command
 @testable import Script
+import StreamReader
 import Utility
 import XCTest
 import Path

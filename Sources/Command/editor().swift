@@ -1,3 +1,4 @@
+import StreamReader
 import Foundation
 import Utility
 import Script
