@@ -23,7 +23,11 @@ jobs:
       stage: test
       script: swift test
 
-    - name: macOS / Swift 5.0.0 (Xcode 10.2)
+    - name: macOS / Swift 5.0.1 (Xcode 10.2)
+      script: swift test
+
+    - name: macOS / Swift 5.1.0 (Xcode 11)
+      osx_image: xcode11
       script: swift test
 
     - &linux
@@ -36,37 +40,43 @@ jobs:
       script: swift test
       
     - <<: *linux
-      name: Linux / Swift 5.0.1
-      env: SWIFT_VERSION=5.0.1
+      name: Linux / Swift 5.0.2
+      env: SWIFT_VERSION=5.0.2
 
     - stage: deploy
       script: |
-        set -exo pipefail
-
-        git clone "https://$GITHUB_TOKEN@github.com/mxcl/homebrew-made.git"
-        cd homebrew-made
-
+        brew tap mxcl/homebrew-made
+        cd /usr/local/Homebrew/Library/Taps/mxcl/homebrew-made
+        
+        # update our formula to new tag
+        URL="https://github.com/mxcl/swift-sh/archive/$TRAVIS_TAG.tar.gz"
+        sed -E -i '' 's~^  url ".+"~  url "'$URL\"~ ./swift-sh.rb
+        brew fetch swift-sh || true
+        # ^^ fails because SHA is wrong, hence || true
+        
+        SHA256=$(shasum --algorithm 256 $(brew --cache -s swift-sh) | awk '{print $1}')
+        sed -E -i '' 's/^  sha256 ".+"/  sha256 "'$SHA256\"/ ./swift-sh.rb
+        
+        # update bottle
         MIDDLE=$TRAVIS_VERSION.mojave.bottle
         SUFFIX=$MIDDLE.tar.gz
         brew install --build-bottle ./swift-sh.rb
-        brew bottle --json --root-url=https://github.com/$TRAVIS_REPO_SLUG/releases/download/$TRAVIS_VERSION ./swift-sh.rb
-        brew bottle --json swift-sh--$MIDDLE.json --merge --write --no-commit ./swift-sh.rb
-
-        SHA256=$(brew --cache --build-from-source swift-sh | xargs cat | shasum --algorithm 256 --binary | awk '{print $1}')
-        sed -E -i 's/^  sha256 ".+"/^  sha256 "'$SHA256\"/ ./swift-sh.rb
-        sed -E -i '^  s~url ".+"~^  url "'$URL\"~ ./swift-sh.rb
-
-        curl -O https://raw.githubusercontent.com/mxcl/ops/master/deploy
-        chmod u+x deploy
-        RELEASE_ID=$(./deploy publish-release)
+        brew bottle --json --root-url=https://github.com/$TRAVIS_REPO_SLUG/releases/download/$TRAVIS_TAG ./swift-sh.rb
+        brew bottle --merge swift-sh--$MIDDLE.json --write --no-commit
 
         curl --data-binary @"swift-sh--$SUFFIX" \
           "https://uploads.github.com/repos/$TRAVIS_REPO_SLUG/releases/$RELEASE_ID/assets?name=swift-sh-$SUFFIX" \
           -H "Authorization: token $GITHUB_TOKEN" \
           -H "Content-Type: application/octet-stream"
 
+        git remote set-url origin "https://$GITHUB_TOKEN@github.com/mxcl/homebrew-made.git"
         git add swift-sh.rb
         git config user.name "Travis"
         git config user.email "bot@travis-ci.com"
         git commit -m "swift-sh $TRAVIS_TAG"
         git push origin master
+        
+        curl -O https://raw.githubusercontent.com/mxcl/ops/master/deploy
+        chmod u+x deploy
+        RELEASE_ID=$(./deploy publish-release)
+      after_script: sleep 1
