@@ -11,12 +11,13 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/mxcl/Path.swift", from: "0.16.2"),
+        .package(url: "https://github.com/mxcl/StreamReader", from: "1.0.0"),
         .package(url: "https://github.com/mxcl/LegibleError", from: "1.0.0"),
         .package(url: "https://github.com/mxcl/Version", from: "1.0.0"),
     ],
     targets: [
         .target(name: "swift-sh", dependencies: ["Command", "LegibleError"], path: "Sources", sources: ["main.swift"]),
-        .target(name: "Script", dependencies: ["Utility"]),
+        .target(name: "Script", dependencies: ["Utility", "StreamReader"]),
         .target(name: "Utility", dependencies: ["Path", "Version"]),
         .target(name: "Command", dependencies: ["Script"]),
         .testTarget(name: "All", dependencies: ["swift-sh"]),

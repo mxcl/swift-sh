@@ -1,4 +1,5 @@
 import struct Foundation.Data
+import StreamReader
 import Utility
 import Script
 import Path

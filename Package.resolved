@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/mxcl/Path.swift",
         "state": {
           "branch": null,
-          "revision": "f324b4a562ca421fd2905414a10fb0fc91d58b67",
-          "version": "0.16.2"
+          "revision": "dac007e907a4f4c565cfdc55a9ce148a761a11d5",
+          "version": "0.16.3"
         }
       },
       {
@@ -47,6 +47,15 @@
         }
       },
       {
+        "package": "StreamReader",
+        "repositoryURL": "https://github.com/mxcl/StreamReader",
+        "state": {
+          "branch": null,
+          "revision": "128534386c5b567c4218b67f4b2f469d65cd9021",
+          "version": "1.0.0"
+        }
+      },
+      {
         "package": "SwiftShell",
         "repositoryURL": "https://github.com/kareman/SwiftShell",
         "state": {
@@ -60,8 +69,8 @@
         "repositoryURL": "https://github.com/mxcl/Version",
         "state": {
           "branch": null,
-          "revision": "61140c9f8a94c0326076fd2d44817834f4c6aafc",
-          "version": "1.1.0"
+          "revision": "682f0da36005924672506b96fac93269831004b7",
+          "version": "1.1.1"
         }
       },
       {
