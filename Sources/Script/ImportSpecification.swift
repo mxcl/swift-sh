@@ -47,11 +47,11 @@ extension ImportSpecification {
         switch constraint {
         case .upToNextMajor(from: let v):
             return """
-            .upToNextMajor(from: Version(\(v.major),\(v.minor),\(v.patch)))
+            .upToNextMajor(from: \(v.swiftDescription))
             """
         case .exact(let v):
             return """
-            .exact(Version(\(v.major),\(v.minor),\(v.patch)))
+            .exact(\(v.swiftDescription))
             """
         case .ref(let ref):
             return """
@@ -75,5 +75,14 @@ public extension Array where Element == ImportSpecification {
 
     var packageLines: String {
         return map{ $0.packageLine }.joined(separator: ",\n    ")
+    }
+}
+
+private extension Version {
+    var swiftDescription: String {
+        //TODO not via string
+        return """
+            "\(self)"
+            """
     }
 }
