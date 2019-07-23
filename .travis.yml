@@ -58,7 +58,7 @@ jobs:
         sed -E -i '' 's/^  sha256 ".+"/  sha256 "'$SHA256\"/ ./swift-sh.rb
         
         # update bottle
-        MIDDLE=$TRAVIS_VERSION.mojave.bottle
+        MIDDLE=$TRAVIS_TAG.mojave.bottle
         SUFFIX=$MIDDLE.tar.gz
         brew install --build-bottle ./swift-sh.rb
         brew bottle --json --root-url=https://github.com/$TRAVIS_REPO_SLUG/releases/download/$TRAVIS_TAG ./swift-sh.rb
