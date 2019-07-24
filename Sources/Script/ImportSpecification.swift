@@ -36,7 +36,7 @@ extension ImportSpecification {
             return """
             .package(path: "\(dependencyName.urlString)")
             """
-        default:
+        case .scp, .url, .github:
             return """
             .package(url: "\(dependencyName.urlString)", \(requirement))
             """
