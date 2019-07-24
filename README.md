@@ -147,6 +147,12 @@ import Fuz  // /I/have/many/projects
 // ^^ local dependencies must expose library products in their `Package.swift`
 // careful: `foo/bar` will be treated as a GitHub dependency; prefix with `./`
 // local dependencies do *not* need to be versioned
+
+
+import Floibles  // @mxcl ~> 1.0.0-alpha.1
+import Bloibles  // @mxcl == 1.0.0-alpha.1
+// ^^ alphas/betas will only be fetched if you specify them explicitly like so
+// this is per Semantic Versioning guidelines
 ```
 
 `swift-sh` reads the comments after your imports and fetches the requested
