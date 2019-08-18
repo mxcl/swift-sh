@@ -44,6 +44,9 @@ jobs:
       env: SWIFT_VERSION=5.0.2
 
     - stage: deploy
+      env:
+        - HOMEBREW_NO_AUTO_UPDATE=1
+        - HOMEBREW_NO_INSTALL_CLEANUP=1
       script: |
         brew tap mxcl/homebrew-made
         cd /usr/local/Homebrew/Library/Taps/mxcl/homebrew-made
@@ -54,7 +57,7 @@ jobs:
         brew fetch swift-sh || true
         # ^^ fails because SHA is wrong, hence || true
         
-        SHA256=$(shasum --algorithm 256 $(brew --cache -s swift-sh) | awk '{print $1}')
+        SHA256=$(shasum --algorithm 256 $(brew --cache --build-from-source swift-sh) | awk '{print $1}')
         sed -E -i '' 's/^  sha256 ".+"/  sha256 "'$SHA256\"/ ./swift-sh.rb
         
         # update bottle
@@ -63,11 +66,6 @@ jobs:
         brew install --build-bottle ./swift-sh.rb
         brew bottle --json --root-url=https://github.com/$TRAVIS_REPO_SLUG/releases/download/$TRAVIS_TAG ./swift-sh.rb
         brew bottle --merge swift-sh--$MIDDLE.json --write --no-commit
-
-        curl --data-binary @"swift-sh--$SUFFIX" \
-          "https://uploads.github.com/repos/$TRAVIS_REPO_SLUG/releases/$RELEASE_ID/assets?name=swift-sh-$SUFFIX" \
-          -H "Authorization: token $GITHUB_TOKEN" \
-          -H "Content-Type: application/octet-stream"
 
         git remote set-url origin "https://$GITHUB_TOKEN@github.com/mxcl/homebrew-made.git"
         git add swift-sh.rb
@@ -79,4 +77,11 @@ jobs:
         curl -O https://raw.githubusercontent.com/mxcl/ops/master/deploy
         chmod u+x deploy
         RELEASE_ID=$(./deploy publish-release)
+        
+        # upload bottle
+        curl --data-binary @"swift-sh--$SUFFIX" \
+          "https://uploads.github.com/repos/$TRAVIS_REPO_SLUG/releases/$RELEASE_ID/assets?name=swift-sh-$SUFFIX" \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Content-Type: application/octet-stream"
+
       after_script: sleep 1
