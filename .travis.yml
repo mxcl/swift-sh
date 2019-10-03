@@ -42,6 +42,10 @@ jobs:
     - <<: *linux
       name: Linux / Swift 5.0.2
       env: SWIFT_VERSION=5.0.2
+      
+    - <<: *linux
+      name: Linux / Swift 5.1
+      env: SWIFT_VERSION=5.1
 
     - stage: deploy
       env:
