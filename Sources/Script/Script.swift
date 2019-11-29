@@ -8,7 +8,6 @@ public class Script {
     let input: Input
     let deps: [ImportSpecification]
     let args: [String]
-    let cwd: Path
 
     public var name: String {
         switch input {
@@ -24,7 +23,7 @@ public class Script {
             case .path(let path):
                 return Path.build/path.pathHash()
             case .string:
-                return Path.build/cwd.pathHash()
+                return Path.build/name
         }
     }
 
@@ -41,7 +40,6 @@ public class Script {
         input = `for`
         deps = dependencies
         args = arguments
-        cwd = Path.cwd
     }
 
     var depsCachePath: Path {
