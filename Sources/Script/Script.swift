@@ -20,12 +20,12 @@ public class Script {
     }
 
     public var buildDirectory: Path {
-		switch input {
-			case .path(let path):
-				return Path.build/path.pathHash()
-			case .string:
-				return Path.build/cwd.pathHash()
-		}
+        switch input {
+            case .path(let path):
+                return Path.build/path.pathHash()
+            case .string:
+                return Path.build/cwd.pathHash()
+        }
     }
 
     public var mainSwift: Path {
@@ -182,14 +182,14 @@ extension Path {
 }
 
 extension Path {
-	func pathHash() -> String {
-		var s = self.basename(dropExtension: true)	// default result
-		guard let data = self.string.data(using: .utf8) else { return s }
-		if let b64s = String(data: data.base64EncodedData(), encoding: .utf8)?.suffix(128) {
-		   s = String(b64s)
-		}
-		return s
-	}
+    func pathHash() -> String {
+        var s = self.basename(dropExtension: true)  // default result
+        guard let data = self.string.data(using: .utf8) else { return s }
+        if let b64s = String(data: data.base64EncodedData(), encoding: .utf8)?.suffix(128) {
+           s = String(b64s)
+        }
+        return s
+    }
 }
 
 extension String {
