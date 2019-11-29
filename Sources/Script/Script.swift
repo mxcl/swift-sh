@@ -19,7 +19,12 @@ public class Script {
     }
 
     public var buildDirectory: Path {
-        return Path.build/name
+        switch input {
+            case .path(let path):
+                return Path.build/path.pathHash()
+            case .string:
+                return Path.build/name
+        }
     }
 
     public var mainSwift: Path {
@@ -171,6 +176,17 @@ extension Path {
             let str = (try? task.runSync())?.stdout.string?.chuzzled() ?? "/usr/bin/swift"
             return Path.root/str
         }
+    }
+}
+
+extension Path {
+    func pathHash() -> String {
+        var s = self.basename(dropExtension: true)  // default result
+        guard let data = self.string.data(using: .utf8) else { return s }
+        if let b64s = String(data: data.base64EncodedData(), encoding: .utf8)?.suffix(128) {
+           s = String(b64s)
+        }
+        return s
     }
 }
 
