@@ -1,3 +1,4 @@
 /swift-sh.xcodeproj
 /sync
 /.swiftpm
+.build
