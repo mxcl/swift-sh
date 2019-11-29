@@ -1,5 +1,3 @@
-
-import CryptoKit
 import StreamReader
 import Foundation
 import Utility
@@ -187,22 +185,9 @@ extension Path {
 	func pathHash() -> String {
 		var s = self.basename(dropExtension: true)	// default result
 		guard let data = self.string.data(using: .utf8) else { return s }
-
-		// CryptoKit isn't available prior to 10.15
-		// but the compiler is not weak linking it like it should
-		// so have to comment this out for now and just use b64 :-(
-		// Filed: FB7471728 against this.
-		// See: https://forums.swift.org/t/weak-linking-of-frameworks-with-greater-deployment-targets/26017
-		/* if #available(iOS 13, macOS 10.15, *) {
-			let digest = Insecure.SHA1.hash(data: data)
-			for byte in digest {
-				s += String(format:"%02x", UInt8(byte))
-			}
-		} else { */
-			if let b64s = String(data: data.base64EncodedData(), encoding: .utf8)?.suffix(128) {
-			   s = String(b64s)
-			}
-		// }
+		if let b64s = String(data: data.base64EncodedData(), encoding: .utf8)?.suffix(128) {
+		   s = String(b64s)
+		}
 		return s
 	}
 }
