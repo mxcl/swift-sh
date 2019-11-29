@@ -8,7 +8,7 @@ public class Script {
     let input: Input
     let deps: [ImportSpecification]
     let args: [String]
-	let cwd: Path
+    let cwd: Path
 
     public var name: String {
         switch input {
@@ -41,7 +41,7 @@ public class Script {
         input = `for`
         deps = dependencies
         args = arguments
-		cwd = Path.cwd
+        cwd = Path.cwd
     }
 
     var depsCachePath: Path {
