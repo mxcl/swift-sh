@@ -283,7 +283,7 @@ class RunIntegrationTests: XCTestCase {
                 try file.chmod(0o0500)
                 return file
             }
-            
+
             func exec(file: Path) throws -> String? {
                 let task = Process(arg0: file)
                 task.launchPath = "/bin/sh"
@@ -292,11 +292,11 @@ class RunIntegrationTests: XCTestCase {
                 let stdout = try task.runSync(.stdout).string?.chuzzled()
                 return stdout
             }
-            
+
             // Note: both files must be created before either is executed to demonstrate the bug
             let file1 = try create(script: "print(123)", inSubDir: "test")
             let file2 =  try create(script: "print(456)", inSubDir: "test2")
-            
+
             let stdout1 = try exec(file: file1)
             XCTAssertEqual(stdout1, "123")
             let stdout2 = try exec(file: file2)   // Doesn't recompile, uses cached one so std out is "123" still
