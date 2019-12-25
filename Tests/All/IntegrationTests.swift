@@ -290,7 +290,7 @@ class RunIntegrationTests: XCTestCase {
                 task.arguments = ["-c", "./\(file.basename())"]
                 task.currentDirectoryPath = file.parent.string
                 let stdout = try task.runSync(.stdout).string?.chuzzled()
-                return stdout // XCTAssertEqual(stdout, "456")
+                return stdout
             }
             
             // Note: both files must be created before either is executed to demonstrate the bug
