@@ -16,7 +16,7 @@ extension ImportSpecification.DependencyName: Codable {
         }
         guard !string.hasPrefix("@") else {
             // strictly not a thorough github username check
-            let validCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-")
+            let validCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.")
             let username = String(string.dropFirst())
             guard CharacterSet(charactersIn: username).isSubset(of: validCharacters) else {
                 throw E.invalidGitHubUsername(username)
