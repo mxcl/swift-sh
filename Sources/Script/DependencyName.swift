@@ -14,14 +14,21 @@ extension ImportSpecification.DependencyName: Codable {
             self = .scp(string)
             return
         }
+        
+        func mangleGitHubUsername(_ input: String) -> String {
+            // GitHub allows using `.` when creating usernames/orgs but converts it to `-` so as a convenience we do the same
+            return input.replacingOccurrences(of: ".", with: "-")
+        }
+         
         guard !string.hasPrefix("@") else {
-            // strictly not a thorough github username check
+            //FIXME strictly not a thorough github username check
+            //NOTE the `.` is not actually allowed, but GitHub allows using it when creating usernames/orgs but converts it to `-` so we must do the same
             let validCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.")
             let username = String(string.dropFirst())
             guard CharacterSet(charactersIn: username).isSubset(of: validCharacters) else {
                 throw E.invalidGitHubUsername(username)
             }
-            self = .github(user: username, repo: importName)
+            self = .github(user: mangleGitHubUsername(username), repo: importName)
             return
         }
         guard let cc = URLComponents(string: string) else {
@@ -44,7 +51,7 @@ extension ImportSpecification.DependencyName: Codable {
             guard let (user, repo) = pair(cc.path) else {
                 throw E.invalidDependencySpecification(string)
             }
-            self = .github(user: user, repo: repo)
+            self = .github(user: mangleGitHubUsername(user), repo: repo)
         } else if let url = cc.url {
             self = .url(url)
         } else {
