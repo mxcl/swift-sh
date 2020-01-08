@@ -3,11 +3,14 @@ import Foundation
 import Utility
 import Version
 import Path
+import CryptoSwift
 
 public class Script {
     let input: Input
     let deps: [ImportSpecification]
     let args: [String]
+
+    private let inputPathHash: String?
 
     public var name: String {
         switch input {
@@ -19,7 +22,12 @@ public class Script {
     }
 
     public var buildDirectory: Path {
-        return Path.build/name
+        switch input {
+            case .path:
+                return Path.build/inputPathHash!
+            case .string:
+                return Path.build/name
+        }
     }
 
     public var mainSwift: Path {
@@ -35,6 +43,13 @@ public class Script {
         input = `for`
         deps = dependencies
         args = arguments
+
+        // cache hash if appropriate since accessed often and involves work
+        if case let Input.path(path) = input {
+            self.inputPathHash = path.string.md5()
+        } else {
+            self.inputPathHash = nil
+        }
     }
 
     var depsCachePath: Path {
