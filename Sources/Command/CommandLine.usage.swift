@@ -8,7 +8,7 @@ public extension CommandLine {
         var rv = """
             swift sh <script> [arguments]
             swift sh eject <script> [-f|--force]
-            swift sh --clean-cache [-C] <script name>
+            swift sh --clean-cache [-C] [<script>]
             swift sh editor <script>
             """
       #if os(macOS)
