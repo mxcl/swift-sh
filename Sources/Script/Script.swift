@@ -46,7 +46,7 @@ public class Script {
 
         // cache hash if appropriate since accessed often and involves work
         if case let Input.path(path) = input {
-            self.inputPathHash = path.string.md5hash
+            self.inputPathHash = path.string.md5()
         } else {
             self.inputPathHash = nil
         }
