@@ -267,6 +267,42 @@ class RunIntegrationTests: XCTestCase {
         #endif
         }
     }
+
+    func testTwoScriptsSameNameWork() throws {
+        // In the same temporary directory we create two directories each
+        // containig a script of the same name but slightly different bodies.
+        // If swift-sh cache is not disambiguating based on full path the
+        // the second script will not be built and we will see the output of
+        // the first when executing the second.
+        try Path.mktemp { tmpdir -> Void in
+
+            func create(script: String, inSubDir: String) throws -> Path {
+                let scriptDir: Path = try tmpdir.join(inSubDir).mkdir()
+                let file = scriptDir.join("\(scriptBaseName).swift")
+                try "#!\(shebang)\n\n\(script)".write(to: file)
+                try file.chmod(0o0500)
+                return file
+            }
+
+            func exec(file: Path) throws -> String? {
+                let task = Process(arg0: file)
+                task.launchPath = "/bin/sh"
+                task.arguments = ["-c", "./\(file.basename())"]
+                task.currentDirectoryPath = file.parent.string
+                let stdout = try task.runSync(.stdout).string?.chuzzled()
+                return stdout
+            }
+
+            // Note: both files must be created before either is executed to demonstrate the bug
+            let file1 = try create(script: "print(123)", inSubDir: "test")
+            let file2 =  try create(script: "print(456)", inSubDir: "test2")
+
+            let stdout1 = try exec(file: file1)
+            XCTAssertEqual(stdout1, "123")
+            let stdout2 = try exec(file: file2)   // Doesn't recompile, uses cached one so std out is "123" still
+            XCTAssertEqual(stdout2, "456")
+        }
+    }
 }
 
 class EjectIntegrationTests: XCTestCase {
