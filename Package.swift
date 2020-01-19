@@ -18,8 +18,8 @@ let package = Package(
     ],
     targets: [
         .target(name: "swift-sh", dependencies: ["Command", "LegibleError"], path: "Sources", sources: ["main.swift"]),
-        .target(name: "Script", dependencies: ["Utility", "StreamReader", "CryptoSwift"]),
-        .target(name: "Utility", dependencies: ["Path", "Version"]),
+        .target(name: "Script", dependencies: ["Utility", "StreamReader"]),
+        .target(name: "Utility", dependencies: ["Path", "Version", "CryptoSwift"]),
         .target(name: "Command", dependencies: ["Script"]),
         .testTarget(name: "All", dependencies: ["swift-sh"]),
     ],

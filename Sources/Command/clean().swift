@@ -1,6 +1,6 @@
 import Foundation
-import CryptoSwift
 import Path
+import Utility
 
 public func clean(_ script: Path?) throws {
     guard let script = script else {
@@ -11,6 +11,6 @@ public func clean(_ script: Path?) throws {
         throw CocoaError.error(.fileNoSuchFile)
     }
 
-    let path = Path.build/script.string.md5()
+    let path = Path.build/script.resolvedHash
     try path.delete()
 }

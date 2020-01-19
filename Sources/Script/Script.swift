@@ -3,7 +3,6 @@ import Foundation
 import Utility
 import Version
 import Path
-import CryptoSwift
 
 public class Script {
     let input: Input
@@ -46,7 +45,7 @@ public class Script {
 
         // cache hash if appropriate since accessed often and involves work
         if case let Input.path(path) = input {
-            self.inputPathHash = path.string.md5()
+            self.inputPathHash = path.resolvedHash
         } else {
             self.inputPathHash = nil
         }
