@@ -44,8 +44,8 @@ jobs:
       env: SWIFT_VERSION=5.0.2
       
     - <<: *linux
-      name: Linux / Swift 5.1
-      env: SWIFT_VERSION=5.1
+      name: Linux / Swift 5.1.3
+      env: SWIFT_VERSION=5.1.3
 
     - stage: deploy
       osx_image: xcode11
