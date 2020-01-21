@@ -305,6 +305,63 @@ class RunIntegrationTests: XCTestCase {
     }
 }
 
+class CleanIntegrationTests: XCTestCase {
+    func testCanCleanSpecificScripts() throws {
+        // In the same temporary directory we create two directories each
+        // containing a script of the same name. After executing the new scripts
+        // they will both be built in different directories inside of the build
+        // directory. Running clean on the first script will remove its build
+        // directory but leave the second.
+        try Path.mktemp { tmpdir -> Void in
+
+            func create(script: String, inSubDir: String) throws -> Path {
+                let scriptDir: Path = try tmpdir.join(inSubDir).mkdir()
+                let file = scriptDir.join("\(scriptBaseName).swift")
+                try "#!\(shebang)\n\n\(script)".write(to: file)
+                try file.chmod(0o0500)
+                return file
+            }
+
+            func exec(file: Path) throws -> String? {
+                let task = Process(arg0: file)
+                task.launchPath = "/bin/sh"
+                task.arguments = ["-c", "./\(file.basename())"]
+                task.currentDirectoryPath = file.parent.string
+                let stdout = try task.runSync(.stdout).string?.chuzzled()
+                return stdout
+            }
+
+            func clean(file: Path) throws -> (Process.TerminationReason, Int32) {
+                let task = Process()
+                task.launchPath = shebang
+                task.arguments = ["-C", file.string]
+                try task.go()
+                task.waitUntilExit()
+                return (task.terminationReason, task.terminationStatus)
+            }
+
+            let file1 = try create(script: "print(123)", inSubDir: "\(#function)-1")
+            let file2 =  try create(script: "print(456)", inSubDir: "\(#function)-2")
+
+            let file1BuildPath = Path.build/file1.resolvedHash
+            let file2BuildPath = Path.build/file2.resolvedHash
+
+            let _ = try exec(file: file1)
+            let _ = try exec(file: file2)
+
+            XCTAssertTrue(file1BuildPath.exists)
+            XCTAssertTrue(file2BuildPath.exists)
+
+            let (reason, status) = try clean(file: file1)
+            XCTAssertEqual(reason, .exit)
+            XCTAssertEqual(status, 0)
+
+            XCTAssertFalse(file1BuildPath.exists)
+            XCTAssertTrue(file2BuildPath.exists)
+        }
+    }
+}
+
 class EjectIntegrationTests: XCTestCase {
     func testForce() throws {
 

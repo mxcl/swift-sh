@@ -8,7 +8,7 @@ public extension CommandLine {
         var rv = """
             swift sh <script> [arguments]
             swift sh eject <script> [-f|--force]
-            swift sh --clean-cache [-C]
+            swift sh --clean-cache [-C] [<script>]
             swift sh editor <script>
             """
       #if os(macOS)
@@ -99,7 +99,7 @@ public enum Mode {
     case eject(Path, force: Bool)
     case edit(Path)
     case editor(Path)
-    case clean
+    case clean(Path?)
     case help
 
     public enum RunType {
@@ -146,7 +146,11 @@ public enum Mode {
                 self = .run(.stdin, args: parser.untarnishedArguments)
             }
         case "--clean-cache", "-C":
-            self = .clean
+            if let arg1 = parser.pop() {
+                self = .clean(Path(arg1) ?? Path.cwd/arg1)
+            } else {
+                self = .clean(nil)
+            }
         case let arg1?:
             let path = Path(arg1) ?? Path.cwd/arg1
 

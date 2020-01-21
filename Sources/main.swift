@@ -17,8 +17,8 @@ do {
         try Command.edit(path: path)
     case .editor(let path):
         try Command.editor(path: path)
-    case .clean:
-        try Path.build.delete()
+    case .clean(let path):
+        try Command.clean(path)
     case .help:
         print(CommandLine.usage)
     }
