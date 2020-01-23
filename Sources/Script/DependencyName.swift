@@ -6,6 +6,7 @@ import Path
 extension ImportSpecification.DependencyName: Codable {
     enum E: Error {
         case invalidDependencySpecification(String)
+        case invalidScriptLocationForRelativeLocalDependencySpecification(String)
         case invalidGitHubUsername(String)
     }
 
@@ -41,7 +42,32 @@ extension ImportSpecification.DependencyName: Codable {
             }
 
             if cc.path.hasPrefix(".") || cc.path.hasPrefix("..") {
-                let localRelativePath = Path.cwd/cc.path
+                let scriptLocation = CommandLine.arguments[1]
+                var directoryContainingScript = "."
+                if let lastSlash = scriptLocation.lastIndex(of: "/") {
+                    directoryContainingScript = String(scriptLocation[...lastSlash])
+                }
+                // The path to the script might look like:
+                // ./path/to/script
+                // ../path/to/script
+                // path/to/script/
+                // or /absolute/path/to/script
+                // If it has dots or no slash, it's relative,
+                // otherwise it's absolute
+                var tempPath:Path
+                if directoryContainingScript.hasPrefix(".") 
+                || directoryContainingScript.hasPrefix("..")
+                || !directoryContainingScript.hasPrefix("/") {
+                    tempPath = Path.cwd/directoryContainingScript
+                } else {
+                    // If it's absolute but we can't get a path from it
+                    // we won't be able to build the relative path to the local dependency.
+                    guard let absolutePath = Path(directoryContainingScript) else {
+                        throw E.invalidScriptLocationForRelativeLocalDependencySpecification(directoryContainingScript)
+                    }
+                    tempPath = absolutePath
+                }
+                let localRelativePath = tempPath/cc.path
                 if localRelativePath.exists {
                     self = .local(localRelativePath)
                     return

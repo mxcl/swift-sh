@@ -70,11 +70,11 @@ class ImportSpecificationUnitTests: XCTestCase {
     }
 
     func testCanProvideLocalRelativeCurrentPath() throws {
-        let cwd = Path.cwd
+        let homePath = Path.home
         let b = try parse("import Bar  // ./")
-        XCTAssertEqual(b?.dependencyName, .local(cwd))
+        XCTAssertEqual(b?.dependencyName, .local(homePath))
         XCTAssertEqual(b?.importName, "Bar")
-        XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwd.string)\")")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(homePath.string)\")")
     }
 
     func testCanProvideLocalRelativeParentPath() throws {
