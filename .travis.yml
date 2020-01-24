@@ -1,5 +1,5 @@
 # only run for: merge commits, releases and pull-requests
-if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/
+if: type != push OR branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/ OR branch =~ /^deploy-.*$/
 
 os: osx
 language: swift
@@ -9,7 +9,7 @@ stages:
   - name: pretest
   - name: test
   - name: deploy
-    if: branch =~ ^\d+\.\d+\.\d+$
+    if: branch =~ /^deploy-.*$/
 
 jobs:
   include:
@@ -52,15 +52,19 @@ jobs:
       env:
         - HOMEBREW_NO_AUTO_UPDATE=1
         - HOMEBREW_NO_INSTALL_CLEANUP=1
+        - TAP=/usr/local/Homebrew/Library/Taps/mxcl/homebrew-made
       script:
         - brew tap mxcl/homebrew-made
-        - cd /usr/local/Homebrew/Library/Taps/mxcl/homebrew-made
+        - WHERE_WE_WAS=$(pwd)
+        - cd "$TAP"
         
         # cd fails in travis, hence do now :/
         - set -e
         
+        - export VERSION=$(echo $TRAVIS_TAG | cut -c 8-)
+        
         # update our formula to new tag
-        - URL="https://github.com/mxcl/swift-sh/archive/$TRAVIS_TAG.tar.gz"
+        - URL="https://github.com/mxcl/swift-sh/archive/$VERSION.tar.gz"
         - sed -E -i '' 's~^  url ".+"~  url "'$URL\"~ ./swift-sh.rb
         - brew fetch swift-sh || true
         # ^^ fails because SHA is wrong, hence || true
@@ -69,27 +73,41 @@ jobs:
         - sed -E -i '' 's/^  sha256 ".+"/  sha256 "'$SHA256\"/ ./swift-sh.rb
         
         # update bottle
-        - MIDDLE=$TRAVIS_TAG.mojave.bottle
+        - MIDDLE=$VERSION.mojave.bottle
         - SUFFIX=$MIDDLE.tar.gz
         - brew install --build-bottle ./swift-sh.rb
-        - brew bottle --json --root-url=https://github.com/$TRAVIS_REPO_SLUG/releases/download/$TRAVIS_TAG ./swift-sh.rb
+        - brew bottle --json --root-url=https://github.com/$TRAVIS_REPO_SLUG/releases/download/$VERSION ./swift-sh.rb
         - brew bottle --merge swift-sh--$MIDDLE.json --write --no-commit
 
+        # update tap
         - git remote set-url origin "https://$GITHUB_TOKEN@github.com/mxcl/homebrew-made.git"
         - git add swift-sh.rb
         - git config user.name "Travis"
         - git config user.email "bot@travis-ci.com"
-        - git commit -m "swift-sh $TRAVIS_TAG"
-        - git push origin master
+        - git commit -m "swift-sh $VERSION"
+        
+        - cd "$WHERE_WE_WAS"
+        - git remote set-url origin "https://$GITHUB_TOKEN@github.com/$TRAVIS_REPO_SLUG.git"
+        - git tag "$VERSION"
+        - git push origin "$VERSION"
         
         - curl -O https://raw.githubusercontent.com/mxcl/ops/master/deploy
         - chmod u+x deploy
         - RELEASE_ID=$(./deploy publish-release)
-        
+
         # upload bottle
-        - curl --data-binary @"swift-sh--$SUFFIX" \
-          "https://uploads.github.com/repos/$TRAVIS_REPO_SLUG/releases/$RELEASE_ID/assets?name=swift-sh-$SUFFIX" \
-          -H "Authorization: token $GITHUB_TOKEN" \
-          -H "Content-Type: application/octet-stream"
+        - |
+          curl --data-binary @"$TAP/swift-sh--$SUFFIX" \
+            "https://uploads.github.com/repos/$TRAVIS_REPO_SLUG/releases/$RELEASE_ID/assets?name=swift-sh-$SUFFIX" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Content-Type: application/octet-stream"
+
+        # push tap
+        - cd "$TAP"
+        - git push origin master
+        
+        # delete this tag
+        - cd "$WHERE_WE_WAS"
+        - git push origin :"$TRAVIS_TAG"
 
       after_script: sleep 1
