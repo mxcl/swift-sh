@@ -70,7 +70,17 @@ class ImportSpecificationUnitTests: XCTestCase {
     }
 
     func testCanProvideLocalRelativeCurrentPath() throws {
+        let cwd = Path.cwd
+        let b = try parse("import Bar  // ./")
+        XCTAssertEqual(b?.dependencyName, .local(cwd))
+        XCTAssertEqual(b?.importName, "Bar")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwd.string)\")")
+    }
+
+    func testCanProvideLocalRelativeNonCurrentPath() throws {
         let homePath = Path.home
+        // CommandLine is populated with XCTest arguments during testing, add an input there.
+        CommandLine.arguments[1] = homePath.join("example_script.swift").string
         let b = try parse("import Bar  // ./")
         XCTAssertEqual(b?.dependencyName, .local(homePath))
         XCTAssertEqual(b?.importName, "Bar")

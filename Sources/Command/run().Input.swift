@@ -8,7 +8,7 @@ import Darwin
 import Glibc
 #endif
 
-enum Input {
+public enum Input {
     case stdin
     case file(Path)
     case namedPipe(FileHandle)
