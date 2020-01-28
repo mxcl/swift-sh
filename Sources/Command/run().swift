@@ -37,8 +37,6 @@ private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> 
         }
     }
 
-
-
     for (index, line) in reader.enumerated() {
         if index == 0, line.hasPrefix("#!") {
             lines.append("// shebang removed")  // keep line numbers in sync

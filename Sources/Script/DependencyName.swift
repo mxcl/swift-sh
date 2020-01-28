@@ -44,7 +44,6 @@ extension ImportSpecification.DependencyName: Codable {
                 let localRelativePathPrefix: Path
                 switch input {
                 case .path(let path):
-                    print("path found")
                     localRelativePathPrefix = path.parent
                 case .string:
                     localRelativePathPrefix = Path.cwd

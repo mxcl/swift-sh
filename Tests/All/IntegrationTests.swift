@@ -105,6 +105,7 @@ class RunIntegrationTests: XCTestCase {
         let testDir = try Path.cwd.join("tempTestDir").mkdir()
         defer {_ = try? FileManager.default.removeItem(at: testDir.url)}
 
+        // Place the local_dep inside cwd/local_dep
         let task = Process(arg0: "/bin/bash")
         task.currentDirectoryPath = tmpDir.string
         task.arguments = ["-c", "swift package init"]
@@ -112,7 +113,13 @@ class RunIntegrationTests: XCTestCase {
         task.standardOutput = stdout
         try task.go()
         task.waitUntilExit()
-        
+
+        // Place the script inside cwd/tempTestDir
+        // Provide "../local_dep" as the relative path to local_dep.
+        //
+        // We specifically use a different directory than cwd
+        // to test that the script's provided relative path for local_dep
+        // is relative to the script's path and not relative to the current working directory.
         XCTAssertRuns(exec: """
            import local_dep  // ../\(depName)
         """, path: testDir)
