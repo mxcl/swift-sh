@@ -86,17 +86,3 @@ private extension Version {
             """
     }
 }
-
-extension Path {
-    var containingDirectory: Path? {
-        guard self.isFile else {
-            return self
-        }
-
-        let filePath = self.string
-        if let lastSlash = filePath.lastIndex(of: "/") {
-            return Path(String(filePath[...lastSlash]))
-        }
-        return nil
-    }
-}

@@ -5,7 +5,8 @@ import Script
 import Path
 
 public func editor(path: Path) throws -> Never {
-    let deps = try StreamReader(path: path).compactMap(ImportSpecification.init)
+    let input:Script.Input = .path(path)
+    let deps = try StreamReader(path: path).compactMap { try ImportSpecification(line: $0, from: input) }
     let script = Script(for: .path(path), dependencies: deps)
     try script.write()
 

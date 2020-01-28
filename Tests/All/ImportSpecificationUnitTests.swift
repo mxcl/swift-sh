@@ -5,49 +5,49 @@ import Path
 
 class ImportSpecificationUnitTests: XCTestCase {
     func testWigglyArrow() throws {
-        let a = try parse("import Foo // @mxcl ~> 1.0")
+        let a = try parse("import Foo // @mxcl ~> 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(a?.dependencyName, .github(user: "mxcl", repo: "Foo"))
         XCTAssertEqual(a?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(a?.importName, "Foo")
     }
 
     func testTrailingWhitespace() throws {
-        let a = try parse("import Foo // @mxcl ~> 1.0 ")
+        let a = try parse("import Foo // @mxcl ~> 1.0 ", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(a?.dependencyName, .github(user: "mxcl", repo: "Foo"))
         XCTAssertEqual(a?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(a?.importName, "Foo")
     }
 
     func testExact() throws {
-        let a = try parse("import Foo // @mxcl == 1.0")
+        let a = try parse("import Foo // @mxcl == 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(a?.dependencyName, .github(user: "mxcl", repo: "Foo"))
         XCTAssertEqual(a?.constraint, .exact(.one))
         XCTAssertEqual(a?.importName, "Foo")
     }
 
     func testMoreSpaces() throws {
-        let b = try parse("import    Foo       //     @mxcl    ~>      1.0")
+        let b = try parse("import    Foo       //     @mxcl    ~>      1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .github(user: "mxcl", repo: "Foo"))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
 
     func testMinimalSpaces() throws {
-        let b = try parse("import Foo//@mxcl~>1.0")
+        let b = try parse("import Foo//@mxcl~>1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .github(user: "mxcl", repo: "Foo"))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
 
     func testCanOverrideImportName() throws {
-        let b = try parse("import Foo  // mxcl/Bar ~> 1.0")
+        let b = try parse("import Foo  // mxcl/Bar ~> 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .github(user: "mxcl", repo: "Bar"))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
     
     func testCanOverrideImportNameUsingNameWithHyphen() throws {
-        let b = try parse("import Bar  // mxcl/swift-bar ~> 1.0")
+        let b = try parse("import Bar  // mxcl/swift-bar ~> 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .github(user: "mxcl", repo: "swift-bar"))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Bar")
@@ -55,7 +55,7 @@ class ImportSpecificationUnitTests: XCTestCase {
 
     func testCanProvideLocalPath() throws {
         let homePath = Path.home
-        let b = try parse("import Bar  // \(homePath.string)")
+        let b = try parse("import Bar  // \(homePath.string)", from: .path(homePath.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .local(homePath))
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(homePath.string)\")")
@@ -63,7 +63,7 @@ class ImportSpecificationUnitTests: XCTestCase {
 
     func testCanProvideLocalPathWithTilde() throws {
         let homePath = Path.home
-        let b = try parse("import Bar  // ~/")
+        let b = try parse("import Bar  // ~/", from: .path(homePath.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .local(homePath))
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(homePath.string)\")")
@@ -71,7 +71,7 @@ class ImportSpecificationUnitTests: XCTestCase {
 
     func testCanProvideLocalRelativeCurrentPath() throws {
         let cwd = Path.cwd
-        let b = try parse("import Bar  // ./")
+        let b = try parse("import Bar  // ./", from: .path(cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .local(cwd))
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwd.string)\")")
@@ -79,39 +79,38 @@ class ImportSpecificationUnitTests: XCTestCase {
 
     func testCanProvideLocalRelativeNonCurrentPath() throws {
         let homePath = Path.home
-        // CommandLine is populated with XCTest arguments during testing, add an input there.
-        CommandLine.arguments[1] = homePath.join("example_script.swift").string
-        let b = try parse("import Bar  // ./")
+        // Provide a script path that's inside the home directory (not cwd)
+        let b = try parse("import Bar  // ./", from: .path(homePath.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .local(homePath))
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(homePath.string)\")")
     }
 
     func testCanProvideLocalRelativeParentPath() throws {
-        let cwd = Path.cwd/"../"
-        let b = try parse("import Bar  // ../")
-        XCTAssertEqual(b?.dependencyName, .local(cwd))
+        let cwdParent = Path.cwd/"../"
+        let b = try parse("import Bar  // ../", from: .path(Path.cwd.join("script.swift")))
+        XCTAssertEqual(b?.dependencyName, .local(cwdParent))
         XCTAssertEqual(b?.importName, "Bar")
-        XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwd.string)\")")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwdParent.string)\")")
     }
 
     func testCanProvideLocalRelativeTwoParentsUpPath() throws {
-        let cwd = Path.cwd/"../../"
-        let b = try parse("import Bar  // ../../")
-        XCTAssertEqual(b?.dependencyName, .local(cwd))
+        let cwdParent = Path.cwd/"../../"
+        let b = try parse("import Bar  // ../../", from: .path(Path.cwd.join("script.swift")))
+        XCTAssertEqual(b?.dependencyName, .local(cwdParent))
         XCTAssertEqual(b?.importName, "Bar")
-        XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwd.string)\")")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwdParent.string)\")")
     }
 
     func testCanProvideFullURL() throws {
-        let b = try parse("import Foo  // https://example.com/mxcl/Bar.git ~> 1.0")
+        let b = try parse("import Foo  // https://example.com/mxcl/Bar.git ~> 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .url(URL(string: "https://example.com/mxcl/Bar.git")!))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
 
     func testCanProvideFullURLWithHyphen() throws {
-        let b = try parse("import Bar  // https://example.com/mxcl/swift-bar.git ~> 1.0")
+        let b = try parse("import Bar  // https://example.com/mxcl/swift-bar.git ~> 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .url(URL(string: "https://example.com/mxcl/swift-bar.git")!))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Bar")
@@ -119,7 +118,7 @@ class ImportSpecificationUnitTests: XCTestCase {
 
     func testCanProvideFullSSHURLWithHyphen() throws {
         let url = "ssh://git@github.com/MariusCiocanel/swift-sh.git"
-        let b = try parse("import Bar  // \(url) ~> 1.0")
+        let b = try parse("import Bar  // \(url) ~> 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .url(URL(string: url)!))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Bar")
@@ -128,7 +127,7 @@ class ImportSpecificationUnitTests: XCTestCase {
 
     func testCanProvideCommonSSHURLStyleWithHyphen() throws {
         let uri = "git@github.com:MariusCiocanel/swift-sh.git"
-        let b = try parse("import Bar  // \(uri) ~> 1.0")
+        let b = try parse("import Bar  // \(uri) ~> 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .scp(uri))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Bar")
@@ -147,7 +146,7 @@ class ImportSpecificationUnitTests: XCTestCase {
              "var"
         ]
         for kind in kinds {
-            let b = try parse("import \(kind) Foo.bar  // https://example.com/mxcl/Bar.git ~> 1.0")
+            let b = try parse("import \(kind) Foo.bar  // https://example.com/mxcl/Bar.git ~> 1.0", from: .path(Path.cwd.join("script.swift")))
             XCTAssertEqual(b?.dependencyName, .url(URL(string: "https://example.com/mxcl/Bar.git")!))
             XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
             XCTAssertEqual(b?.importName, "Foo")
@@ -155,14 +154,14 @@ class ImportSpecificationUnitTests: XCTestCase {
     }
 
     func testCanUseTestable() throws {
-        let b = try parse("@testable import Foo  // @bar ~> 1.0")
+        let b = try parse("@testable import Foo  // @bar ~> 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .github(user: "bar", repo: "Foo"))
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
 
     func testLatestVersion() throws {
-        let b = try parse("import Foo  // @bar")
+        let b = try parse("import Foo  // @bar", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .github(user: "bar", repo: "Foo"))
         XCTAssertEqual(b?.constraint, .latest)
         XCTAssertEqual(b?.importName, "Foo")
