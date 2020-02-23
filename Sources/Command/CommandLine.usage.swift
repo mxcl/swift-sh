@@ -140,11 +140,7 @@ public enum Mode {
         case "-"?, "--"?:
             self = .run(.stdin, args: parser.remainder)
         case "--help"?, "-h"?:
-            if isTTY {
-                self = .help
-            } else {
-                self = .run(.stdin, args: parser.untarnishedArguments)
-            }
+            self = .help
         case "--clean-cache", "-C":
             if let arg1 = parser.pop() {
                 self = .clean(Path(arg1) ?? Path.cwd/arg1)
