@@ -9,7 +9,7 @@ extension ImportSpecification.DependencyName: Codable {
         case invalidGitHubUsername(String)
     }
 
-    init(rawValue string: String, importName: String) throws {
+    init(rawValue string: String, importName: String, from input: Script.Input) throws {
         guard !string.hasPrefix("git@") else {
             self = .scp(string)
             return
@@ -41,7 +41,14 @@ extension ImportSpecification.DependencyName: Codable {
             }
 
             if cc.path.hasPrefix(".") || cc.path.hasPrefix("..") {
-                let localRelativePath = Path.cwd/cc.path
+                let localRelativePathPrefix: Path
+                switch input {
+                case .path(let path):
+                    localRelativePathPrefix = path.parent
+                case .string:
+                    localRelativePathPrefix = Path.cwd
+                }
+                let localRelativePath = localRelativePathPrefix/cc.path
                 if localRelativePath.exists {
                     self = .local(localRelativePath)
                     return

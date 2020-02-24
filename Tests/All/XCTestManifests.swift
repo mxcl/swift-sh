@@ -38,6 +38,7 @@ extension ImportSpecificationUnitTests {
         ("testCanProvideLocalPath", testCanProvideLocalPath),
         ("testCanProvideLocalPathWithTilde", testCanProvideLocalPathWithTilde),
         ("testCanProvideLocalRelativeCurrentPath", testCanProvideLocalRelativeCurrentPath),
+        ("testCanProvideLocalRelativeNonCurrentPath", testCanProvideLocalRelativeNonCurrentPath),
         ("testCanProvideLocalRelativeParentPath", testCanProvideLocalRelativeParentPath),
         ("testCanProvideLocalRelativeTwoParentsUpPath", testCanProvideLocalRelativeTwoParentsUpPath),
         ("testCanUseTestable", testCanUseTestable),

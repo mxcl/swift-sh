@@ -7,7 +7,7 @@ enum E: Error {
 }
 
 /// - Parameter line: Contract: Single line string trimmed of whitespace.
-func parse(_ line: String) throws -> ImportSpecification? {
+func parse(_ line: String, from input: Script.Input) throws -> ImportSpecification? {
     let pattern = "import\\s+(.*?)\\s*\\/\\/\\s*([~@]?[\\w\\/(@|:)\\.\\-]+)\\s*(?:(==|~>)\\s*([^\\s]+))?"
     let rx = try! NSRegularExpression(pattern: pattern)
 
@@ -44,7 +44,9 @@ func parse(_ line: String) throws -> ImportSpecification? {
 
     return ImportSpecification(
         importName: importName,
-        dependencyName: try .init(rawValue: String(line[match.range(at: 2)]), importName: importName),
+        dependencyName: try .init(rawValue: String(line[match.range(at: 2)]),
+                                  importName: importName,
+                                  from: input),
         constraint: constraint)
 }
 

@@ -23,10 +23,10 @@ public struct ImportSpecification: Codable, Equatable {
 }
 
 extension ImportSpecification {
-    public init?(line: String) throws {
+    public init?(line: String, from input: Script.Input) throws {
         let trimmed = line.trimmingCharacters(in: .whitespaces)
         guard trimmed.hasPrefix("import") || trimmed.hasPrefix("@testable") else { return nil }
-        guard let this = try parse(line) else { return nil }
+        guard let this = try parse(line, from: input) else { return nil }
         self = this
     }
 

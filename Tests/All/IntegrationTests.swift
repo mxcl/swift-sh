@@ -97,21 +97,32 @@ class RunIntegrationTests: XCTestCase {
     }
 
     func testUseLocalDependencyWithRelativePath() throws {
-        let depName = "local_dep"
-        let tmpdir = try Path.cwd.join(depName).mkdir()
-        defer {_ = try? FileManager.default.removeItem(at: tmpdir.url)}
+        let depName = "local_dep" 
+        let tmpDir = try Path.cwd.join(depName).mkdir()
+        defer {_ = try? FileManager.default.removeItem(at: tmpDir.url)}
 
+        // Use a dir under cwd because mkdir fails inside Path.mktemp
+        let testDir = try Path.cwd.join("tempTestDir").mkdir()
+        defer {_ = try? FileManager.default.removeItem(at: testDir.url)}
+
+        // Place the local_dep inside cwd/local_dep
         let task = Process(arg0: "/bin/bash")
-        task.currentDirectoryPath = tmpdir.string
+        task.currentDirectoryPath = tmpDir.string
         task.arguments = ["-c", "swift package init"]
         let stdout = Pipe()
         task.standardOutput = stdout
         try task.go()
         task.waitUntilExit()
 
+        // Place the script inside cwd/tempTestDir
+        // Provide "../local_dep" as the relative path to local_dep.
+        //
+        // We specifically use a different directory than cwd
+        // to test that the script's provided relative path for local_dep
+        // is relative to the script's path and not relative to the current working directory.
         XCTAssertRuns(exec: """
-            import local_dep  // ./\(depName)
-            """)
+           import local_dep  // ../\(depName)
+        """, path: testDir)
     }
 
     func testStandardInputCanBeUsedInScript() throws {
@@ -512,18 +523,26 @@ class TestingTheTests: XCTestCase {
     }
 }
 
-private func write(script: String, line: UInt = #line, body: (Path) throws -> Void) throws {
-    try Path.mktemp { tmpdir -> Void in
-        let file = tmpdir.join("\(scriptBaseName)-\(line).swift")
+private func write(script: String, path: Path? = nil, line: UInt = #line, body: @escaping (Path) throws -> Void) throws {
+    let writeFile: (Path) throws -> Void = {
+        let file = $0.join("\(scriptBaseName)-\(line).swift")
         try "#!\(shebang)\n\(script)".write(to: file)
         try file.chmod(0o0500)
         try body(file)
+ 
     }
+    if let path = path {
+        try writeFile(path)
+    } else {
+        try Path.mktemp { tmpDir -> Void in
+            try writeFile(tmpDir)
+        }
+   }
 }
 
-private func XCTAssertRuns(exec: String, line: UInt = #line) {
+private func XCTAssertRuns(exec: String, path: Path? = nil, line: UInt = #line) {
     do {
-        try write(script: exec, line: line) { file in
+        try write(script: exec, path: path, line: line) { file in
             let task = Process(arg0: file)
             try task.go()
             task.waitUntilExit()

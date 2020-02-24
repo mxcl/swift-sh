@@ -28,12 +28,21 @@ private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> 
     var deps = [ImportSpecification]()
     var lines = [String]()
 
+    var transformedInput: Script.Input {
+        switch input {
+        case .stdin, .namedPipe:
+            return .string(name: input.name, content: lines.joined(separator: "\n"))
+        case .file(let path):
+            return .path(path)
+        }
+    }
+
     for (index, line) in reader.enumerated() {
         if index == 0, line.hasPrefix("#!") {
             lines.append("// shebang removed")  // keep line numbers in sync
             continue
         }
-        if let result = try ImportSpecification(line: line) {
+        if let result = try ImportSpecification(line: line, from: transformedInput) {
             deps.append(result)
         }
         switch input {
@@ -41,15 +50,6 @@ private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> 
             lines.append(line)
         case .file:
             break
-        }
-    }
-
-    var transformedInput: Script.Input {
-        switch input {
-        case .stdin, .namedPipe:
-            return .string(name: input.name, content: lines.joined(separator: "\n"))
-        case .file(let path):
-            return .path(path)
         }
     }
 
