@@ -90,7 +90,7 @@ wage*. Please help me continue my work, I appreciate it 🙏🏻
 # Installation
 
 ```
-brew install mxcl/made/swift-sh
+brew install swift-sh
 ```
 
 Or with [Mint](https://github.com/yonaskolb/Mint):
