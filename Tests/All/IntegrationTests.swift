@@ -8,8 +8,8 @@ import Path
 class RunIntegrationTests: XCTestCase {
     override class func setUp() {
         guard Path.build.isDirectory else { return }
-        for entry in try! Path.build.ls() where entry.kind == .directory && entry.path.basename().hasPrefix(scriptBaseName) {
-            try! entry.path.delete()
+        for entry in Path.build.ls() where entry.type == .directory && DynamicPath(entry).path.basename().hasPrefix(scriptBaseName) {
+            try! DynamicPath(entry).path.delete()
         }
     }
 
@@ -97,7 +97,7 @@ class RunIntegrationTests: XCTestCase {
     }
 
     func testUseLocalDependencyWithRelativePath() throws {
-        let depName = "local_dep" 
+        let depName = "local_dep"
         let tmpDir = try Path.cwd.join(depName).mkdir()
         defer {_ = try? FileManager.default.removeItem(at: tmpDir.url)}
 
@@ -223,7 +223,7 @@ class RunIntegrationTests: XCTestCase {
     }
 
     func testNSHipsterExample() throws {
-        let path = Path(#file)!.parent.parent.parent.Examples.cards
+        let path = Path(DynamicPath(Path(#file)!.parent.parent.parent).Examples.cards)
         let code = try StreamReader(path: path).dropFirst().joined(separator: "\n")
         XCTAssertRuns(exec: code)
     }
@@ -529,7 +529,7 @@ private func write(script: String, path: Path? = nil, line: UInt = #line, body: 
         try "#!\(shebang)\n\(script)".write(to: file)
         try file.chmod(0o0500)
         try body(file)
- 
+
     }
     if let path = path {
         try writeFile(path)

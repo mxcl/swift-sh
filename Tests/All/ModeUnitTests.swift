@@ -45,7 +45,7 @@ class ModeUnitTests: XCTestCase {
 
     func testValidRun() throws {
         try Path.mktemp { tmpdir in
-            let foo = try tmpdir.foo.touch()
+            let foo = try DynamicPath(tmpdir).foo.touch()
 
             func test(args: String..., line: UInt = #line) throws {
                 let mode = try Mode(for: ["arg0"] + args, isTTY: true)

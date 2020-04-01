@@ -10,7 +10,7 @@ let package = Package(
         .library(name: "Command", targets: ["Command"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/mxcl/Path.swift", from: "0.16.2"),
+        .package(url: "https://github.com/mxcl/Path.swift", from: "1.0.1"),
         .package(url: "https://github.com/mxcl/StreamReader", from: "1.0.0"),
         .package(url: "https://github.com/mxcl/LegibleError", from: "1.0.0"),
         .package(url: "https://github.com/mxcl/Version", from: "2.0.0"),
