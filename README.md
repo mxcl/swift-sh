@@ -90,6 +90,13 @@ wage*. Please help me continue my work, I appreciate it 🙏🏻
 # Installation
 
 ```
+brew install mxcl/made/swift-sh
+```
+
+We’re in core now, but I’m not updating it, so I still recommend my tap above.
+If you prefer though you can use the core formula:
+
+```
 brew install swift-sh
 ```
 
