@@ -45,7 +45,7 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.constraint, .upToNextMajor(from: .one))
         XCTAssertEqual(b?.importName, "Foo")
     }
-    
+
     func testCanOverrideImportNameUsingNameWithHyphen() throws {
         let b = try parse("import Bar  // mxcl/swift-bar ~> 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .github(user: "mxcl", repo: "swift-bar"))
@@ -56,7 +56,7 @@ class ImportSpecificationUnitTests: XCTestCase {
     func testCanProvideLocalPath() throws {
         let homePath = Path.home
         let b = try parse("import Bar  // \(homePath.string)", from: .path(homePath.join("script.swift")))
-        XCTAssertEqual(b?.dependencyName, .local(homePath))
+        XCTAssertEqual(b?.dependencyName, .local(Path(homePath)))
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(homePath.string)\")")
     }
@@ -64,7 +64,7 @@ class ImportSpecificationUnitTests: XCTestCase {
     func testCanProvideLocalPathWithTilde() throws {
         let homePath = Path.home
         let b = try parse("import Bar  // ~/", from: .path(homePath.join("script.swift")))
-        XCTAssertEqual(b?.dependencyName, .local(homePath))
+        XCTAssertEqual(b?.dependencyName, .local(Path(homePath)))
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(homePath.string)\")")
     }
@@ -72,7 +72,7 @@ class ImportSpecificationUnitTests: XCTestCase {
     func testCanProvideLocalRelativeCurrentPath() throws {
         let cwd = Path.cwd
         let b = try parse("import Bar  // ./", from: .path(cwd.join("script.swift")))
-        XCTAssertEqual(b?.dependencyName, .local(cwd))
+        XCTAssertEqual(b?.dependencyName, .local(Path(cwd)))
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwd.string)\")")
     }
@@ -81,7 +81,7 @@ class ImportSpecificationUnitTests: XCTestCase {
         let homePath = Path.home
         // Provide a script path that's inside the home directory (not cwd)
         let b = try parse("import Bar  // ./", from: .path(homePath.join("script.swift")))
-        XCTAssertEqual(b?.dependencyName, .local(homePath))
+        XCTAssertEqual(b?.dependencyName, .local(Path(homePath)))
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(homePath.string)\")")
     }

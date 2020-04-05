@@ -145,7 +145,21 @@ public class Script {
             // if the Swift version is less than 5 we are not an ABI safe environment
             guard let swiftVersion = Float(swiftVersion), swiftVersion >= 5 else { return true }
 
-            if let t1 = path.mtime, let t2 = binaryPath.mtime {
+            // compute latest mtime for script and local dependencies
+            var mtimes = [path.mtime]
+            for dep in deps {
+                switch dep.dependencyName {
+                case .local(let path):
+                    for path in path.find() {
+                        mtimes.append(path.mtime)
+                    }
+                case .url, .scp, .github:
+                    ()
+                }
+            }
+            let mtime = mtimes.compactMap({ $0 }).max()
+
+            if let t1 = mtime, let t2 = binaryPath.mtime {
                 return t1 > t2
             } else {
                 return true
