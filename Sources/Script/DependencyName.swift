@@ -87,7 +87,7 @@ extension ImportSpecification.DependencyName: Codable {
         var container = encoder.singleValueContainer()
         try container.encode(urlString)
     }
-
+    
     var urlString: String {
         switch self {
         case .github(let user, let repo):
@@ -98,6 +98,15 @@ extension ImportSpecification.DependencyName: Codable {
             return str
         case .local(let path):
             return path.string
+        }
+    }
+    
+    var packageName: String? {
+        let basename = urlString.split(separator: "/").last
+        if let name = basename?.split(separator: ".").first {
+            return String(name)
+        } else {
+            return nil
         }
     }
 }

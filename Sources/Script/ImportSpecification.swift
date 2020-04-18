@@ -67,8 +67,9 @@ extension ImportSpecification {
 
 public extension Array where Element == ImportSpecification {
     var mainTargetDependencies: String {
-        return map { """
-            "\($0.importName)"
+        return map {
+            """
+            .product(name: "\($0.importName)", package: "\($0.dependencyName.packageName ?? "")")
             """
             }.joined(separator: ", ")
     }
