@@ -240,6 +240,12 @@ let swiftVersion: String = {
         if let input = try task.runSync(.stdout).string {
             let range = input.range(of: "Swift version \\d+\\.\\d+", options: .regularExpression)!
             if let found = input[range].split(separator: " ").last {
+
+                // currently we don’t support Swift 5.2 tools syntax
+                if let found = Double(found), found > 5.1 {
+                    return "5.1"
+                }
+
                 return String(found)
             }
         }
