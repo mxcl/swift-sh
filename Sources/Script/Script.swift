@@ -246,7 +246,9 @@ let swiftVersion: String = {
     } catch {
         assert(false)  // shouldn't happen during testing so let’s catch it
     }
-#if swift(>=5.1)
+#if swift(>=5.2)
+    return "5.2"
+#elseif swift(>=5.1)
     return "5.1"
 #elseif swift(>=5)
     return "5.0"

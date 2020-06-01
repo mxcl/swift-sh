@@ -67,10 +67,17 @@ extension ImportSpecification {
 
 public extension Array where Element == ImportSpecification {
     var mainTargetDependencies: String {
-        return map { """
-            "\($0.importName)"
-            """
-            }.joined(separator: ", ")
+        #if swift(>=5.2)
+            return map { """
+                .product(name: "\($0.importName)", package: "\($0.dependencyName.packageName ?? "")")
+                """
+                }.joined(separator: ", ")
+        #else
+            return map { """
+                "\($0.importName)"
+                """
+                }.joined(separator: ", ")
+        #endif
     }
 
     var packageLines: String {
