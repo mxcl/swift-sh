@@ -73,8 +73,13 @@ public class Script {
             // this check because SwiftPM has to reparse the manifest if we rewrite it
             // this is noticably slow, so avoid it if possible
 
-            var osx: Int {
-                return ProcessInfo.processInfo.operatingSystemVersion.minorVersion
+            var osx: String {
+                let version = ProcessInfo.processInfo.operatingSystemVersion
+                if version.minorVersion == 0 {
+                    return "v\(version.majorVersion)"
+                } else {
+                    return "v\(version.majorVersion)_\(version.minorVersion)"
+                }
             }
 
             try buildDirectory.mkdir(.p)
@@ -91,12 +96,18 @@ public class Script {
                     \(deps.packageLines)
                 ]
                 pkg.targets = [
-                    .target(name: "\(name)", dependencies: [\(deps.mainTargetDependencies)], path: ".", sources: ["main.swift"])
+                    .target(
+                        name: "\(name)",
+                        dependencies: [\(deps.mainTargetDependencies)],
+                        path: ".",
+                        exclude: ["deps.json"],
+                        sources: ["main.swift"]
+                    )
                 ]
 
                 #if swift(>=5) && os(macOS)
                 pkg.platforms = [
-                   .macOS(.v10_\(osx))
+                   .macOS(.\(osx))
                 ]
                 #endif
 
