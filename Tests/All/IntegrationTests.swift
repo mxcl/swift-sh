@@ -264,7 +264,7 @@ class RunIntegrationTests: XCTestCase {
             XCTAssertEqual(task.terminationReason, .exit, line: line)
             XCTAssertEqual(task.terminationStatus, 0, line: line)
 
-            XCTAssertEqual(try String(contentsOf: Path.build/"<stdin>/main.swift"), input, line: line)
+            XCTAssertEqual(try String(contentsOf: Path.build/"StandardInput/main.swift"), input, line: line)
 
             return String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
         }
