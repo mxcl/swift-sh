@@ -24,7 +24,7 @@ jobs:
         brew fetch swift-sh || true
         # ^^ fails because SHA is wrong, hence || true
         
-        SHA256=$(shasum --algorithm 256 $(brew --cache --build-from-source swift-sh) | awk '{print $1}')
+        SHA256=$(shasum --algorithm 256 $(brew --cache --build-from-source mxcl/made/swift-sh) | awk '{print $1}')
         sed -E -i '' 's/^  sha256 ".+"/  sha256 "'$SHA256\"/ ./swift-sh.rb
         
         # update bottle
