@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-    - run: swift test --generate-linuxmain
+    - run: swift test --generate-linuxmain -Xswiftc -suppress-warnings
     - run: git diff --exit-code
   macOS:
     needs: auto-cancel
@@ -28,7 +28,7 @@ jobs:
       with:
         xcode-version: ${{ matrix.xcode }}
     - run: xcode-select -p
-    - run: swift test --parallel
+    - run: swift test --parallel -Xswiftc -suppress-warnings
   linux:
     needs: smoke
     runs-on: ubuntu-latest
@@ -43,4 +43,4 @@ jobs:
     - uses: fwal/setup-swift@v1
       with:
         swift-version: ${{ matrix.swift }}
-    - run: swift test --parallel
+    - run: swift test --parallel -Xswiftc -suppress-warnings
