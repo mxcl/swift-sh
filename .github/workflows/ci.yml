@@ -37,6 +37,7 @@ jobs:
       uses: maxim-lobanov/setup-xcode@1.0
       with:
         xcode-version: ${{ matrix.xcode }}
+    - run: xcode-select -p
     - run: swift test --parallel -Xswiftc -warnings-as-errors
   linux:
     needs: smoke
