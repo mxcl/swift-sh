@@ -24,7 +24,7 @@ jobs:
       matrix:
         xcode:
         - 11.3   # Swift 5.1
-        - ^11    # Swift 5.2
+        - ^11.4  # Swift 5.2
         - latest
     steps:
     - uses: actions/checkout@v2
@@ -38,7 +38,7 @@ jobs:
       with:
         xcode-version: ${{ matrix.xcode }}
     - run: xcode-select -p
-    - run: swift test --parallel -Xswiftc -warnings-as-errors
+    - run: swift test --parallel
   linux:
     needs: smoke
     runs-on: ubuntu-latest
@@ -60,4 +60,4 @@ jobs:
       if: ${{ matrix.swift != '5.2.4' }}
       with:
         swift-version: ${{ matrix.swift }}
-    - run: swift test --parallel -Xswiftc -warnings-as-errors
+    - run: swift test --parallel
