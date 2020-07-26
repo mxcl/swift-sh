@@ -264,7 +264,7 @@ class RunIntegrationTests: XCTestCase {
             XCTAssertEqual(task.terminationReason, .exit, line: line)
             XCTAssertEqual(task.terminationStatus, 0, line: line)
 
-            XCTAssertEqual(try String(contentsOf: Path.build/"<stdin>/main.swift"), input, line: line)
+            XCTAssertEqual(try String(contentsOf: Path.build/"StandardInput/main.swift"), input, line: line)
 
             return String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)
         }
@@ -510,7 +510,9 @@ class TestingTheTests: XCTestCase {
     func testSwiftVersionIsWhatTestsExpect() {
         let expected = swiftVersion
         XCTAssertEqual(expected, exec: """
-            #if swift(>=5.2)
+            #if swift(>=5.3)
+                print(5.3)
+            #elseif swift(>=5.2)
                 print(5.2)
             #elseif swift(>=5.1)
                 print(5.1)

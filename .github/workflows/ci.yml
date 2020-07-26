@@ -1,0 +1,38 @@
+name: CI
+on: [pull_request]
+jobs:
+  auto-cancel:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: technote-space/auto-cancel-redundant-job@v1
+  macOS:
+    needs: auto-cancel
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        xcode:
+        -  11.3  # Swift 5.1
+        - ^11.4  # Swift 5.2
+        - ^12    # Swift 5.3
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup-xcode
+      uses: maxim-lobanov/setup-xcode@1.0
+      with:
+        xcode-version: ${{ matrix.xcode }}
+    - run: swift test -Xswiftc -suppress-warnings
+  linux:
+    needs: auto-cancel
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        swift:
+        - 5.1
+        - 5.2
+        # - 5.3  # doesn’t work yet annoyingly
+    steps:
+    - uses: actions/checkout@v2
+    - uses: fwal/setup-swift@v1
+      with:
+        swift-version: ${{ matrix.swift }}
+    - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery

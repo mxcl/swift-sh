@@ -1,4 +1,4 @@
-// swift-tools-version:4.2
+// swift-tools-version:5.1
 import PackageDescription
 
 let package = Package(
@@ -22,12 +22,11 @@ let package = Package(
         .target(name: "Utility", dependencies: ["Path", "Version", "CryptoSwift"]),
         .target(name: "Command", dependencies: ["Script"]),
         .testTarget(name: "All", dependencies: ["swift-sh"]),
-    ],
-    swiftLanguageVersions: [.v4_2, .version("5")]
+    ]
 )
 
 #if os(macOS)
 package.products.append(.executable(name: "swift-sh-edit", targets: ["swift-sh-edit"]))
-package.targets.append(.target(name: "swift-sh-edit", dependencies: ["xcodeproj", "Utility"]))
-package.dependencies.append(.package(url: "https://github.com/tuist/xcodeproj", from: "6.5.0"))
+package.targets.append(.target(name: "swift-sh-edit", dependencies: ["XcodeProj", "Utility"]))
+package.dependencies.append(.package(url: "https://github.com/tuist/xcodeproj", from: "7.0.0"))
 #endif

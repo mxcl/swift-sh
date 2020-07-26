@@ -1,6 +1,6 @@
 import func Utility.exec
 import Foundation
-import xcodeproj
+import XcodeProj
 import PathKit
 
 func fatal() -> Never {
