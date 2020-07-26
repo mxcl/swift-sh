@@ -38,8 +38,6 @@ jobs:
       with:
         xcode-version: ${{ matrix.xcode }}
     - run: swift test --parallel -Xswiftc -warnings-as-errors
-      env:
-        DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app
   linux:
     needs: smoke
     runs-on: ubuntu-latest
