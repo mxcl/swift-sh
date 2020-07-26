@@ -208,6 +208,10 @@ extension Path {
             let task = Process()
             task.launchPath = "/usr/bin/which"
             task.arguments = ["swift"]
+
+            // https://github.com/mxcl/swift-sh/issues/113
+            task.environment = ProcessInfo.processInfo.environment.filter{ $0.key != "SDKROOT" }
+
             let str = (try? task.runSync())?.stdout.string?.chuzzled() ?? "/usr/bin/swift"
             return Path.root/str
         }
