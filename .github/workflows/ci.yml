@@ -10,11 +10,6 @@ jobs:
     runs-on: macos-latest # Catalina
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/cache@v1
-      with:
-        path: .build
-        key: macOS-latest
-        restore-keys: macOS-
     - run: swift test --generate-linuxmain
     - run: git diff --exit-code
   macOS:
@@ -28,11 +23,6 @@ jobs:
         - latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/cache@v1
-      with:
-        path: .build
-        key: macOS-${{ matrix.xcode }}
-        restore-keys: macOS-
     - name: setup-xcode
       uses: maxim-lobanov/setup-xcode@1.0
       with:
