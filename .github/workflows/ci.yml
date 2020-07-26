@@ -5,13 +5,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: technote-space/auto-cancel-redundant-job@v1
-  smoke:
-    needs: auto-cancel
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v2
-    - run: swift test --generate-linuxmain -Xswiftc -suppress-warnings
-    - run: git diff --exit-code
   macOS:
     needs: auto-cancel
     runs-on: macos-latest
@@ -27,20 +20,19 @@ jobs:
       uses: maxim-lobanov/setup-xcode@1.0
       with:
         xcode-version: ${{ matrix.xcode }}
-    - run: xcode-select -p
     - run: swift test -Xswiftc -suppress-warnings
   linux:
-    needs: smoke
+    needs: auto-cancel
     runs-on: ubuntu-latest
     strategy:
       matrix:
         swift:
         - 5.1
         - 5.2
-        # - 5.3
+        # - 5.3  # doesn’t work yet annoyingly
     steps:
     - uses: actions/checkout@v2
     - uses: fwal/setup-swift@v1
       with:
         swift-version: ${{ matrix.swift }}
-    - run: swift test -Xswiftc -suppress-warnings
+    - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
