@@ -73,10 +73,15 @@ public class Script {
             // this check because SwiftPM has to reparse the manifest if we rewrite it
             // this is noticably slow, so avoid it if possible
 
-            var osx: String {
+            var macOS: String {
                 let version = ProcessInfo.processInfo.operatingSystemVersion
                 if version.minorVersion == 0 {
-                    return "v\(version.majorVersion)"
+                    if version.majorVersion == 10 {
+                        // ^^ bug? dunno, get 10.0 on Big Sur somehow
+                        return "v10_16"
+                    } else {
+                        return "v\(version.majorVersion)"
+                    }
                 } else {
                     return "v\(version.majorVersion)_\(version.minorVersion)"
                 }
@@ -84,7 +89,7 @@ public class Script {
 
             try buildDirectory.mkdir(.p)
             try """
-                // swift-tools-version:\(swiftVersion)
+                // swift-tools-version:5.1
                 import PackageDescription
 
                 let pkg = Package(name: "\(name)")
@@ -107,7 +112,7 @@ public class Script {
 
                 #if swift(>=5) && os(macOS)
                 pkg.platforms = [
-                   .macOS(.\(osx))
+                   .macOS(.\(macOS))
                 ]
                 #endif
 
@@ -257,7 +262,9 @@ let swiftVersion: String = {
     } catch {
         assert(false)  // shouldn't happen during testing so let’s catch it
     }
-#if swift(>=5.2)
+#if swift(>=5.3)
+    return "5.2"
+#elseif swift(>=5.2)
     return "5.2"
 #elseif swift(>=5.1)
     return "5.1"

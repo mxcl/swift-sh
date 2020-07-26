@@ -1,4 +1,4 @@
-// swift-tools-version:4.2
+// swift-tools-version:5.1
 import PackageDescription
 
 let package = Package(
@@ -22,8 +22,7 @@ let package = Package(
         .target(name: "Utility", dependencies: ["Path", "Version", "CryptoSwift"]),
         .target(name: "Command", dependencies: ["Script"]),
         .testTarget(name: "All", dependencies: ["swift-sh"]),
-    ],
-    swiftLanguageVersions: [.v4_2, .version("5")]
+    ]
 )
 
 #if os(macOS)
