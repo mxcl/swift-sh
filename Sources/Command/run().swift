@@ -53,8 +53,6 @@ private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> 
         }
     }
 
-    print("HELLO6")
-
     let script = Script(for: transformedInput, dependencies: deps, arguments: Array(arguments))
     try script.run()
 }
@@ -63,11 +61,8 @@ public func run<T>(_ input: Mode.RunType, arguments: T) throws -> Never where T:
     let reader: StreamReader
     let input_: Input
 
-    print("HELLO4")
-
     switch input {
     case .stdin:
-        print("HELLO5")
         reader = StreamReader(fileHandle: .standardInput)
         input_ = .stdin
     case .file(let script):

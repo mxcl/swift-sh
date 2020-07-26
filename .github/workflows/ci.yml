@@ -11,9 +11,9 @@ jobs:
     strategy:
       matrix:
         xcode:
-        - 11.3   # Swift 5.1
+        -  11.3  # Swift 5.1
         - ^11.4  # Swift 5.2
-        - latest # Swift 5.3
+        - ^12    # Swift 5.3
     steps:
     - uses: actions/checkout@v2
     - name: setup-xcode

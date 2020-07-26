@@ -180,11 +180,8 @@ public class Script {
     }
 
     public func run() throws -> Never {
-        print("HELLO7")
         if scriptChanged {
             try write()
-
-            print("HELLO8")
 
             // first arg has to be same as executable path
             let task = Process()
@@ -197,10 +194,8 @@ public class Script {
             // setting it stderr or `nil` CRASHES ffs
             task.standardOutput = Pipe()
           #endif
-            print("HELLO8.5")
             try task.launchAndWaitForSuccessfulExit()
         }
-        print("HELLO9")
         try exec(arg0: binaryPath.string, args: args)
     }
 }
