@@ -2,12 +2,12 @@ name: CI
 on: [pull_request]
 jobs:
   auto-cancel:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: technote-space/auto-cancel-redundant-job@v1
   smoke:
     needs: auto-cancel
-    runs-on: macos-latest # Catalina
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
     - run: swift test --generate-linuxmain
@@ -20,7 +20,7 @@ jobs:
         xcode:
         - 11.3   # Swift 5.1
         - ^11.4  # Swift 5.2
-        - latest
+        - latest # Swift 5.3
     steps:
     - uses: actions/checkout@v2
     - name: setup-xcode
@@ -35,19 +35,12 @@ jobs:
     strategy:
       matrix:
         swift:
-        - 4.2.1
-        - 5.0.3
-        - 5.1.4
-        - 5.2.4
+        - 5.1
+        - 5.2
+        - 5.3
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/cache@v1
-      with:
-        path: .build
-        key: swift-${{ matrix.swift }}
-        restore-keys: swift-
-    - uses: YOCKOW/Action-setup-swift@master
-      if: ${{ matrix.swift != '5.2.4' }}
+    - uses: fwal/setup-swift@v1
       with:
         swift-version: ${{ matrix.swift }}
     - run: swift test --parallel
