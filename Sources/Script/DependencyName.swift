@@ -102,11 +102,11 @@ extension ImportSpecification.DependencyName: Codable {
     }
     
     var packageName: String? {
-        let basename = urlString.split(separator: "/").last
-        if let name = basename?.split(separator: ".").first {
-            return String(name)
+        guard let basename = urlString.split(separator: "/").last else { return nil }
+        if basename.suffix(4) == ".git" {
+            return String(basename.dropLast(4))
         } else {
-            return nil
+            return String(basename)
         }
     }
 }
