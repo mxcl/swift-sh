@@ -1,0 +1,64 @@
+name: CI
+on: [pull_request]
+jobs:
+  auto-cancel:
+    runs-on: macos-latest
+    steps:
+    - uses: technote-space/auto-cancel-redundant-job@v1
+  smoke:
+    needs: auto-cancel
+    runs-on: macos-latest # Catalina
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/cache@v1
+      with:
+        path: .build
+        key: macOS-latest
+        restore-keys: macOS-
+    - run: swift test --generate-linuxmain
+    - run: git diff --exit-code
+  macOS:
+    needs: auto-cancel
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        xcode:
+        - ^11.3   # Swift 5.1.3
+        - ^11.5   # Swift 5.2.4
+        - latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/cache@v1
+      with:
+        path: .build
+        key: macOS-${{ matrix.xcode }}
+        restore-keys: macOS-
+    - name: setup-xcode
+      uses: maxim-lobanov/setup-xcode@1.0
+      with:
+        xcode-version: ${{ matrix.xcode }}
+    - run: swift test --parallel -Xswiftc -warnings-as-errors
+      env:
+        DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app
+  linux:
+    needs: smoke
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        swift:
+        - 4.2.1
+        - 5.0.3
+        - 5.1.4
+        - 5.2.4
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/cache@v1
+      with:
+        path: .build
+        key: swift-${{ matrix.swift }}
+        restore-keys: swift-
+    - uses: YOCKOW/Action-setup-swift@master
+      if: ${{ matrix.swift != '5.2.4' }}
+      with:
+        swift-version: ${{ matrix.swift }}
+    - run: swift test --parallel -Xswiftc -warnings-as-errors

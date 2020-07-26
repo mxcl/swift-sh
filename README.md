@@ -72,21 +72,6 @@ And then run it directly:
 $ ./foo
 ```
 
-# Support mxcl
-
-Hey there, I’m Max Howell. I’m a prolific producer of open source software and
-probably you already use some of it (for example, I created [`brew`]). I work
-full-time on open source and it’s hard; currently *I earn less than minimum
-wage*. Please help me continue my work, I appreciate it 🙏🏻
-
-<a href="https://www.patreon.com/mxcl">
-	<img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
-</a>
-
-[Other ways to say thanks](http://mxcl.dev/#donate).
-
-[`brew`]: https://brew.sh
-
 # Installation
 
 ```
@@ -210,13 +195,14 @@ the script is then executed via `swift run`.
 
 # Swift Versions
 
+`swfit-sh` v2 requires Swift 5.1. We had to drop support for Swift v4.2
+because maintenance was just too tricky.
+
 `swift-sh` uses the active tools version, (ie: `xcode-select`) or whichever
 Swift is first in the `PATH` on Linux. It writes a manifest for the package
-it will `swift build` with that tools-version. Thus Xcode 10.1 builds a script
-with Swift 4.2, Xcode 10.2 builds with Swift 5. Dependencies build with the
-Swift versions they declare support for, provided the active toolchain can do
-that (eg. Xcode 10.1 supports Swift 3.4, 4.0 and 4.2, Xcode 10.2 supports
-Swift 4.0, 4.2 and 5.0).
+it will `swift build` with that tools-version. Thus Xcode 11.0 builds with Swift 5.1.
+Dependencies build with the Swift versions they declare support for, provided
+the active toolchain can do that (eg. Xcode 11.0 supports Swift 4.2 and above)
 
 To declare a support for specific Swift versions in your script itself, use
 `#if swift` or `#if compiler` directives.
@@ -244,4 +230,4 @@ install `swift-sh`, you will be able to run your script:
 Or see the [above installation instructions](#Installation).
 
 [badge-platforms]: https://img.shields.io/badge/platforms-macOS%20%7C%20Linux-lightgrey.svg
-[badge-languages]: https://img.shields.io/badge/swift-4.2%20%7C%205.0-orange.svg
+[badge-languages]: https://img.shields.io/badge/swift-5.1%20%7C%205.0-orange.svg
