@@ -75,13 +75,9 @@ public class Script {
 
             var macOS: String {
                 let version = ProcessInfo.processInfo.operatingSystemVersion
-                if version.minorVersion == 0 {
-                    if version.majorVersion == 10 {
-                        // ^^ bug? dunno, get 10.0 on Big Sur somehow
-                        return "v10_16"
-                    } else {
-                        return "v\(version.majorVersion)"
-                    }
+                if version.majorVersion == 11 && version.minorVersion == 0 {
+                    // swift-tools-version 5.1 doesn’t have the v11 value
+                    return "v10_15"
                 } else {
                     return "v\(version.majorVersion)_\(version.minorVersion)"
                 }

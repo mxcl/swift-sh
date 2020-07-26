@@ -337,7 +337,7 @@ class CleanIntegrationTests: XCTestCase {
                 let task = Process(arg0: file)
                 task.launchPath = "/bin/sh"
                 task.arguments = ["-c", "./\(file.basename())"]
-                task.currentDirectoryPath = f1ile.parent.string
+                task.currentDirectoryPath = file.parent.string
                 let stdout = try task.runSync(.stdout).string?.chuzzled()
                 return stdout
             }
