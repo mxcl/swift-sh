@@ -111,6 +111,8 @@ public enum Mode {
         var parser = ArgumentsParser(args: Array(args.dropFirst()))
         let command = parser.command()
 
+        print("HELLO")
+
         switch command {
         case "eject"?:
             let force = parser.flag(long: "--force", short: "-f")
@@ -148,6 +150,8 @@ public enum Mode {
                 self = .clean(nil)
             }
         case let arg1?:
+            print("HELLO")
+
             let path = Path(arg1) ?? Path.cwd/arg1
 
             if isTTY, arg1 == "--force" || arg1 == "-f", parser.contains("eject") {
@@ -165,9 +169,11 @@ public enum Mode {
                 self = .run(.stdin, args: parser.untarnishedArguments)
             }
         case nil:
+            print("HELLO2")
             if isTTY {
                 throw CommandLine.Error.invalidUsage
             } else {
+                print("HELLO3")
                 self = .run(.stdin, args: parser.remainder)
             }
         }

@@ -184,6 +184,7 @@ public extension Process {
         waitUntilExit()
 
         guard terminationReason == .exit, terminationStatus == 0 else {
+            print("HELLO-foo")
             throw ExecutionError(stdout: nil, stderr: nil, status: terminationStatus, arg0: launchPath, args: arguments ?? [])
         }
     }

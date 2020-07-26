@@ -16,11 +16,11 @@ enum Input {
     var name: String {
         switch self {
         case .stdin:
-            return "<stdin>"
+            return "StandardInput"
         case .file(let path):
             return path.basename()
         case .namedPipe(let fh):
-            return "<named-pipe-\(fh.fileDescriptor))>"
+            return "NamedPipe_\(fh.fileDescriptor))"
         }
     }
 }
