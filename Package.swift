@@ -27,6 +27,6 @@ let package = Package(
 
 #if os(macOS)
 package.products.append(.executable(name: "swift-sh-edit", targets: ["swift-sh-edit"]))
-package.targets.append(.target(name: "swift-sh-edit", dependencies: ["xcodeproj", "Utility"]))
-package.dependencies.append(.package(url: "https://github.com/tuist/xcodeproj", from: "6.5.0"))
+package.targets.append(.target(name: "swift-sh-edit", dependencies: ["XcodeProj", "Utility"]))
+package.dependencies.append(.package(url: "https://github.com/tuist/xcodeproj", from: "7.0.0"))
 #endif
