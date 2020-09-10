@@ -32,7 +32,11 @@ let rootObject = PBXProject(
     mainGroup: mainGroup
 )
 
-let pbxProj = PBXProj(rootObject: rootObject)
+// The object version seems to indicate the model version used to encode the PBXProj file. Setting this value too
+// high could yield a project file that is not editable in any production version of Xcode (i.e. Xcode 12 = 54).
+let objectVersion: UInt = 51
+
+let pbxProj = PBXProj(rootObject: rootObject, objectVersion: objectVersion)
 
 let proj = XcodeProj(workspace: XCWorkspace(), pbxproj: pbxProj)
 
