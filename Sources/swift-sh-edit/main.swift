@@ -19,6 +19,7 @@ let debug = XCBuildConfiguration(name: "Debug", buildSettings: [
     "FRAMEWORK_SEARCH_PATHS": ".build/debug",
     "HEADER_SEARCH_PATHS": ".build/debug",
     "LIBRARY_SEARCH_PATHS": ".build/debug",
+    "SWIFT_INCLUDE_PATHS": ".build/debug",
     "SWIFT_VERSION": "4.2",  //FIXME
 ])
 let confs = XCConfigurationList(buildConfigurations: [debug], defaultConfigurationName: "Debug")
