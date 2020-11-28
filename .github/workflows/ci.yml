@@ -26,11 +26,11 @@ jobs:
     strategy:
       matrix:
         image:
-        - swift:5.1
-        - swift:5.2
-        - scratch
+        - 5.1
+        - 5.2
+        - 5.3
     container:
-      image: ${{ matrix.image }}
+      image: swift:${{ matrix.image }}
     steps:
     - uses: actions/checkout@v2
     - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
