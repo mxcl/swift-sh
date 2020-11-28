@@ -3,10 +3,10 @@ on: [pull_request]
 jobs:
   auto-cancel:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
     - uses: technote-space/auto-cancel-redundant-job@v1
   macOS:
-    needs: auto-cancel
     runs-on: macos-latest
     strategy:
       matrix:
@@ -22,7 +22,6 @@ jobs:
         xcode-version: ${{ matrix.xcode }}
     - run: swift test -Xswiftc -suppress-warnings
   linux:
-    needs: auto-cancel
     runs-on: ubuntu-latest
     strategy:
       matrix:
