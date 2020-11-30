@@ -25,12 +25,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        swift:
-        - 5.1
-        - 5.2
-        - 5.3
+        image:
+        - swift:5.1
+        - swift:5.2
+        - redis:2.8 # noop image, use pre-installed (latest) swift
     container:
-      image: swift:${{ matrix.swift }}
+      image: ${{ matrix.image }}
     steps:
     - uses: actions/checkout@v2
     - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
