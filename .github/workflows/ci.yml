@@ -1,11 +1,6 @@
 name: CI
 on: [pull_request]
 jobs:
-  auto-cancel:
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-    - uses: technote-space/auto-cancel-redundant-job@v1
   macOS:
     runs-on: macos-latest
     strategy:
