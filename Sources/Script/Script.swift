@@ -75,7 +75,7 @@ public class Script {
 
             var macOS: String {
                 let version = ProcessInfo.processInfo.operatingSystemVersion
-                if version.majorVersion == 10 && version.minorVersion == 16 {
+                if version.majorVersion > 10 || (version.majorVersion == 10 && version.minorVersion == 16) {
                     // SwiftPM sucks both v10_16 and v11 trigger errors (lol)
                     return "v10_15"
                 } else {
