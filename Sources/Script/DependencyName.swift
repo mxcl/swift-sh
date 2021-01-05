@@ -24,16 +24,24 @@ extension ImportSpecification.DependencyName: Codable {
             //FIXME strictly not a thorough github username check
             //NOTE the `.` is not actually allowed, but GitHub allows using it when creating usernames/orgs but converts it to `-` so we must do the same
             let validCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.")
-            let username = String(string.dropFirst())
+            let username = String(string.dropFirst()).trimmingCharacters(in: .whitespaces)
             guard CharacterSet(charactersIn: username).isSubset(of: validCharacters) else {
                 throw E.invalidGitHubUsername(username)
             }
             self = .github(user: mangleGitHubUsername(username), repo: importName)
             return
         }
-        guard let cc = URLComponents(string: string) else {
+
+        let string = string.trimmingCharacters(in: .whitespaces)
+        var ccmaybe = URLComponents(string: string)
+        if ccmaybe == nil,
+           let encodedString = string.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) {
+            ccmaybe = URLComponents(string: encodedString)
+        }
+        guard let cc = ccmaybe else {
             throw E.invalidDependencySpecification(string)
         }
+
         if cc.scheme == nil {
             if let p = Path(cc.path), p.exists {
                 self = .local(p)
