@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: setup-xcode
-      uses: maxim-lobanov/setup-xcode@v1
+      uses: maxim-lobanov/setup-xcode@v1.2.1
       with:
         xcode-version: ${{ matrix.xcode }}
     - run: swift test -Xswiftc -suppress-warnings
