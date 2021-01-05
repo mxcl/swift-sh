@@ -29,7 +29,7 @@ jobs:
         swift:
         - 5.1
         - 5.2
-        # - 5.3  # doesn’t work yet annoyingly
+        - 5.3
     steps:
     - uses: actions/checkout@v2
     - uses: fwal/setup-swift@v1
