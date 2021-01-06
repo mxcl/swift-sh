@@ -120,6 +120,25 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(tmpPath.string)\")")
     }
 
+    func testCanProvideLocalPathWithSpacesAndRelativeParentsUp() throws {
+        let tmpPath = Path.root.tmp.fake.fakechild/".."/"with space"/"last"
+        try tmpPath.mkdir(.p)
+        let b = try parse("import Bar  // /tmp/fake/with space/last", from: .path(tmpPath.join("script.swift")))
+        XCTAssertEqual(b?.dependencyName, .local(tmpPath))
+        XCTAssertEqual(b?.importName, "Bar")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(tmpPath.string)\")")
+    }
+    
+    func testCanProvideLocalPathWithSpacesAndRelativeParentsUpTwo() throws {
+        let tmpPath = Path.root.tmp.fake.fakechild1.fakechild2/"../.."/"with space"/"last"
+        try tmpPath.mkdir(.p)
+        let b = try parse("import Bar  // /tmp/fake/with space/last", from: .path(tmpPath.join("script.swift")))
+        XCTAssertEqual(b?.dependencyName, .local(tmpPath))
+        XCTAssertEqual(b?.importName, "Bar")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(tmpPath.string)\")")
+    }
+
+
     func testCanProvideFullURL() throws {
         let b = try parse("import Foo  // https://example.com/mxcl/Bar.git ~> 1.0", from: .path(Path.cwd.join("script.swift")))
         XCTAssertEqual(b?.dependencyName, .url(URL(string: "https://example.com/mxcl/Bar.git")!))
