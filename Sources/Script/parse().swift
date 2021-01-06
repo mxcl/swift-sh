@@ -15,7 +15,7 @@ func parse(_ line: String, from input: Script.Input) throws -> ImportSpecificati
     let repoConstraintPattern = "(?:(==|~>)\\s*([^\\s]+))?"
     let pattern = "\(importModNamePattern)\\s*\(commentPattern)\\s*(\(localFilePattern)|\(repoRefPattern))\\s*\(repoConstraintPattern)"
     // or if you prefer, one big pattern:
-    //      let pattern = "import\\s+(.*?)\\s*\\/\\/\\s*((?:(?:~|[\\./]+)+?[\\w \\/]*)|(?:(?:[(@|\\w)]?[\\w\\/(@|:)\\.\\-]+)))\\s*(?:(==|~>)\\s*([^\\s]+))?"
+    //      let pattern = "import\\s+(.*?)\\s*\\/\\/\\s*((?:(?:~|[\\./]+)+?[\\w \\/\\.\\-]*)|(?:(?:[(@|\\w)]?[\\w\\/(@|:)\\.\\-]+)))\\s*(?:(==|~>)\\s*([^\\s]+))?"
     let rx = try! NSRegularExpression(pattern: pattern)
 
     // match 0: whole string
