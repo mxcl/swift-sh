@@ -102,6 +102,24 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(cwdParent.string)\")")
     }
 
+    func testCanProvideLocalPathWithHypen() throws {
+        let tmpPath = Path.root.tmp.fake/"with-hyphen-two"/"lastone"
+        try tmpPath.mkdir(.p)
+        let b = try parse("import Foo  // /tmp/fake/with-hyphen-two/lastone", from: .path(tmpPath.join("script.swift")))
+        XCTAssertEqual(b?.dependencyName, .local(tmpPath))
+        XCTAssertEqual(b?.importName, "Foo")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(tmpPath.string)\")")
+    }
+
+    func testCanProvideLocalPathWithHyphenAndDotsAndSpacesOhMy() throws {
+        let tmpPath = Path.root.tmp.fake/"with-hyphen.two.one-zero"/"last one"
+        try tmpPath.mkdir(.p)
+        let b = try parse("import Foo  // /tmp/fake/with-hyphen.two.one-zero/last one", from: .path(tmpPath.join("script.swift")))
+        XCTAssertEqual(b?.dependencyName, .local(tmpPath))
+        XCTAssertEqual(b?.importName, "Foo")
+        XCTAssertEqual(b?.packageLine, ".package(path: \"\(tmpPath.string)\")")
+    }
+
     func testCanProvideLocalPathWithSpaces() throws {
         let tmpPath = Path.root.tmp.fake/"with space"/"last"
         try tmpPath.mkdir(.p)
@@ -137,7 +155,6 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(tmpPath.string)\")")
     }
-
 
     func testCanProvideFullURL() throws {
         let b = try parse("import Foo  // https://example.com/mxcl/Bar.git ~> 1.0", from: .path(Path.cwd.join("script.swift")))

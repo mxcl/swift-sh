@@ -10,7 +10,7 @@ enum E: Error {
 func parse(_ line: String, from input: Script.Input) throws -> ImportSpecification? {
     let importModNamePattern = "import\\s+(.*?)"
     let commentPattern = "\\/\\/"
-    let localFilePattern = "(?:(?:~|[\\./]+)+?[\\w \\/]*)"
+    let localFilePattern = "(?:(?:~|[\\./]+)+?[\\w \\/\\.\\-]*)"
     let repoRefPattern = "(?:(?:[(@|\\w)]?[\\w\\/(@|:)\\.\\-]+))"
     let repoConstraintPattern = "(?:(==|~>)\\s*([^\\s]+))?"
     let pattern = "\(importModNamePattern)\\s*\(commentPattern)\\s*(\(localFilePattern)|\(repoRefPattern))\\s*\(repoConstraintPattern)"
