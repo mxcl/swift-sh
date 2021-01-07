@@ -113,7 +113,7 @@ public class Script {
 
                 #if swift(>=5) && os(macOS)
                 pkg.platforms = [
-                   .macOS(.\(macOS))
+                    \(macOS)
                 ]
                 #endif
 
