@@ -75,14 +75,13 @@ $ ./foo
 # Installation
 
 ```
-brew install mxcl/made/swift-sh
-```
-
-We’re in core now, but I’m not updating it, so I still recommend my tap above.
-If you prefer though you can use the core formula:
-
-```
 brew install swift-sh
+```
+
+We automatically update our own tap if homebrew/core is delayed on new releases:
+
+```
+brew install mxcl/made/swift-sh
 ```
 
 Or with [Mint](https://github.com/yonaskolb/Mint):
