@@ -2,3 +2,4 @@
 /sync
 /.swiftpm
 /.build
+.DS_Store

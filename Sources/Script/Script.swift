@@ -76,8 +76,7 @@ public class Script {
             var macOS: String {
                 let version = ProcessInfo.processInfo.operatingSystemVersion
                 if version.majorVersion == 11 {
-                    // swift-tools-version 5.1 doesn’t have the v11 or v11_1 values 
-                    return ".macOS(\"\(version.majorVersion).\(version.minorVersion)\")"
+                    return ".macOS(.v11)"
                 } else {
                     return ".macOS(.v\(version.majorVersion)_\(version.minorVersion))"
                 }
@@ -85,7 +84,7 @@ public class Script {
 
             try buildDirectory.mkdir(.p)
             try """
-                // swift-tools-version:5.1
+                // swift-tools-version:5.3
                 import PackageDescription
 
                 let pkg = Package(name: "\(name)")
