@@ -35,7 +35,7 @@ jobs:
       with:
         swift-version: ${{ matrix.swift }}
     - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
-  linux5.1:
+  linux5_1:
     needs: auto-cancel
     runs-on: ubuntu-18.04
     strategy:
