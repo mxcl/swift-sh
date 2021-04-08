@@ -27,9 +27,21 @@ jobs:
     strategy:
       matrix:
         swift:
-        - 5.1
         - 5.2
         - 5.3
+    steps:
+    - uses: actions/checkout@v2
+    - uses: fwal/setup-swift@v1
+      with:
+        swift-version: ${{ matrix.swift }}
+    - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
+  linux5.1:
+    needs: auto-cancel
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        swift:
+        - 5.1
     steps:
     - uses: actions/checkout@v2
     - uses: fwal/setup-swift@v1
