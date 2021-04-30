@@ -24,7 +24,7 @@ extension String {
     // modified to be an instance method that returns a string
     func MD5() -> String {
             let length = Int(CC_MD5_DIGEST_LENGTH)
-            let messageData = self.data(using:.utf8)!
+            guard let messageData = self.data(using:.utf8)  else { return self }
             var digestData = Data(count: length)
 
             _ = digestData.withUnsafeMutableBytes { digestBytes -> UInt8 in
