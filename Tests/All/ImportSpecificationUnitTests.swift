@@ -169,7 +169,9 @@ class ImportSpecificationUnitTests: XCTestCase {
 
     func testSwiftVersion() {
     #if swift(>=5) || compiler(>=5.0)
-    #if compiler(>=5.3)
+    #if compiler(>=5.4)
+        let expected = "5.4"
+    #elseif compiler(>=5.3)
         let expected = "5.3"
     #elseif compiler(>=5.2)
         let expected = "5.2"

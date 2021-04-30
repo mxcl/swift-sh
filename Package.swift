@@ -14,12 +14,11 @@ let package = Package(
         .package(url: "https://github.com/mxcl/StreamReader", from: "1.0.0"),
         .package(url: "https://github.com/mxcl/LegibleError", from: "1.0.0"),
         .package(url: "https://github.com/mxcl/Version", from: "2.0.0"),
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", from: "1.4.0"),
     ],
     targets: [
         .target(name: "swift-sh", dependencies: ["Command", "LegibleError"], path: "Sources", sources: ["main.swift"]),
         .target(name: "Script", dependencies: ["Utility", "StreamReader"]),
-        .target(name: "Utility", dependencies: ["Path", "Version", "CryptoSwift"]),
+        .target(name: "Utility", dependencies: ["Path", "Version"]),
         .target(name: "Command", dependencies: ["Script"]),
         .testTarget(name: "All", dependencies: ["swift-sh"]),
     ]
