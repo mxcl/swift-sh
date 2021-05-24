@@ -1,5 +1,5 @@
 name: CI
-on: [pull_request]
+on: pull_request
 jobs:
   auto-cancel:
     runs-on: ubuntu-latest
@@ -11,13 +11,12 @@ jobs:
     strategy:
       matrix:
         xcode:
-        -  11.3  # Swift 5.1
-        - ^11.4  # Swift 5.2
-        - ^12    # Swift 5.3
+        - 12.4   # Swift 5.3
+        - ^12    # Swift 5.4
     steps:
     - uses: actions/checkout@v2
     - name: setup-xcode
-      uses: maxim-lobanov/setup-xcode@v1.2.1
+      uses: maxim-lobanov/setup-xcode@v1
       with:
         xcode-version: ${{ matrix.xcode }}
     - run: swift test -Xswiftc -suppress-warnings
@@ -27,21 +26,8 @@ jobs:
     strategy:
       matrix:
         swift:
-        - 5.2
         - 5.3
-    steps:
-    - uses: actions/checkout@v2
-    - uses: fwal/setup-swift@v1
-      with:
-        swift-version: ${{ matrix.swift }}
-    - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
-  linux5_1:
-    needs: auto-cancel
-    runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-        swift:
-        - 5.1
+        - 5.4
     steps:
     - uses: actions/checkout@v2
     - uses: fwal/setup-swift@v1
