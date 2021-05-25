@@ -78,18 +78,6 @@ $ ./foo
 brew install swift-sh
 ```
 
-We automatically update our own tap if homebrew/core is delayed on new releases:
-
-```
-brew install mxcl/made/swift-sh
-```
-
-Or with [Mint](https://github.com/yonaskolb/Mint):
-
-```
-mint install mxcl/swift-sh
-```
-
 Or you can build manually using `swift build`.
 
 Installation results in a single executable called `swift-sh`, the `swift`
@@ -168,8 +156,8 @@ $ swift sh edit ./myScript
 
 # Converting your script to a package
 
-Simple scripts can quickly become bigger projects that would benefit from being 
-packages that you build with SwiftPM. To help you migrate your project we 
+Simple scripts can quickly become bigger projects that would benefit from being
+packages that you build with SwiftPM. To help you migrate your project we
 provide `swift sh eject`, for example:
 
     $ swift sh eject foo.swift
@@ -229,4 +217,4 @@ install `swift-sh`, you will be able to run your script:
 Or see the [above installation instructions](#Installation).
 
 [badge-platforms]: https://img.shields.io/badge/platforms-macOS%20%7C%20Linux-lightgrey.svg
-[badge-languages]: https://img.shields.io/badge/swift-5.0%20%7C%205.1%20%7C%205.2%20%7C%205.3-orange.svg
+[badge-languages]: https://img.shields.io/badge/swift-5.1%20%7C%205.2%20%7C%205.3%20%7C%205.4-orange.svg

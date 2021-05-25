@@ -1,0 +1,20 @@
+name: Homebrew Bump Formula
+on:
+  release:
+    types: [published]
+jobs:
+  core:
+    runs-on: macos-latest
+    steps:
+      - uses: dawidd6/action-homebrew-bump-formula@v3
+        with:
+          token: ${{ secrets.PAT }}
+          formula: swift-sh
+  mxcl:
+    runs-on: macos-latest
+    steps:
+      - uses: dawidd6/action-homebrew-bump-formula@v3
+        with:
+          tap: mxcl/homebrew-made
+          token: ${{ secrets.PAT }}
+          formula: swift-sh
