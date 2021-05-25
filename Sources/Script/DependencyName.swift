@@ -31,9 +31,17 @@ extension ImportSpecification.DependencyName: Codable {
             self = .github(user: mangleGitHubUsername(username), repo: importName)
             return
         }
-        guard let cc = URLComponents(string: string) else {
+
+        let string = string.trimmingCharacters(in: .whitespaces)
+        var ccmaybe = URLComponents(string: string)
+        if ccmaybe == nil,
+           let encodedString = string.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) {
+            ccmaybe = URLComponents(string: encodedString)
+        }
+        guard let cc = ccmaybe else {
             throw E.invalidDependencySpecification(string)
         }
+
         if cc.scheme == nil {
             if let p = Path(cc.path), p.exists {
                 self = .local(p)
