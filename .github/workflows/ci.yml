@@ -11,8 +11,10 @@ jobs:
     strategy:
       matrix:
         xcode:
-        - 12.4   # Swift 5.3
-        - ^12    # Swift 5.4
+        - ~11.3  # Swift 5.1
+        - ^11.7  # Swift 5.2
+        - ~12.4  # Swift 5.3
+      # - ^12.5  # Swift 5.4  (lol GHA still doesn’t have this)
     steps:
     - uses: actions/checkout@v2
     - name: setup-xcode
@@ -20,12 +22,22 @@ jobs:
       with:
         xcode-version: ${{ matrix.xcode }}
     - run: swift test -Xswiftc -suppress-warnings
+  macOS-swift-5-4:
+    needs: auto-cancel
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: fwal/setup-swift@v1
+      with: {swift-version: 5.4}
+    - run: swift test -Xswiftc -suppress-warnings
   linux:
     needs: auto-cancel
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         swift:
+        - 5.1
+        - 5.2
         - 5.3
         - 5.4
     steps:

@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.1
 import PackageDescription
 
 let package = Package(
@@ -14,10 +14,10 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/mxcl/Path.swift", from: "1.0.1"),
-        .package(name: "StreamReader", url: "https://github.com/mxcl/StreamReader", from: "1.0.0"),
-        .package(name: "LegibleError", url: "https://github.com/mxcl/LegibleError", from: "1.0.0"),
-        .package(name: "Version", url: "https://github.com/mxcl/Version", from: "2.0.0"),
-        .package(name: "CryptoSwift", url: "https://github.com/krzyzanowskim/CryptoSwift", from: "1.4.0"),
+        .package(url: "https://github.com/mxcl/StreamReader", from: "1.0.0"),
+        .package(url: "https://github.com/mxcl/LegibleError", from: "1.0.0"),
+        .package(url: "https://github.com/mxcl/Version", from: "2.0.0"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift", "1.3.0"..<"1.4.0"),
     ],
     targets: [
         .target(
@@ -48,5 +48,5 @@ let package = Package(
 #if os(macOS)
 package.products.append(.executable(name: "swift-sh-edit", targets: ["swift-sh-edit"]))
 package.targets.append(.target(name: "swift-sh-edit", dependencies: ["XcodeProj", "Utility"]))
-package.dependencies.append(.package(name: "XcodeProj", url: "https://github.com/tuist/xcodeproj", from: "7.0.0"))
+package.dependencies.append(.package(url: "https://github.com/tuist/xcodeproj", from: "7.0.0"))
 #endif
