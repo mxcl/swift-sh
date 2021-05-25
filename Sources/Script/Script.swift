@@ -75,15 +75,11 @@ public class Script {
 
             var macOS: String {
                 let version = ProcessInfo.processInfo.operatingSystemVersion
-                if version.majorVersion == 11 {
-                    // swift-tools-version 5.1 doesn’t have the v11 or v11_1 values 
-                    return ".macOS(\"\(version.majorVersion).\(version.minorVersion)\")"
-                } else {
-                    return ".macOS(.v\(version.majorVersion)_\(version.minorVersion))"
-                }
+                return ".macOS(\"\(version.majorVersion).\(version.minorVersion)\")"
             }
 
             try buildDirectory.mkdir(.p)
+            // we are using tools version 5.1 while we still can as >= 5.3 makes specifying deps significantly more complex
             try """
                 // swift-tools-version:5.1
                 import PackageDescription
