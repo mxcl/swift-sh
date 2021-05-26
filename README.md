@@ -72,6 +72,11 @@ And then run it directly:
 $ ./foo
 ```
 
+# Sponsorship
+
+If your company depends on `swift-sh` please consider sponsoring the project.
+Otherwise it is hard for me to justify maintaining it.
+
 # Installation
 
 ```
@@ -198,10 +203,6 @@ To declare a support for specific Swift versions in your script itself, use
 
 * [Beak](https://github.com/yonaskolb/Beak)
 * [Marathon](https://github.com/JohnSundell/Marathon)
-
-### Get push notifications for new releases
-
-https://mxcl.dev/canopy/
 
 ---
 
