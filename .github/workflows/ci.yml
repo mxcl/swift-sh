@@ -1,20 +1,21 @@
 name: CI
-on: pull_request
+on:
+  pull_request:
+    paths:
+      - '**/*.swift'
+      - .github/workflows/ci.yml
+  schedule:
+    - cron: '3 3 * * 0'  # 3:03 AM, every Sunday
 jobs:
-  auto-cancel:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: technote-space/auto-cancel-redundant-job@v1
   macOS:
-    needs: auto-cancel
-    runs-on: macos-latest
+    runs-on: macos-10.15
     strategy:
       matrix:
         xcode:
-        - ~11.3  # Swift 5.1
-        - ^11.7  # Swift 5.2
-        - ~12.4  # Swift 5.3
-      # - ^12.5  # Swift 5.4  (lol GHA still doesn’t have this)
+          - ~11.3  # Swift 5.1
+          - ^11.7  # Swift 5.2
+          - ~12.4  # Swift 5.3
+        # - ^12.5  # Swift 5.4  (lol GHA still doesn’t have this)
     steps:
     - uses: actions/checkout@v2
     - name: setup-xcode
@@ -23,26 +24,25 @@ jobs:
         xcode-version: ${{ matrix.xcode }}
     - run: swift test -Xswiftc -suppress-warnings
   macOS-swift-5-4:
-    needs: auto-cancel
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: fwal/setup-swift@v1
-      with: {swift-version: 5.4}
-    - run: swift test -Xswiftc -suppress-warnings
-  linux:
-    needs: auto-cancel
-    runs-on: ubuntu-18.04
-    strategy:
-      matrix:
-        swift:
-        - 5.1
-        - 5.2
-        - 5.3
-        - 5.4
-    steps:
+    - uses: technote-space/auto-cancel-redundant-job@v1
     - uses: actions/checkout@v2
     - uses: fwal/setup-swift@v1
       with:
-        swift-version: ${{ matrix.swift }}
+        swift-version: 5.4
+    - run: swift test -Xswiftc -suppress-warnings
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        swift:
+          - 5.1
+          - 5.2
+          - 5.3
+          - 5.4
+    container:
+      image: swift:${{ matrix.swift }}
+    steps:
+    - uses: actions/checkout@v2
     - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
