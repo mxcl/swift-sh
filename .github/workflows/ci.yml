@@ -8,22 +8,27 @@ on:
     - cron: '3 3 * * 0'  # 3:03 AM, every Sunday
 jobs:
   macOS:
-    runs-on: macos-10.15
+    runs-on: macos-latest
     strategy:
       matrix:
         xcode:
           - ~11.3  # Swift 5.1
           - ^11.7  # Swift 5.2
           - ~12.4  # Swift 5.3
-        # - ^12.5  # Swift 5.4  (lol GHA still doesn’t have this)
+        premature:
+          - false
+        include:
+          - xcode: ^12.5  # Swift 5.4
+            premature: true
+    # ^^ GHA doesn’t provide this yet
     steps:
     - uses: actions/checkout@v2
-    - name: setup-xcode
-      uses: maxim-lobanov/setup-xcode@v1
+    - uses: mxcl/xcodebuild@v1
       with:
-        xcode-version: ${{ matrix.xcode }}
-    - run: swift test -Xswiftc -suppress-warnings
+        xcode: ${{ matrix.xcode }}
+      continue-on-error: ${{ matrix.premature }}
   macOS-swift-5-4:
+    name: macOS (Swift 5.4)
     runs-on: macos-latest
     steps:
     - uses: technote-space/auto-cancel-redundant-job@v1
