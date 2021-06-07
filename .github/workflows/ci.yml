@@ -26,6 +26,7 @@ jobs:
     - uses: mxcl/xcodebuild@v1
       with:
         xcode: ${{ matrix.xcode }}
+        warnings-as-errors: true
       continue-on-error: ${{ matrix.premature }}
   macOS-swift-5-4:
     name: macOS (Swift 5.4)
