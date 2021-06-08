@@ -11,32 +11,21 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        xcode:
-          - ~11.3  # Swift 5.1
-          - ^11.7  # Swift 5.2
-          - ~12.4  # Swift 5.3
+        swift:
+          - 5.1
+          - 5.2
+          - 5.3
         premature:
           - false
         include:
-          - xcode: ^12.5  # Swift 5.4
+          - swift: 5.4
             premature: true
-    # ^^ GHA doesn’t provide this yet
     steps:
     - uses: actions/checkout@v2
     - uses: mxcl/xcodebuild@v1
       with:
-        xcode: ${{ matrix.xcode }}
+        swift: ${{ matrix.swift }}
       continue-on-error: ${{ matrix.premature }}
-  macOS-swift-5-4:
-    name: macOS (Swift 5.4)
-    runs-on: macos-latest
-    steps:
-    - uses: technote-space/auto-cancel-redundant-job@v1
-    - uses: actions/checkout@v2
-    - uses: fwal/setup-swift@v1
-      with:
-        swift-version: 5.4
-    - run: swift test -Xswiftc -suppress-warnings
   linux:
     runs-on: ubuntu-latest
     strategy:
