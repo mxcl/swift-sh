@@ -8,35 +8,37 @@ on:
     - cron: '3 3 * * 0'  # 3:03 AM, every Sunday
 jobs:
   macOS:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         swift:
           - 5.1
           - 5.2
           - 5.3
-        premature:
-          - false
+        os:
+          - macos-10.15
         include:
           - swift: 5.4
-            premature: true
+            os: macos-11
+          - swift: 5.5
+            os: macos-11
     steps:
     - uses: actions/checkout@v2
     - uses: mxcl/xcodebuild@v1
       with:
         swift: ${{ matrix.swift }}
-      continue-on-error: ${{ matrix.premature }}
   linux:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         swift:
-          - 5.1
-          - 5.2
-          - 5.3
-          - 5.4
+          - swift:5.1
+          - swift:5.2
+          - swift:5.3
+          - swift:5.4
+          - swiftlang/swift:nightly-5.5
     container:
-      image: swift:${{ matrix.swift }}
+      image: ${{ matrix.swift }}
     steps:
     - uses: actions/checkout@v2
     - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
