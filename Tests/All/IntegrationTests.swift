@@ -510,7 +510,11 @@ class TestingTheTests: XCTestCase {
     func testSwiftVersionIsWhatTestsExpect() {
         let expected = swiftVersion
         XCTAssertEqual(expected, exec: """
-            #if swift(>=5.4)
+            #if swift(>=6.0)
+                print(6.0)
+            #elseif swift(>=5.5)
+                print(5.5)
+            #elseif swift(>=5.4)
                 print(5.4)
             #elseif swift(>=5.3)
                 print(5.3)
