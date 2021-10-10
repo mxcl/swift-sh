@@ -8,20 +8,15 @@ on:
     - cron: '3 3 * * 0'  # 3:03 AM, every Sunday
 jobs:
   macOS:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.swift > 5.3 ? 'macos-11' : 'macos-10.15' }}
     strategy:
       matrix:
         swift:
           - 5.1
           - 5.2
           - 5.3
-        os:
-          - macos-10.15
-        include:
-          - swift: 5.4
-            os: macos-11
-          - swift: 5.5
-            os: macos-11
+          - 5.4
+          - 5.5
     steps:
     - uses: actions/checkout@v2
     - uses: mxcl/xcodebuild@v1
@@ -32,13 +27,13 @@ jobs:
     strategy:
       matrix:
         swift:
-          - swift:5.1
-          - swift:5.2
-          - swift:5.3
-          - swift:5.4
-          - swift:5.5
+          - 5.1
+          - 5.2
+          - 5.3
+          - 5.4
+          - 5.5
     container:
-      image: ${{ matrix.swift }}
+      image: swift:${{ matrix.swift }}
     steps:
     - uses: actions/checkout@v2
     - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
