@@ -17,7 +17,7 @@ let package = Package(
         .package(url: "https://github.com/mxcl/StreamReader", from: "1.0.0"),
         .package(url: "https://github.com/mxcl/LegibleError", from: "1.0.0"),
         .package(url: "https://github.com/mxcl/Version", from: "2.0.0"),
-        .package(url: "https://github.com/krzyzanowskim/CryptoSwift", from: "1.4.0"),
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift", from: "1.4.2"),
     ],
     targets: [
         .target(
@@ -48,5 +48,5 @@ let package = Package(
 #if os(macOS)
 package.products.append(.executable(name: "swift-sh-edit", targets: ["swift-sh-edit"]))
 package.targets.append(.target(name: "swift-sh-edit", dependencies: ["XcodeProj", "Utility"]))
-package.dependencies.append(.package(name: "XcodeProj", url: "https://github.com/tuist/xcodeproj", from: "7.0.0"))
+package.dependencies.append(.package(name: "XcodeProj", url: "https://github.com/tuist/xcodeproj", from: "8.3.1"))
 #endif
