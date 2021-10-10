@@ -36,7 +36,7 @@ jobs:
           - swift:5.2
           - swift:5.3
           - swift:5.4
-          - swiftlang/swift:nightly-5.5
+          - swift:5.5
     container:
       image: ${{ matrix.swift }}
     steps:
