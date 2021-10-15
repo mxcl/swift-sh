@@ -89,6 +89,8 @@ Installation results in a single executable called `swift-sh`, the `swift`
 executable will call this (provided it is in your `PATH`) when you type:
 `swift sh`.
 
+Finlly there is a makefile, issuing `make install` will install swift-sh at `/usr/local/bin`
+
 We actively support both Linux and Mac and will support Windows as soon as it is
 possible to do so.
 
