@@ -179,11 +179,15 @@ If you want to make scripts available to people using CI; use `stdin`:
 
 # Internal Details
 
-`swift sh` creates a Swift `Package.swift` configured to fetch your dependencies
-and build a single executable for your script in `~/Library/Developer/swift-sh.cache`†,
-the script is then executed via `swift run`.
+`swift sh` creates a Swift `Package.swift` package manager project with 
+dependencies in a directory below the swift-sh cache directory †, 
+builds the executable, and then executes it via `swift run`.  
+The script is (only) rebuilt when the script file is newer than the executable.
 
-† We use the FreeDesktop specified cache location on Linux.
+† Specify the cache parent directory using the (FreeDesktop) environment 
+variable XDG_CACHE_HOME.  If unspecified, on macOS `swif-sh` uses
+`$HOME/Library/Developer/swift-sh.cache`, and otherwise it uses
+`$HOME/.cache/swift-sh`.
 
 # Swift Versions
 
