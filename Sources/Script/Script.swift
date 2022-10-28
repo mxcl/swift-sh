@@ -249,17 +249,30 @@ let swiftVersion: String = {
         let task = Process()
         task.launchPath = Path.swift.string
         task.arguments = ["--version"]
-        if let input = try task.runSync(.stdout).string {
-            let range = input.range(of: "Swift version \\d+\\.\\d+", options: .regularExpression)!
-            if let found = input[range].split(separator: " ").last {
-                return String(found)
-            }
+        let (stdout, _) = try task.runSync(tee: false) // ignore stderr
+        if let input = stdout.string,
+           let range = input.range(of: " version \\d+\\.\\d+",
+                                   options: .regularExpression),
+           let found = input[range].split(separator: " ").last {
+               return String(found)
         }
     } catch {
         assert(false)  // shouldn't happen during testing so let’s catch it
     }
-#if swift(>=5.3)
-    return "5.2"
+#if swift(>=5.8)
+    return "5.8+"
+#elseif swift(>=5.7)
+    return "5.7"
+#elseif swift(>=5.6)
+    return "5.6"
+#elseif swift(>=5.5)
+    return "5.5"
+#elseif swift(>=5.4)
+    return "5.4"
+#elseif swift(>=5.3)
+    return "5.3"
+#elseif swift(>=5.3)
+    return "5.3"
 #elseif swift(>=5.2)
     return "5.2"
 #elseif swift(>=5.1)
