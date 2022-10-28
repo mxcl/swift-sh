@@ -223,14 +223,13 @@ extension String {
 
 public extension Path {
     static var build: Path {
+        if let path = ProcessInfo.processInfo.environment["XDG_CACHE_HOME"] {
+            return Path.root/path/"swift-sh"
+        }
       #if os(macOS)
         return Path.home/"Library/Developer/swift-sh.cache"
       #else
-        if let path = ProcessInfo.processInfo.environment["XDG_CACHE_HOME"] {
-            return Path.root/path/"swift-sh"
-        } else {
-            return Path.home/".cache/swift-sh"
-        }
+        return Path.home/".cache/swift-sh"
       #endif
     }
 }
