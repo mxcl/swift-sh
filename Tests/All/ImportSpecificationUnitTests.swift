@@ -234,6 +234,14 @@ class ImportSpecificationUnitTests: XCTestCase {
     #if swift(>=5) || compiler(>=5.0)
     #if compiler(>=6.0)
         let expected = "6.0"
+    #elseif compiler(>=5.9)
+        let expected = "5.9"
+    #elseif compiler(>=5.8)
+        let expected = "5.8"
+    #elseif compiler(>=5.7)
+        let expected = "5.7"
+    #elseif compiler(>=5.6)
+        let expected = "5.6"
     #elseif compiler(>=5.5)
         let expected = "5.5"
     #elseif compiler(>=5.4)
