@@ -222,8 +222,8 @@ class RunIntegrationTests: XCTestCase {
             """, arg: "3")
     }
 
-    func testNSHipsterExample() throws {
-        let path = Path(DynamicPath(Path(#file)!.parent.parent.parent).Examples.cards)
+    func testInk() throws {
+        let path = Path(DynamicPath(Path(#file)!.parent.parent.parent).Examples.ink)
         let code = try StreamReader(path: path).dropFirst().joined(separator: "\n")
         XCTAssertRuns(exec: code)
     }

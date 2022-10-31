@@ -1,0 +1,23 @@
+#!/usr/bin/swift sh
+
+import Ink // @JohnSundell == 0.5.0
+
+let markdown = """
+# Ink parses markdown and renders to HTML
+## Features
+- header blocks
+- list blocks
+    - nested list
+- Character styles
+    - *italic* 
+    - **bold** 
+    - ~~strikethrough~~
+
+## HTML output:
+
+
+"""
+let html = MarkdownParser().html(from: markdown)
+print(markdown)
+print(html)
+
