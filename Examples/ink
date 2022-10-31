@@ -20,4 +20,3 @@ let markdown = """
 let html = MarkdownParser().html(from: markdown)
 print(markdown)
 print(html)
-
