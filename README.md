@@ -222,4 +222,4 @@ install `swift-sh`, you will be able to run your script:
 Or see the [above installation instructions](#Installation).
 
 [badge-platforms]: https://img.shields.io/badge/platforms-macOS%20%7C%20Linux-lightgrey.svg
-[badge-languages]: https://img.shields.io/badge/swift-5.1%20%7C%205.2%20%7C%205.3%20%7C%205.4-orange.svg
+[badge-languages]: https://img.shields.io/badge/swift-5.1%20%7C%205.2%20%7C%205.3%20%7C%205.4%20%7C%205.5%20%7C%205.6%20%7C%205.7-orange.svg
