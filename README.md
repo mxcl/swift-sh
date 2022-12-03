@@ -179,12 +179,12 @@ If you want to make scripts available to people using CI; use `stdin`:
 
 # Internal Details
 
-`swift sh` creates a Swift `Package.swift` package manager project with 
-dependencies in a directory below the swift-sh cache directory †, 
-builds the executable, and then executes it via `swift run`.  
+`swift sh` creates a Swift `Package.swift` package manager project with
+dependencies in a directory below the swift-sh cache directory †,
+builds the executable, and then executes it via `swift run`.
 The script is (only) rebuilt when the script file is newer than the executable.
 
-† Specify the cache parent directory using the (FreeDesktop) environment 
+† Specify the cache parent directory using the (FreeDesktop) environment
 variable XDG_CACHE_HOME.  If unspecified, on macOS `swif-sh` uses
 `$HOME/Library/Developer/swift-sh.cache`, and otherwise it uses
 `$HOME/.cache/swift-sh`.
@@ -222,4 +222,4 @@ install `swift-sh`, you will be able to run your script:
 Or see the [above installation instructions](#Installation).
 
 [badge-platforms]: https://img.shields.io/badge/platforms-macOS%20%7C%20Linux-lightgrey.svg
-[badge-languages]: https://img.shields.io/badge/swift-5.1%20%7C%205.2%20%7C%205.3%20%7C%205.4-orange.svg
+[badge-languages]: https://img.shields.io/badge/swift-5.1%20%7C%205.2%20%7C%205.3%20%7C%205.4%20%7C%205.5%20%7C%205.6%20%7C%205.7%20%7C%205.8%20%7C%205.9%20%7C%206.0-orange.svg
