@@ -8,9 +8,10 @@ on:
     - cron: '3 3 * * 0'  # 3:03 AM, every Sunday
 jobs:
   macOS:
-    runs-on: ${{ matrix.macos }}
+    runs-on: ${{ matrix.cfg.macos }}
     strategy:
       matrix:
+        cfg:
         - swift: 5.1
           macos: macos-10.15
         - swift: 5.2
@@ -29,7 +30,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: mxcl/xcodebuild@v1
       with:
-        swift: ${{ matrix.swift }}
+        swift: ${{ matrix.cfg.swift }}
   linux:
     runs-on: ubuntu-latest
     strategy:
