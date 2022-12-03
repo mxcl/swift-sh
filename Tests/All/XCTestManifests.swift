@@ -86,7 +86,7 @@ extension RunIntegrationTests {
         ("testConventional", testConventional),
         ("testCWD", testCWD),
         ("testNamingMismatch", testNamingMismatch),
-        ("testNSHipsterExample", testNSHipsterExample),
+        ("testInk", testInk),
         ("testProcessSubstitution", testProcessSubstitution),
         ("testProcessSubstitutionWithArgument", testProcessSubstitutionWithArgument),
         ("testRelativePath", testRelativePath),
