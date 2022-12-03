@@ -8,20 +8,29 @@ on:
     - cron: '3 3 * * 0'  # 3:03 AM, every Sunday
 jobs:
   macOS:
-    runs-on: ${{ matrix.swift > 5.3 && 'macos-11' || 'macos-10.15' }}
+    runs-on: ${{ matrix.cfg.macos }}
     strategy:
       matrix:
-        swift:
-          - 5.1
-          - 5.2
-          - 5.3
-          - 5.4
-          - 5.5
+        cfg:
+        - swift: 5.1
+          macos: macos-10.15
+        - swift: 5.2
+          macos: macos-10.15
+        - swift: 5.3
+          macos: macos-10.15
+        - swift: 5.4
+          macos: macos-11
+        - swift: 5.5
+          macos: macos-11
+        - swift: 5.6
+          macos: macos-12
+        - swift: 5.7
+          macos: macos-12
     steps:
     - uses: actions/checkout@v2
     - uses: mxcl/xcodebuild@v1
       with:
-        swift: ${{ matrix.swift }}
+        swift: ${{ matrix.cfg.swift }}
   linux:
     runs-on: ubuntu-latest
     strategy:
@@ -32,6 +41,8 @@ jobs:
           - 5.3
           - 5.4
           - 5.5
+          - 5.6
+          - 5.7
     container:
       image: swift:${{ matrix.swift }}
     steps:
