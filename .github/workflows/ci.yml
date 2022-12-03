@@ -2,7 +2,7 @@ name: CI
 on:
   pull_request:
     paths:
-      - '**/*.swift'
+      - '**.swift'
       - .github/workflows/ci.yml
   schedule:
     - cron: '3 3 * * 0'  # 3:03 AM, every Sunday
@@ -17,6 +17,8 @@ jobs:
           - 5.3
           - 5.4
           - 5.5
+          - 5.6
+          - 5.7
     steps:
     - uses: actions/checkout@v2
     - uses: mxcl/xcodebuild@v1
@@ -32,6 +34,8 @@ jobs:
           - 5.3
           - 5.4
           - 5.5
+          - 5.6
+          - 5.7
     container:
       image: swift:${{ matrix.swift }}
     steps:
