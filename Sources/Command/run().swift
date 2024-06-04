@@ -27,6 +27,7 @@ private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> 
 
     var deps = [ImportSpecification]()
     var lines = [String]()
+    var mainStyle: ExecutableTargetMainStyle = .topLevelCode
 
     var transformedInput: Script.Input {
         switch input {
@@ -36,11 +37,13 @@ private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> 
             return .path(path)
         }
     }
-
     for (index, line) in reader.enumerated() {
         if index == 0, line.hasPrefix("#!") {
             lines.append("// shebang removed")  // keep line numbers in sync
             continue
+        }
+        if line.contains("@main") && !(line.contains("//") || line.contains("/*")) {
+            mainStyle = .mainAttribute
         }
         if let result = try ImportSpecification(line: line, from: transformedInput) {
             deps.append(result)
@@ -53,7 +56,7 @@ private func run<T>(reader: StreamReader, input: Input, arguments: T) throws -> 
         }
     }
 
-    let script = Script(for: transformedInput, dependencies: deps, arguments: Array(arguments))
+    let script = Script(for: transformedInput, style: mainStyle, dependencies: deps, arguments: Array(arguments))
     try script.run()
 }
 

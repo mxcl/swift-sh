@@ -8,6 +8,7 @@ public class Script {
     let input: Input
     let deps: [ImportSpecification]
     let args: [String]
+    let mainStyle: ExecutableTargetMainStyle
 
     private let inputPathHash: String?
 
@@ -30,7 +31,12 @@ public class Script {
     }
 
     public var mainSwift: Path {
-        return buildDirectory/"main.swift"
+        switch mainStyle {
+            case .mainAttribute:
+                return buildDirectory/"Root.swift"
+            case .topLevelCode:
+                return buildDirectory/"main.swift"
+        }
     }
 
     public enum Input {
@@ -38,10 +44,12 @@ public class Script {
         case string(name: String, content: String)
     }
 
-    public init(for: Input, dependencies: [ImportSpecification], arguments: [String] = []) {
+    #warning("need to walk over other places which initialize script and add checks for executable style")
+    public init(for: Input, style: ExecutableTargetMainStyle, dependencies: [ImportSpecification], arguments: [String] = []) {
         input = `for`
         deps = dependencies
         args = arguments
+        mainStyle = style
 
         // cache hash if appropriate since accessed often and involves work
         if case let Input.path(path) = input {
@@ -79,36 +87,71 @@ public class Script {
             }
 
             try buildDirectory.mkdir(.p)
-            // we are using tools version 5.1 while we still can as >= 5.3 makes specifying deps significantly more complex
-            try """
-                // swift-tools-version:5.1
-                import PackageDescription
 
-                let pkg = Package(name: "\(name)")
+            switch mainStyle {
+                case .mainAttribute:
+                    // swift 5.5 allows us to define .executableTarget and use @main attribute, but we must remove shebang
+                    try """
+                        // swift-tools-version:5.5
+                        import PackageDescription
 
-                pkg.products = [
-                    .executable(name: "\(name)", targets: ["\(name)"])
-                ]
-                pkg.dependencies = [
-                    \(deps.packageLines)
-                ]
-                pkg.targets = [
-                    .target(
-                        name: "\(name)",
-                        dependencies: [\(deps.mainTargetDependencies)],
-                        path: ".",
-                        exclude: ["deps.json"],
-                        sources: ["main.swift"]
-                    )
-                ]
+                        let pkg = Package(name: "\(name)")
 
-                #if swift(>=5) && os(macOS)
-                pkg.platforms = [
-                    \(macOS)
-                ]
-                #endif
+                        pkg.products = [
+                            .executable(name: "\(name)", targets: ["\(name)"])
+                        ]
+                        pkg.dependencies = [
+                            \(deps.packageLines)
+                        ]
+                        pkg.targets = [
+                            .executableTarget(
+                                name: "\(name)",
+                                dependencies: [\(deps.mainTargetDependencies)],
+                                path: ".",
+                                exclude: ["deps.json"],
+                                sources: ["Root.swift"]
+                            )
+                        ]
 
-                """.write(to: manifestPath)
+                        #if swift(>=5) && os(macOS)
+                        pkg.platforms = [
+                            \(macOS)
+                        ]
+                        #endif
+
+                        """.write(to: manifestPath)
+                case .topLevelCode:
+                    // we are using tools version 5.1 while we still can as >= 5.3 makes specifying deps significantly more complex
+                    try """
+                        // swift-tools-version:5.1
+                        import PackageDescription
+
+                        let pkg = Package(name: "\(name)")
+
+                        pkg.products = [
+                            .executable(name: "\(name)", targets: ["\(name)"])
+                        ]
+                        pkg.dependencies = [
+                            \(deps.packageLines)
+                        ]
+                        pkg.targets = [
+                            .target(
+                                name: "\(name)",
+                                dependencies: [\(deps.mainTargetDependencies)],
+                                path: ".",
+                                exclude: ["deps.json"],
+                                sources: ["main.swift"]
+                            )
+                        ]
+
+                        #if swift(>=5) && os(macOS)
+                        pkg.platforms = [
+                            \(macOS)
+                        ]
+                        #endif
+
+                        """.write(to: manifestPath)
+            }
 
             try JSONEncoder().encode(deps).write(to: depsCachePath)
         }
@@ -117,11 +160,26 @@ public class Script {
         case .path(let userPath):
             func mklink() throws { try userPath.symlink(as: mainSwift) }
 
-            if let linkdst = try? mainSwift.readlink(), linkdst != userPath {
-                try mainSwift.delete()
-                try mklink()
-            } else if !mainSwift.exists {
-                try mklink()
+            switch mainStyle {
+                case .mainAttribute:
+                    try mainSwift.delete()
+                    let reader = try StreamReader(path: userPath)
+                    var lines = [String]()
+                    for (_, line) in reader.enumerated() {
+                        // can't have shebang in @main attribute based script
+                        guard !line.hasPrefix("#!") else {
+                            continue
+                        }
+                        lines.append(line)
+                    }
+                    try lines.joined(separator: "\n").write(to: mainSwift)
+                case .topLevelCode:
+                    if let linkdst = try? mainSwift.readlink(), linkdst != userPath {
+                        try mainSwift.delete()
+                        try mklink()
+                    } else if !mainSwift.exists {
+                        try mklink()
+                    }
             }
         case .string(_, let contents):
             if let currentContents = try? String(contentsOf: mainSwift), currentContents == contents { break }
@@ -178,18 +236,19 @@ public class Script {
     public func run() throws -> Never {
         if scriptChanged {
             try write()
-
             // first arg has to be same as executable path
             let task = Process()
             task.launchPath = Path.swift.string
             task.arguments = ["build", "-Xswiftc", "-suppress-warnings"]
             task.currentDirectoryPath = buildDirectory.string
+
           #if !os(Linux)
             task.standardOutput = task.standardError
           #else
             // setting it stderr or `nil` CRASHES ffs
             task.standardOutput = Pipe()
           #endif
+            print(buildDirectory.string)
             try task.launchAndWaitForSuccessfulExit()
         }
         try exec(arg0: binaryPath.string, args: args)

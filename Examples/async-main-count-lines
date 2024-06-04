@@ -1,0 +1,16 @@
+#!/user/bin/swift sh
+import Foundation
+import ArgumentParser // apple/swift-argument-parser ~> 1.4.0
+
+/// example borrowed from [here](https://swiftpackageindex.com/apple/swift-argument-parser/1.4.0/documentation/argumentparser/asyncparsablecommand)
+@main
+struct CountLines: AsyncParsableCommand {
+    @Argument(transform: URL.init(fileURLWithPath:))
+    var inputFile: URL
+    mutating func run() async throws {
+        let fileHandle = try FileHandle(forReadingFrom: inputFile)
+        let lineCount = try await fileHandle.bytes.lines.reduce(into: 0)
+            { count, _ in count += 1 }
+        print(lineCount)
+    }
+}
