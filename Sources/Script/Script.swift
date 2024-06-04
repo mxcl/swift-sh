@@ -44,7 +44,6 @@ public class Script {
         case string(name: String, content: String)
     }
 
-    #warning("need to walk over other places which initialize script and add checks for executable style")
     public init(for: Input, style: ExecutableTargetMainStyle, dependencies: [ImportSpecification], arguments: [String] = []) {
         input = `for`
         deps = dependencies
