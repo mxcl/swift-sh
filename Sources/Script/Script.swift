@@ -32,10 +32,8 @@ public class Script {
 
     public var mainSwift: Path {
         switch mainStyle {
-            case .mainAttribute:
-                return buildDirectory/"Root.swift"
-            case .topLevelCode:
-                return buildDirectory/"main.swift"
+            case .mainAttribute: return buildDirectory/"Root.swift"
+            case .topLevelCode: return buildDirectory/"main.swift"
         }
     }
 
@@ -75,18 +73,14 @@ public class Script {
     public func write() throws {
         //NOTE we only support Swift >= 4.2 basically
         //TODO dependency module names might not correspond the products that packages export, must parse `swift package dump-package` output
-
         if depsCache != deps {
             // this check because SwiftPM has to reparse the manifest if we rewrite it
             // this is noticably slow, so avoid it if possible
-
             var macOS: String {
                 let version = ProcessInfo.processInfo.operatingSystemVersion
                 return ".macOS(\"\(version.majorVersion).\(version.minorVersion)\")"
             }
-
             try buildDirectory.mkdir(.p)
-
             let targetDefinition: String
             let swiftToolsVersion: String
             let sourceFile: String
@@ -100,7 +94,6 @@ public class Script {
                     swiftToolsVersion = "5.1"
                     sourceFile = "main.swift"
             }
-
             // we are using tools version 5.1 while we still can as >= 5.3 makes specifying deps significantly more complex
             try """
                 // swift-tools-version:\(swiftToolsVersion)
@@ -133,24 +126,17 @@ public class Script {
                 """.write(to: manifestPath)
             try JSONEncoder().encode(deps).write(to: depsCachePath)
         }
-
         switch input {
         case .path(let userPath):
             func mklink() throws { try userPath.symlink(as: mainSwift) }
-
             switch mainStyle {
                 case .mainAttribute:
                     try mainSwift.delete()
                     let reader = try StreamReader(path: userPath)
-                    var lines = [String]()
-                    for (_, line) in reader.enumerated() {
-                        // can't have shebang in @main attribute based script
-                        guard !line.hasPrefix("#!") else {
-                            continue
-                        }
-                        lines.append(line)
-                    }
-                    try lines.joined(separator: "\n").write(to: mainSwift)
+                    let source = reader.compactMap { line in
+                        line.contains("#!") ? .none : line
+                    }.joined(separator: "\n")
+                    try source.write(to: mainSwift)
                 case .topLevelCode:
                     if let linkdst = try? mainSwift.readlink(), linkdst != userPath {
                         try mainSwift.delete()
