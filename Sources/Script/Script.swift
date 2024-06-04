@@ -87,71 +87,50 @@ public class Script {
 
             try buildDirectory.mkdir(.p)
 
+            let targetDefinition: String
+            let swiftToolsVersion: String
+            let sourceFile: String
             switch mainStyle {
                 case .mainAttribute:
-                    // swift 5.5 allows us to define .executableTarget and use @main attribute, but we must remove shebang
-                    try """
-                        // swift-tools-version:5.5
-                        import PackageDescription
-
-                        let pkg = Package(name: "\(name)")
-
-                        pkg.products = [
-                            .executable(name: "\(name)", targets: ["\(name)"])
-                        ]
-                        pkg.dependencies = [
-                            \(deps.packageLines)
-                        ]
-                        pkg.targets = [
-                            .executableTarget(
-                                name: "\(name)",
-                                dependencies: [\(deps.mainTargetDependencies)],
-                                path: ".",
-                                exclude: ["deps.json"],
-                                sources: ["Root.swift"]
-                            )
-                        ]
-
-                        #if swift(>=5) && os(macOS)
-                        pkg.platforms = [
-                            \(macOS)
-                        ]
-                        #endif
-
-                        """.write(to: manifestPath)
+                    targetDefinition = "executableTarget"
+                    swiftToolsVersion = "5.5"
+                    sourceFile = "Root.swift"
                 case .topLevelCode:
-                    // we are using tools version 5.1 while we still can as >= 5.3 makes specifying deps significantly more complex
-                    try """
-                        // swift-tools-version:5.1
-                        import PackageDescription
-
-                        let pkg = Package(name: "\(name)")
-
-                        pkg.products = [
-                            .executable(name: "\(name)", targets: ["\(name)"])
-                        ]
-                        pkg.dependencies = [
-                            \(deps.packageLines)
-                        ]
-                        pkg.targets = [
-                            .target(
-                                name: "\(name)",
-                                dependencies: [\(deps.mainTargetDependencies)],
-                                path: ".",
-                                exclude: ["deps.json"],
-                                sources: ["main.swift"]
-                            )
-                        ]
-
-                        #if swift(>=5) && os(macOS)
-                        pkg.platforms = [
-                            \(macOS)
-                        ]
-                        #endif
-
-                        """.write(to: manifestPath)
+                    targetDefinition = "target"
+                    swiftToolsVersion = "5.1"
+                    sourceFile = "main.swift"
             }
 
+            // we are using tools version 5.1 while we still can as >= 5.3 makes specifying deps significantly more complex
+            try """
+                // swift-tools-version:\(swiftToolsVersion)
+                import PackageDescription
+
+                let pkg = Package(name: "\(name)")
+
+                pkg.products = [
+                    .executable(name: "\(name)", targets: ["\(name)"])
+                ]
+                pkg.dependencies = [
+                    \(deps.packageLines)
+                ]
+                pkg.targets = [
+                    .\(targetDefinition)(
+                        name: "\(name)",
+                        dependencies: [\(deps.mainTargetDependencies)],
+                        path: ".",
+                        exclude: ["deps.json"],
+                        sources: ["\(sourceFile)"]
+                    )
+                ]
+
+                #if swift(>=5) && os(macOS)
+                pkg.platforms = [
+                    \(macOS)
+                ]
+                #endif
+
+                """.write(to: manifestPath)
             try JSONEncoder().encode(deps).write(to: depsCachePath)
         }
 
@@ -247,7 +226,6 @@ public class Script {
             // setting it stderr or `nil` CRASHES ffs
             task.standardOutput = Pipe()
           #endif
-            print(buildDirectory.string)
             try task.launchAndWaitForSuccessfulExit()
         }
         try exec(arg0: binaryPath.string, args: args)
