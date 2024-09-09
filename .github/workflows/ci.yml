@@ -34,7 +34,7 @@ jobs:
     strategy:
       matrix:
         swift:
-          - 5.1.5
+        # - 5.1.5  # requires ubuntu 18.04
           - 5.2.5
           - 5.3.3
           - 5.4.3
