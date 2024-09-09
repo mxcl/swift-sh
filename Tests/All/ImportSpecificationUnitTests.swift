@@ -146,7 +146,7 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.packageLine, ".package(path: \"\(tmpPath.string)\")")
     }
-    
+
     func testCanProvideLocalPathWithSpacesAndRelativeParentsUpTwo() throws {
         let tmpPath = Path.root.tmp.fake.fakechild1.fakechild2/"../.."/"with space"/"last"
         try tmpPath.mkdir(.p)
@@ -178,7 +178,7 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.importName, "Bar")
         XCTAssertEqual(b?.dependencyName.urlString, url)
     }
-    
+
     func testCanProvideCommonSSHURLStyle() throws {
         let uri = "git@github.com:MariusCiocanel/Path.swift.git"
         let b = try parse("import Path  // \(uri) ~> 1.0", from: .path(Path.cwd.join("script.swift")))
@@ -187,7 +187,7 @@ class ImportSpecificationUnitTests: XCTestCase {
         XCTAssertEqual(b?.importName, "Path")
         XCTAssertEqual(b?.dependencyName.urlString, "git@github.com:MariusCiocanel/Path.swift.git")
     }
-    
+
     func testCanProvideCommonSSHURLStyleWithHyphen() throws {
         let uri = "git@github.com:MariusCiocanel/swift-sh.git"
         let b = try parse("import Bar  // \(uri) ~> 1.0", from: .path(Path.cwd.join("script.swift")))
@@ -234,6 +234,8 @@ class ImportSpecificationUnitTests: XCTestCase {
     #if swift(>=5) || compiler(>=5.0)
     #if compiler(>=6.0)
         let expected = "6.0"
+    #elseif compiler(>=5.9)
+        let expected = "5.10"
     #elseif compiler(>=5.9)
         let expected = "5.9"
     #elseif compiler(>=5.8)
