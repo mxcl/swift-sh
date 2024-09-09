@@ -22,6 +22,8 @@ jobs:
           macos: macos-14
         - swift: ~5.9
           macos: macos-14
+        - swift: ~6.0
+          macos: macos-14
     steps:
     - uses: actions/checkout@v4
     - uses: mxcl/xcodebuild@v3
@@ -39,8 +41,9 @@ jobs:
           - 5.5
           - 5.6
           - 5.7
-    container:
-      image: swift:${{ matrix.swift }}
     steps:
     - uses: actions/checkout@v4
+    - uses: YOCKOW/Action-setup-swift@v1
+      with:
+        swift-version: ${{ matrix.swift }}
     - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
