@@ -23,8 +23,8 @@ jobs:
         - swift: ~5.9
           macos: macos-14
     steps:
-    - uses: actions/checkout@v2
-    - uses: mxcl/xcodebuild@v1
+    - uses: actions/checkout@v4
+    - uses: mxcl/xcodebuild@v3
       with:
         swift: ${{ matrix.cfg.swift }}
   linux:
@@ -42,5 +42,5 @@ jobs:
     container:
       image: swift:${{ matrix.swift }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
