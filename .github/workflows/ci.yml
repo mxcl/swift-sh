@@ -30,7 +30,7 @@ jobs:
       with:
         swift: ${{ matrix.cfg.swift }}
   linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         swift:
