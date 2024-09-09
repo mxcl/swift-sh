@@ -12,39 +12,43 @@ jobs:
     strategy:
       matrix:
         cfg:
-        - swift: 5.1
-          macos: macos-10.15
-        - swift: 5.2
-          macos: macos-10.15
-        - swift: 5.3
-          macos: macos-10.15
-        - swift: 5.4
-          macos: macos-11
         - swift: 5.5
-          macos: macos-11
+          macos: macos-12
         - swift: 5.6
           macos: macos-12
         - swift: 5.7
           macos: macos-12
+        - swift: ~5.8
+          macos: macos-14
+        - swift: ~5.9
+          macos: macos-14
+        - swift: ~5.10
+          macos: macos-14
+      # - swift: ~6.0
+      #   macos: macos-14
     steps:
-    - uses: actions/checkout@v2
-    - uses: mxcl/xcodebuild@v1
+    - uses: actions/checkout@v4
+    - uses: mxcl/xcodebuild@v3
       with:
         swift: ${{ matrix.cfg.swift }}
   linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         swift:
-          - 5.1
-          - 5.2
-          - 5.3
-          - 5.4
-          - 5.5
-          - 5.6
-          - 5.7
-    container:
-      image: swift:${{ matrix.swift }}
+        # - 5.1.5  # requires ubuntu 18.04
+          - 5.2.5
+          - 5.3.3
+          - 5.4.3
+          - 5.5.3
+          - 5.6.3
+          - 5.7.3
+          - 5.8.1
+          - 5.9.2
+          - 5.10.1
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+    - uses: YOCKOW/Action-setup-swift@v1
+      with:
+        swift-version: ${{ matrix.swift }}
     - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
