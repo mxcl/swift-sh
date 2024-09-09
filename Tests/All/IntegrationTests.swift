@@ -513,7 +513,7 @@ class TestingTheTests: XCTestCase {
             #if swift(>=6.0)
                 print(6.0)
             #elseif swift(>=5.10)
-                print(5.10)
+                print("5.10")
             #elseif swift(>=5.9)
                 print(5.9)
             #elseif swift(>=5.8)

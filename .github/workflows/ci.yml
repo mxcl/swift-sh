@@ -22,6 +22,8 @@ jobs:
           macos: macos-14
         - swift: ~5.9
           macos: macos-14
+        - swift: ~5.10
+          macos: macos-14
         - swift: ~6.0
           macos: macos-14
     steps:
