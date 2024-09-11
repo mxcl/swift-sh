@@ -6,8 +6,15 @@ import Path
 
 public func editor(path: Path) throws -> Never {
     let input:Script.Input = .path(path)
-    let deps = try StreamReader(path: path).compactMap { try ImportSpecification(line: $0, from: input) }
-    let script = Script(for: .path(path), dependencies: deps)
+    let reader = try StreamReader(path: path)
+    var style: ExecutableTargetMainStyle = .topLevelCode
+    let deps: [ImportSpecification] = try reader.compactMap { line in
+        if line.contains("@main") && !(line.contains("//") || line.contains("/*")) {
+            style = .mainAttribute
+        }
+        return try ImportSpecification(line: line, from: input)
+    }
+    let script = Script(for: .path(path), style: style, dependencies: deps)
     try script.write()
 
     guard let editor = ProcessInfo.processInfo.environment["EDITOR"] else {

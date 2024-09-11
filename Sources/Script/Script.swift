@@ -8,6 +8,7 @@ public class Script {
     let input: Input
     let deps: [ImportSpecification]
     let args: [String]
+    let mainStyle: ExecutableTargetMainStyle
 
     private let inputPathHash: String?
 
@@ -30,7 +31,10 @@ public class Script {
     }
 
     public var mainSwift: Path {
-        return buildDirectory/"main.swift"
+        switch mainStyle {
+            case .mainAttribute: return buildDirectory/"Root.swift"
+            case .topLevelCode: return buildDirectory/"main.swift"
+        }
     }
 
     public enum Input {
@@ -38,10 +42,11 @@ public class Script {
         case string(name: String, content: String)
     }
 
-    public init(for: Input, dependencies: [ImportSpecification], arguments: [String] = []) {
+    public init(for: Input, style: ExecutableTargetMainStyle, dependencies: [ImportSpecification], arguments: [String] = []) {
         input = `for`
         deps = dependencies
         args = arguments
+        mainStyle = style
 
         // cache hash if appropriate since accessed often and involves work
         if case let Input.path(path) = input {
@@ -68,20 +73,30 @@ public class Script {
     public func write() throws {
         //NOTE we only support Swift >= 4.2 basically
         //TODO dependency module names might not correspond the products that packages export, must parse `swift package dump-package` output
-
         if depsCache != deps {
             // this check because SwiftPM has to reparse the manifest if we rewrite it
             // this is noticably slow, so avoid it if possible
-
             var macOS: String {
                 let version = ProcessInfo.processInfo.operatingSystemVersion
                 return ".macOS(\"\(version.majorVersion).\(version.minorVersion)\")"
             }
-
             try buildDirectory.mkdir(.p)
+            let targetDefinition: String
+            let swiftToolsVersion: String
+            let sourceFile: String
+            switch mainStyle {
+                case .mainAttribute:
+                    targetDefinition = "executableTarget"
+                    swiftToolsVersion = "5.5"
+                    sourceFile = "Root.swift"
+                case .topLevelCode:
+                    targetDefinition = "target"
+                    swiftToolsVersion = "5.1"
+                    sourceFile = "main.swift"
+            }
             // we are using tools version 5.1 while we still can as >= 5.3 makes specifying deps significantly more complex
             try """
-                // swift-tools-version:5.1
+                // swift-tools-version:\(swiftToolsVersion)
                 import PackageDescription
 
                 let pkg = Package(name: "\(name)")
@@ -93,12 +108,12 @@ public class Script {
                     \(deps.packageLines)
                 ]
                 pkg.targets = [
-                    .target(
+                    .\(targetDefinition)(
                         name: "\(name)",
                         dependencies: [\(deps.mainTargetDependencies)],
                         path: ".",
                         exclude: ["deps.json"],
-                        sources: ["main.swift"]
+                        sources: ["\(sourceFile)"]
                     )
                 ]
 
@@ -109,19 +124,26 @@ public class Script {
                 #endif
 
                 """.write(to: manifestPath)
-
             try JSONEncoder().encode(deps).write(to: depsCachePath)
         }
-
         switch input {
         case .path(let userPath):
             func mklink() throws { try userPath.symlink(as: mainSwift) }
-
-            if let linkdst = try? mainSwift.readlink(), linkdst != userPath {
-                try mainSwift.delete()
-                try mklink()
-            } else if !mainSwift.exists {
-                try mklink()
+            switch mainStyle {
+                case .mainAttribute:
+                    try mainSwift.delete()
+                    let reader = try StreamReader(path: userPath)
+                    let source = reader.compactMap { line in
+                        line.contains("#!") ? .none : line
+                    }.joined(separator: "\n")
+                    try source.write(to: mainSwift)
+                case .topLevelCode:
+                    if let linkdst = try? mainSwift.readlink(), linkdst != userPath {
+                        try mainSwift.delete()
+                        try mklink()
+                    } else if !mainSwift.exists {
+                        try mklink()
+                    }
             }
         case .string(_, let contents):
             if let currentContents = try? String(contentsOf: mainSwift), currentContents == contents { break }
@@ -178,12 +200,12 @@ public class Script {
     public func run() throws -> Never {
         if scriptChanged {
             try write()
-
             // first arg has to be same as executable path
             let task = Process()
             task.launchPath = Path.swift.string
             task.arguments = ["build", "-Xswiftc", "-suppress-warnings"]
             task.currentDirectoryPath = buildDirectory.string
+
           #if !os(Linux)
             task.standardOutput = task.standardError
           #else
