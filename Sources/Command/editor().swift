@@ -8,7 +8,7 @@ public func editor(path: Path) throws -> Never {
     let input:Script.Input = .path(path)
     let reader = try StreamReader(path: path)
     var style: ExecutableTargetMainStyle = .topLevelCode
-    let deps = try reader.compactMap { line in
+    let deps: [ImportSpecification] = try reader.compactMap { line in
         if line.contains("@main") && !(line.contains("//") || line.contains("/*")) {
             style = .mainAttribute
         }
