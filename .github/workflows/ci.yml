@@ -31,24 +31,24 @@ jobs:
     - uses: mxcl/xcodebuild@v3
       with:
         swift: ${{ matrix.cfg.swift }}
+
   linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        swift:
-        # - 5.1.5  # requires ubuntu 18.04
-          - 5.2.5
-          - 5.3.3
-          - 5.4.3
-          - 5.5.3
-          - 5.6.3
-          - 5.7.3
-          - 5.8.1
-          - 5.9.2
-          - 5.10.1
+        img:
+          - 5.1
+          - 5.2
+          - 5.3
+          - 5.4
+          - 5.5
+          - 5.6
+          - 5.7
+          - 5.8
+          - 5.9
+          - '5.10'
+          - '6.0'
+    container: swift:${{ matrix.img }}
     steps:
-    - uses: actions/checkout@v4
-    - uses: YOCKOW/Action-setup-swift@v1
-      with:
-        swift-version: ${{ matrix.swift }}
+    - uses: actions/checkout@v1  # v1 required for the older docker images
     - run: swift test -Xswiftc -suppress-warnings --enable-test-discovery
